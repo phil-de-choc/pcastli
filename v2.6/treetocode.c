@@ -1752,9 +1752,26 @@ data eval_treetocode(node* to_eval)
          break;
 
       case NT_STDIN:
-         break;
-
       case NT_STDOUT:
+         statement = malloc(sizeof(code_atom));
+         if (!statement) fatal_error("Error: Lack of memory in treetocode function.");
+         memset(statement, 0, sizeof(code_atom));
+         statement->str = malloc(7);
+         if (!statement->str) fatal_error("Error: Lack of memory in treetocode function.");
+         if (currnode->ntype == NT_STDIN) strncpy(statement->str, "stdin", 6);
+         else strncpy(statement->str, "stdout", 7);
+
+         if (atleft)
+         {
+            statement->next = atleft->next;
+            atleft->next = statement;
+         }
+         else
+         {
+            statement->next = liststart;
+            liststart = statement;
+         }
+         listlen++;
          break;
 
       case NT_STDERR:
