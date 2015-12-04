@@ -65,7 +65,7 @@
 #line 19 "pcastli.y" /* yacc.c:339  */
 
    #ifdef _WIN32
-   #pragma warning(disable:4820 4255 4244 4702 4242)
+   #pragma warning(disable:4820 4255 4244 4702 4242 4710)
    #endif
 
    #include <stdio.h>

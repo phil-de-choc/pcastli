@@ -17,7 +17,7 @@
  */
 
 #ifdef _WIN32
-#pragma warning(disable:4996 4820 4255)
+#pragma warning(disable:4996 4820 4255 4710)
 #else
 #include <readline/readline.h>
 #endif

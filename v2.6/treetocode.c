@@ -104,6 +104,8 @@ int get_op_prio(node* nodept)
    case NT_SUBSCRIPT:
    case NT_FUNC_CALL:
       return 12;
+   default:
+      return 0;
    }
 
    return 0;
@@ -149,6 +151,8 @@ assoc get_op_assoc(node* nodept)
    case NT_SUBSCRIPT:
    case NT_FUNC_CALL:
       return ASSOC_LEFT;
+   default:
+      return ASSOC_UNDEF;
    }
 
    return ASSOC_UNDEF;
