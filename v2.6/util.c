@@ -987,11 +987,7 @@ void display(char* prefix, data to_display)
       printf("%s\t%llu\n", prefix, to_display.value.ullnum);
       break;
    case DT_SIZE_T:
-      #if defined(_WIN32)
-      printf("%s\t%Iu\n", prefix, to_display.value.stnum);
-      #elif defined(__linux__) || (defined(__APPLE__) && defined(__MACH__))
       printf("%s\t%zu\n", prefix, to_display.value.stnum);
-      #endif
       break;
    case DT_FLOAT:
    case DT_DOUBLE:
@@ -1028,11 +1024,7 @@ void display(char* prefix, data to_display)
       {
          char* newprefix, buff[100];
 
-         #if defined(_WIN32)
-         sprintf(buff, "%Iu", i);
-         #elif defined(__linux__) || (defined(__APPLE__) && defined(__MACH__))
          sprintf(buff, "%zu", i);
-         #endif
 
          newprefix = strcat4(prefix, "[", buff, "]");
          
@@ -1047,11 +1039,7 @@ void display(char* prefix, data to_display)
       {
          char* newprefix, buff[100];
 
-         #if defined(_WIN32)
-         sprintf(buff, "%Iu", i);
-         #elif defined(__linux__) || (defined(__APPLE__) && defined(__MACH__))
          sprintf(buff, "%zu", i);
-         #endif
 
          newprefix = strcat4(prefix, "[", buff, "]");
 

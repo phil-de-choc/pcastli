@@ -20,7 +20,7 @@
 #define NODE_H
 
 #ifdef _WIN32
-#pragma warning(disable:4820 4711 4127)
+#pragma warning(disable:4820 4711 4127 4710)
 #endif
 
 #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
@@ -114,7 +114,7 @@ typedef struct
 
 typedef union
 {
-   int math_oper;
+   char math_oper;
    int rel_oper;
    int ppmm;
    double value;

@@ -53,7 +53,7 @@ void rel_yylval(int op, const char* opname)
 
 
 
-void math_yylval(int c)
+void math_yylval(char c)
 {
    yylval = malloc(sizeof(node));
    if (!yylval)
@@ -72,10 +72,10 @@ void math_yylval(int c)
 
 
 #ifdef _WIN32
-int skip_space(void)
+char skip_space(void)
 {
-   int c;
-   while ((c = getc(inputfile)) == ' ' || c == '\t' || c == '\f')	/* nothing */;
+   char c;
+   while ((c = (char) getc(inputfile)) == ' ' || c == '\t' || c == '\f')	/* nothing */;
    return c;
 }
 #else
@@ -103,7 +103,7 @@ int readchar(void)
    }
    else
    {
-      retchar = getc(inputfile);
+      retchar = (char) getc(inputfile);
    }
 
    return retchar;
@@ -121,10 +121,10 @@ void unreadchar(int c)
    }
 }
 
-int skip_space(void)
+char skip_space(void)
 {
-   int c;
-   while ((c = readchar()) == ' ' || c == '\t' || c == '\f') /* nothing */;
+   char c;
+   while ((c = (char)readchar()) == ' ' || c == '\t' || c == '\f') /* nothing */;
    return c;
 }
 
@@ -267,8 +267,8 @@ reserved_words_table[] =
 #ifdef _WIN32
 int token(void)
 {
-   int c;
-   static char*symbuf = NULL;
+   char c;
+   static char* symbuf = NULL;
    static int length = 0;
 
    c = skip_space();
@@ -276,14 +276,14 @@ int token(void)
    /* Comments */
    if (c == '#')
    {
-      do c = getc(inputfile);
+      do c = (char) getc(inputfile);
       while(c != '\n' && c != EOF && c != '\r');
    }
 
    /* Hex Numbers */
    if (c == '0')
    {
-      int c2 = getc(inputfile);
+      char c2 = (char) getc(inputfile);
       if (c2 == 'x')
       {
          int hex_nb;
@@ -317,7 +317,7 @@ int token(void)
    /* Float Numbers */
    if (c == '.' || isdigit(c))
    {
-      int c2 = getc(inputfile);
+      char c2 = (char) getc(inputfile);
       if(c == '.' && !isdigit(c2))
       {
          ungetc(c2, inputfile);
@@ -358,7 +358,7 @@ int token(void)
       }
 
       i = 0;
-      c = getc(inputfile);
+      c = (char) getc(inputfile);
       while (c != '\"')
       {
          /* If buffer is full, make it bigger. */
@@ -379,16 +379,16 @@ int token(void)
          /* Escape sequences. */
          if (c == '\\')
          {
-            c = getc(inputfile);
+            c = (char) getc(inputfile);
             if (c == 'x')
             {
                int zero_count = 0;
                int j;
 
-               c = getc(inputfile);
+               c = (char) getc(inputfile);
                while (c == '0')
                {
-                  c = getc(inputfile);
+                  c = (char) getc(inputfile);
                   zero_count++;
                }
                if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || 
@@ -401,7 +401,7 @@ int token(void)
 
                   digits[0] = c;
 
-                  c = getc(inputfile);
+                  c = (char) getc(inputfile);
                   if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || 
                      (c >= 'a' && c <= 'f'))
                   {
@@ -431,7 +431,7 @@ int token(void)
                      exponent++;
                   }
 
-                  c = sum;
+                  c = (char) sum;
                }
                else /* c is not hex */
                {
@@ -456,7 +456,7 @@ int token(void)
                while (c >= 48 && c <= 55 && j < 3)
                {
                   oct[j] = c;
-                  c = getc(inputfile);
+                  c = (char) getc(inputfile);
                   j++;
                }
 
@@ -482,7 +482,7 @@ int token(void)
                }
                else
                {
-                  c = sum;
+                  c = (char) sum;
                }
                goto escape_ok;
             }
@@ -527,7 +527,7 @@ escape_ok:
          /* Add this character to the buffer. */
          symbuf[i++] = (char)c;
          /* Get another character. */
-         c = getc(inputfile);
+         c = (char) getc(inputfile);
 
       } /* while (c != '\"') */
 
@@ -589,7 +589,7 @@ escape_ok:
          /* Add this character to the buffer. */
          symbuf[i++] = (char)c;
          /* Get another character. */
-         c = getc(inputfile);
+         c = (char) getc(inputfile);
       }
       while (isalnum (c) || c == '_');
 
@@ -666,7 +666,7 @@ escape_ok:
    switch (c)
    {
    case '-':
-      if ((c = getc(inputfile)) == '-')
+      if ((c = (char) getc(inputfile)) == '-')
       {
          return MINUSMINUS;
       }
@@ -679,7 +679,7 @@ escape_ok:
       math_yylval('-');
       return '-';
    case '+':
-      if ((c = getc(inputfile)) == '+')
+      if ((c = (char) getc(inputfile)) == '+')
          return PLUSPLUS;
 
       ungetc(c, inputfile);
@@ -692,7 +692,7 @@ escape_ok:
       return c;
 
    case '|':
-      if ((c = getc(inputfile)) == '|')
+      if ((c = (char) getc(inputfile)) == '|')
       {
          rel_yylval(OR, "OR");
          return OR;
@@ -701,7 +701,7 @@ escape_ok:
       return '|';
 
    case '&':
-      if ((c = getc(inputfile)) == '&')
+      if ((c = (char) getc(inputfile)) == '&')
       {
          rel_yylval(AND, "AND");
          return AND;
@@ -711,7 +711,7 @@ escape_ok:
       return '&';
 
    case '!':
-      if ((c = getc(inputfile)) == '=')
+      if ((c = (char) getc(inputfile)) == '=')
       {
          rel_yylval(NE, "NE");
          return NE;
@@ -721,7 +721,7 @@ escape_ok:
       return NOT;
 
    case '>':
-      if ((c = getc(inputfile)) == '=')
+      if ((c = (char) getc(inputfile)) == '=')
       {
          rel_yylval(GE, "GE");
          return GE;
@@ -731,7 +731,7 @@ escape_ok:
       return GT;
 
    case '<':
-      if ((c = getc(inputfile)) == '=')
+      if ((c = (char) getc(inputfile)) == '=')
       {
          rel_yylval(LE, "LE");
          return LE;
@@ -741,7 +741,7 @@ escape_ok:
       return LT;
 
    case '=':
-      if ((c = getc(inputfile)) == '=')
+      if ((c = (char) getc(inputfile)) == '=')
       {
          rel_yylval(EQ, "EQ");
          return EQ;
@@ -764,7 +764,7 @@ escape_ok:
       return '=';
 
    case '\r':
-      c = getc(inputfile);
+      c = (char) getc(inputfile);
       if (c != '\n')
       {
          ungetc(c, inputfile);
@@ -785,7 +785,7 @@ escape_ok:
 
 int token(void)
 {
-   int c;
+   char c;
    static char* symbuf = NULL;
    static int length = 0;
 
@@ -964,7 +964,7 @@ int token(void)
                      exponent++;
                   }
 
-                  c = sum;
+                  c = (char) sum;
                }
                else /* c is not hex */
                {
@@ -1015,7 +1015,7 @@ int token(void)
                }
                else
                {
-                  c = sum;
+                  c = (char) sum;
                }
                goto escape_ok;
             }
@@ -1296,7 +1296,7 @@ escape_ok:
       return '=';
 
    case '\r':
-      c = getc(inputfile);
+      c = (char) getc(inputfile);
       if (c != '\n')
       {
          ungetc(c, inputfile);

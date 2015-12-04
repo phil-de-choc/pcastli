@@ -256,7 +256,7 @@ size_t sizes_classes[] =
 data assign_node_pointers(node* to_eval, data from_eval2)
 {
    data from_eval1, retval;
-   node* root;
+   node* argroot;
    unsigned int found, i;
 
    memset(&retval, 0, sizeof(data));
@@ -270,22 +270,22 @@ data assign_node_pointers(node* to_eval, data from_eval2)
       return retval;
    }
 
-   root = from_eval1.value.ptr->parent;
-   if (!root) return from_eval2;
+   argroot = from_eval1.value.ptr->parent;
+   if (!argroot) return from_eval2;
 
-   /* Find from_eval1.value.ptr in root->childset. */
+   /* Find from_eval1.value.ptr in argroot->childset. */
    found = 0;
    i = 0;
-   while (!found && i < root->nb_childs)
+   while (!found && i < argroot->nb_childs)
    {
-      if (from_eval1.value.ptr == root->childset[i])
+      if (from_eval1.value.ptr == argroot->childset[i])
          found = 1;
       i++;
    }
 
    if (!found)
    {
-      yyerror("Error: Node pointer not found in root in");
+      yyerror("Error: Node pointer not found in argroot in");
       yyerror("assign_node_pointers.");
 
       abort_called = 1;
@@ -302,17 +302,17 @@ data assign_node_pointers(node* to_eval, data from_eval2)
    i--;
    if (from_eval2.value.ptr->ntype == NT_CODESEGMENT)
    {
-      root->childset[i] = copy_tree(from_eval2.value.ptr->childset[0], 
-         root);
+      argroot->childset[i] = copy_tree(from_eval2.value.ptr->childset[0], 
+         argroot);
    }
    else
    {
-      root->childset[i] = copy_tree(from_eval2.value.ptr, root);
+      argroot->childset[i] = copy_tree(from_eval2.value.ptr, argroot);
    }
 
 
    retval.ti.dtype = DT_POINTER;
-   retval.value.ptr = root->childset[i];
+   retval.value.ptr = argroot->childset[i];
 
    free_data(from_eval1);
    free_data(from_eval2);
@@ -1166,21 +1166,13 @@ data eval_info(node* to_eval)
 
    case NT_MATH_OPER:
       printf("\tNode type: mathematical operator\n");
-      #if defined(_WIN32)
-      printf("\tNumber of childs: %Iu\n", to_eval->nb_childs);
-      #elif defined(__linux__) || (defined(__APPLE__) && defined(__MACH__))
       printf("\tNumber of childs: %zu\n", to_eval->nb_childs);
-      #endif
       printf("\tOperator: %c\n", to_eval->opval.math_oper);
       break;
 
    case NT_REL_OPER:
       printf("\tNode type: relational or logical operator\n");
-      #if defined(_WIN32)
-      printf("\tNumber of childs: %Iu\n", to_eval->nb_childs);
-      #elif defined(__linux__) || (defined(__APPLE__) && defined(__MACH__))
       printf("\tNumber of childs: %zu\n", to_eval->nb_childs);
-      #endif
       switch(to_eval->opval.rel_oper)
       {
          case OR:
@@ -1245,13 +1237,8 @@ data eval_info(node* to_eval)
    case NT_FUNC_CALL:
       printf("\tNode type: function call\n");
       printf("\tFunction name: \"%s\"\n", to_eval->childset[0]->opval.name);
-      #if defined(_WIN32)
-      printf("\tNumber of arguments: %Iu\n", 
-         to_eval->childset[1]->nb_childs);
-      #elif defined(__linux__) || (defined(__APPLE__) && defined(__MACH__))
       printf("\tNumber of arguments: %zu\n", 
          to_eval->childset[1]->nb_childs);
-      #endif
       break;
 
    case NT_IF_STMT:
@@ -1272,11 +1259,7 @@ data eval_info(node* to_eval)
 
    case NT_LIST:
       printf("\tNode type: list\n");
-      #if defined(_WIN32)
-      printf("\tNumber of items: %Iu\n", to_eval->nb_childs);
-      #elif defined(__linux__) || (defined(__APPLE__) && defined(__MACH__))
       printf("\tNumber of items: %zu\n", to_eval->nb_childs);
-      #endif
       break;
 
    case NT_CODESEGMENT:
@@ -2738,11 +2721,7 @@ data eval_ntoa(node* to_eval)
       sprintf(buf, "%llu", from_eval.value.ullnum);
       break;
    case DT_SIZE_T:
-      #if defined(_WIN32)
-      sprintf(buf, "%Iu", from_eval.value.stnum);
-      #elif defined(__linux__) || (defined(__APPLE__) && defined(__MACH__))
       sprintf(buf, "%zu", from_eval.value.stnum);
-      #endif
       break;
    case DT_FLOAT:
    case DT_DOUBLE:
@@ -3280,7 +3259,6 @@ data eval_fillobject(node* to_eval)
    }
    else if (to_eval->childset[0]->ntype == NT_ACCESSLIST)
    {
-      data from_eval;
       cont_type ct;
       ct = resolve_accesslist(to_eval->childset[0], &pclos, &from_eval);
 
