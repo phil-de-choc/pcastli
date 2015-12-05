@@ -3,11 +3,12 @@ Liste des changements de l'interpréteur du
 by Parent and Childset Accessible Syntax Tree Language
 ------------------------------------------------------
 
-v2.6
+v2.6   2015-12-04
 
-La fonction interne gettype retourne maintenant "node pointer" au lieu de 
+Ajouté la fonction interne "treetocode".
+La fonction interne "gettype" retourne maintenant "node pointer" au lieu de 
    "reference" pour un pointeur vers un noeud.
-Explicité la priorité de l'opérateur de référence de structure.
+Explicité la priorité de l'opérateur de référence de structure (.).
 Réglé le problème de corruption de la pile avec printf, scanf, fprintf, fscanf, 
    sprintf et sscanf.
 

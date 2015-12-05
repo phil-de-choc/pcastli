@@ -2,6 +2,15 @@
 by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 -----------------------------------------------------------------------------
 
+v2.6   2015-12-04
+
+Added internal function "treetocode".
+The internal function "gettype" now returns "node pointer" instead of 
+   "reference" for a pointer to a node.
+Made explicit the priority of the structure reference operator (.).
+Fixed stack corruption issue with printf, scanf, fprintf, fscanf, sprintf 
+   and sscanf.
+
 v2.5   2014-11-23
 
 Calls to dynamic-link library or a shared object library now return possible
