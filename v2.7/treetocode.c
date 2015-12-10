@@ -235,14 +235,14 @@ data eval_treetocode(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_childs != 1 && to_eval->nb_childs != 2) err = 1;
    }
    else err = 1;
 
    if (err)
    {
       yyerror("Error: Wrong number of arguments in treetocode.");
-      yyerror("       This function has two parameters.");
+      yyerror("       This function has one or two parameters.");
       return retval;
    }
 
@@ -256,15 +256,23 @@ data eval_treetocode(node* to_eval)
    }
    argroot = from_eval.value.ptr;
 
-   from_eval = eval(to_eval->childset[1]);
-   if (from_eval.ti.dtype != DT_STRING || from_eval.ti.nderef != 0)
+   if (to_eval->nb_childs == 2)
    {
-      yyerror("Error: String expected as second argument of treetocode.");
-      abort_called = 1;
-      free_data(from_eval);
-      return retval;
+      from_eval = eval(to_eval->childset[1]);
+      if (from_eval.ti.dtype != DT_STRING || from_eval.ti.nderef != 0)
+      {
+         yyerror("Error: String expected as second argument of treetocode.");
+         abort_called = 1;
+         free_data(from_eval);
+         return retval;
+      }
+      tab = from_eval.value.str;
    }
-   tab = from_eval.value.str;
+   else
+   {
+      tab.tab = "   ";
+      tab.length = 4;
+   }
 
 
    queuestart = malloc(sizeof(queue_atom));
@@ -1989,6 +1997,7 @@ data eval_treetocode(node* to_eval)
       curr = curr->next;
       free(prec);
    }
+   free_data(from_eval);
 
    return retval;
 }

@@ -3,6 +3,13 @@ Liste des changements de l'interpréteur du
 by Parent and Childset Accessible Syntax Tree Language
 ------------------------------------------------------
 
+v2.7
+
+Ajouté la fonction interne "parsestring".
+Le deuxième paramètre de la fonction interne "treetocode" est maintenant optionnel 
+   et a pour défaut la valeur "   ".
+Le code avec erreur de syntaxe n'est plus exécuté après avoir été parsé.
+
 v2.6   2015-12-04
 
 Ajouté la fonction interne "treetocode".

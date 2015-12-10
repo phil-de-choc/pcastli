@@ -27,6 +27,7 @@
 #include "util.h"
 
 int yyparse(void);
+extern int yynerrs;
 
 
 int main(void)
@@ -43,7 +44,7 @@ int main(void)
    while(1) 
    {
       yyparse();
-      exec();
+      if (!yynerrs) exec();
       return_called = 0;
       abort_called = 0;
       printf("%s", sPrompt);

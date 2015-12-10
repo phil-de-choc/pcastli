@@ -257,6 +257,7 @@ size_t sizes_classes[] =
 
 extern size_t maxpos;
 extern size_t readpos;
+extern int yynerrs;
 
 
 
@@ -1120,11 +1121,63 @@ data eval_print(node* to_eval)
 
 
 
+data object_base(size_t nb_members)
+{
+   data retval;
+
+   memset(&retval, 0, sizeof(data));
+
+   retval.ti.dtype = DT_OBJECT;
+   retval.value.pObject = malloc(sizeof(clos_set));
+   if (!retval.value.pObject) 
+      fatal_error("Error : Lack of memory in object_base for new object.");
+   memset(retval.value.pObject, 0, sizeof(clos_set));
+   g_lst_add(retval.value.pObject, PT_OBJECT);
+
+   retval.value.pObject->clos_array = calloc(nb_members, sizeof(closure*));
+   if (!retval.value.pObject->clos_array) 
+      fatal_error("Error : Lack of memory in object_base for new member array.");
+
+   retval.value.pObject->nb_clos = nb_members;
+
+   return retval;
+}
+
+void object_member(data * retval, size_t memnum, char * memname)
+{
+   retval->value.pObject->clos_array[memnum] = malloc(sizeof(closure));
+   if (!retval->value.pObject->clos_array[memnum]) 
+      fatal_error("Error : Lack of memory in object_member for new member.");
+   memset(retval->value.pObject->clos_array[memnum], 0, sizeof(closure));
+
+   retval->value.pObject->clos_array[memnum]->name = malloc(strlen(memname) + 1);
+   if (!retval->value.pObject->clos_array[memnum]->name) 
+      fatal_error("Error : Lack of memory in object_member for name.");
+
+   strcpy(retval->value.pObject->clos_array[memnum]->name, memname);
+
+   retval->value.pObject->clos_array[memnum]->pContainer = retval->value.pObject;
+}
+
+void object_str_val(data * retval, size_t memnum, char * memval)
+{
+   string* pstr = &retval->value.pObject->clos_array[memnum]->content.value.str;
+   pstr->length = strlen(memval) + 1;
+
+   retval->value.pObject->clos_array[memnum]->content.ti.dtype = DT_STRING;
+   pstr->tab = malloc(pstr->length);
+   if (!pstr->tab) fatal_error("Error : Lack of memory in object_member for name.");
+
+   strcpy(pstr->tab, memval);
+
+   g_lst_add(pstr->tab, PT_CHAR_TAB);
+}
+
 data eval_info(node* to_eval)
 {
-   int err = 0;
+   int err = 0, hasparams = 0;
    data retval, from_eval;
-   char* rel_op;
+   char* opstr = NULL;
    size_t i;
 
    memset(&retval, 0, sizeof(data));
@@ -1167,146 +1220,265 @@ data eval_info(node* to_eval)
    switch(to_eval->ntype)
    {
    case NT_NUM_CONST:
-      printf("\tNode type: numerical constant\n");
-      printf("\tValue: %.10g\n", to_eval->opval.value);
+      retval = object_base(3);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "numerical constant");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      object_member(&retval, 2, "value");
+      retval.value.pObject->clos_array[2]->content.ti.dtype = DT_DOUBLE;
+      retval.value.pObject->clos_array[2]->content.value.num = to_eval->opval.value;
       break;
 
    case NT_MATH_OPER:
-      printf("\tNode type: mathematical operator\n");
-      printf("\tNumber of childs: %zu\n", to_eval->nb_childs);
-      printf("\tOperator: %c\n", to_eval->opval.math_oper);
+      retval = object_base(3);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "mathematical operator");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      object_member(&retval, 2, "operator");
+      retval.value.pObject->clos_array[2]->content.ti.dtype = DT_CHAR;
+      retval.value.pObject->clos_array[2]->content.value.cnum = to_eval->opval.math_oper;
       break;
 
    case NT_REL_OPER:
-      printf("\tNode type: relational or logical operator\n");
-      printf("\tNumber of childs: %zu\n", to_eval->nb_childs);
+      retval = object_base(3);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "relational or logical operator");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+
       switch(to_eval->opval.rel_oper)
       {
-         case OR:
-            rel_op = "||";
-            break;
-         case AND:
-            rel_op = "&&";
-            break;
-         case NOT:
-            rel_op = "!";
-            break;
-         case GT:
-            rel_op = ">";
-            break;
-         case GE:
-            rel_op = ">=";
-            break;
-         case LT:
-            rel_op = "<";
-            break;
-         case LE:
-            rel_op = "<=";
-            break;
-         case EQ:
-            rel_op = "==";
-            break;
-         case NE:
-            rel_op = "!=";
-            break;
-         default:
-            yyerror("Error: Unknown operator in info.");
-            exit(1);
+      case OR:
+         opstr = "||";
+         break;
+      case AND:
+         opstr = "&&";
+         break;
+      case NOT:
+         opstr = "!";
+         break;
+      case GT:
+         opstr = ">";
+         break;
+      case GE:
+         opstr = ">=";
+         break;
+      case LT:
+         opstr = "<";
+         break;
+      case LE:
+         opstr = "<=";
+         break;
+      case EQ:
+         opstr = "==";
+         break;
+      case NE:
+         opstr = "!=";
+         break;
+      default:
+         fatal_error("Error: Unknown operator in info.");
       }
-      printf("\tOperator: %s\n", rel_op);
+      object_member(&retval, 2, "operator");
+      object_str_val(&retval, 2, opstr);
       break;
 
    case NT_VARIABLE:
-      printf("\tNode type: variable\n");
-      printf("\tName: \"%s\"\n", to_eval->opval.name);
+      retval = object_base(3);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "variable");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      object_member(&retval, 2, "name");
+      object_str_val(&retval, 2, to_eval->opval.name);
       break;
 
    case NT_STRING:
-      printf("\tNode type: string\n");
-      printf("\tContent: \"%s\"\n", to_eval->opval.str.tab);
+      retval = object_base(3);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "string");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      object_member(&retval, 2, "value");
+      object_str_val(&retval, 2, to_eval->opval.str.tab);
       break;
 
    case NT_FUNC_DEF:
-      printf("\tNode type: function definition\n");
-      printf("\tParameters:");
-      if (to_eval->childset[0])
+      if (to_eval->childset[0]) hasparams = to_eval->childset[0]->nb_childs > 0;
+      if (hasparams) retval = object_base(3);
+      else retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "function definition");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+
+      if (hasparams)
       {
+         array* parr = NULL;
+
+         object_member(&retval, 2, "parameters");
+
+         /* array creation with a parameter per item */
+         parr = malloc(sizeof(array));
+         if (!parr) fatal_error("Error: Lack of memory in info for array struct.");
+         memset(parr, 0, sizeof(array));
+         g_lst_add(parr, PT_ARRAY);
+
+         retval.value.pObject->clos_array[2]->content.ti.dtype = DT_ARRAY;
+         retval.value.pObject->clos_array[2]->content.value.pArray = parr;
+
+         parr->length = to_eval->childset[0]->nb_childs;
+         parr->dtable = malloc(parr->length * sizeof(data));
+         if (!parr->dtable) fatal_error("Error: Lack of memory in info for array data.");
+         memset(parr->dtable, 0, parr->length * sizeof(data));
+
          for (i = 0; i < to_eval->childset[0]->nb_childs; i++)
-         {  
-            printf(" \"%s\"", 
-               to_eval->childset[0]->childset[i]->opval.name);
+         {
+            if (to_eval->childset[0]->childset[i]->ntype != NT_VARIABLE)
+               fatal_error("Error: Found a non variable function parameter in info.");
+
+            parr->dtable[i].value.str.length = strlen(to_eval->childset[0]->childset[i]->opval.name + 1);
+            parr->dtable[i].value.str.tab = malloc(parr->dtable[i].value.str.length);
+            if (!parr->dtable[i].value.str.tab) fatal_error("Error: Lack of memory in info for string data.");
+            g_lst_add(parr->dtable[i].value.str.tab, PT_CHAR_TAB);
+            strcpy(parr->dtable[i].value.str.tab, to_eval->childset[0]->childset[i]->opval.name);
+
+            parr->dtable[i].ti.dtype = DT_STRING;
          }
-         printf("\n");
       }
-      else printf(" none\n");
+
       break;
 
    case NT_FUNC_CALL:
-      printf("\tNode type: function call\n");
-      printf("\tFunction name: \"%s\"\n", to_eval->childset[0]->opval.name);
-      printf("\tNumber of arguments: %zu\n", 
-         to_eval->childset[1]->nb_childs);
+      retval = object_base(3);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "function call");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      object_member(&retval, 2, "nb_args");
+      retval.value.pObject->clos_array[2]->content.ti.dtype = DT_SIZE_T;
+      if (to_eval->nb_childs >= 2) retval.value.pObject->clos_array[2]->content.value.stnum = 
+         to_eval->childset[1]->nb_childs;
+      else retval.value.pObject->clos_array[2]->content.value.stnum = 0;
       break;
 
    case NT_IF_STMT:
-      printf("\tNode type: \"if\" statement\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "if statement");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_IFELSE_STMT:
-      printf("\tNode type: \"if else\" statement\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "if else statement");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_FOR_STMT:
-      printf("\tNode type: \"for\" statement\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "for statement");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_WHILE_STMT:
-      printf("\tNode type: \"while\" statement\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "while statement");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_LIST:
-      printf("\tNode type: list\n");
-      printf("\tNumber of items: %zu\n", to_eval->nb_childs);
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "list");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_CODESEGMENT:
-      printf("\tNode type: code segment\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "code segment");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_PARENT:
-      printf("\tNode type: \"parent\" reserved word\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "parent reserved word");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_CHILDSET:
-      printf("\tNode type: \"childset\" reserved word\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "childset reserved word");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_VARGENLIST:
-      printf("\tNode type: variable or code segment followed by a\n");
-      printf("\t          \"parent\" \"childset\" word combination\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "genealogical dotted list");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_INCR_DECR:
-      printf("\tNode type: incrementation or decrementation.\n");
-      printf("\tOperator: ");
+      retval = object_base(3);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "incrementation or decrementation");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+
       switch(to_eval->opval.ppmm)
       {
       case PREPLUSPLUS:
-         printf("prefix ++\n");
+         opstr = "prefix ++";
          break;
       case PREMINUSMINUS:
-         printf("prefix --\n");
+         opstr = "prefix --";
          break;
       case POSTPLUSPLUS:
-         printf("postfix ++\n");
+         opstr = "postfix ++";
          break;
       case POSTMINUSMINUS:
-         printf("postfix --\n");
+         opstr = "postfix --";
          break;
       default:
-         yyerror("Error: Unknown incr. or decr. operator in info.");
-         exit(1);
+         fatal_error("Error: Unknown incr. or decr. operator in info.");
       }
+
+      object_member(&retval, 2, "operator");
+      object_str_val(&retval, 2, opstr);
       break;
 
    case NT_ACCESSLIST:
@@ -4043,7 +4215,7 @@ data eval_source(node* to_eval)
       while (!feof(fopen_res) && !abort_called)
       {
          yyparse();
-         exec();
+         if (!yynerrs) exec();
       }
       fclose(fopen_res);
       inputadr = previnputadr;
@@ -4187,7 +4359,7 @@ data eval_as_array(node* to_eval)
             parr->dtable[i].value.str.tab = malloc(parr->dtable[i].value.str.length);
             if (!parr->dtable[i].value.str.tab)
             {
-               yyerror("Error: Lack of memory is as_array for string data.");
+               yyerror("Error: Lack of memory in as_array for string data.");
                exit(1);
             }
             memset(parr->dtable[i].value.str.tab, 0, parr->dtable[i].value.str.length);
@@ -7899,9 +8071,11 @@ data eval_parsestring(node* to_eval)
    inputsrc = IT_STRING;
    inputadr.str = from_eval.value.str.tab;
    yyparse();
-
-   retval.ti.dtype = DT_POINTER;
-   retval.value.ptr = root;
+   if (!yynerrs)
+   {
+      retval.ti.dtype = DT_POINTER;
+      retval.value.ptr = root;
+   }
 
    inputsrc = previnputsrc;
    inputadr = previnputadr;
