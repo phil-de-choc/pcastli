@@ -219,6 +219,18 @@ typedef struct list
    listlink* start;
 } list;
 
+typedef enum
+{
+   IT_FILE,
+   IT_STRING
+} input_type;
+
+typedef union
+{
+   FILE* inputfile;
+   char* str;
+} input_union;
+
 extern size_t set_stack_size;
 clos_set* clos_set_stack[CONTEXTSTACK_SIZE];
 
@@ -230,7 +242,8 @@ clos_set* clos_set_stack[CONTEXTSTACK_SIZE];
 extern int return_called;
 extern int abort_called;
 extern char* sPrompt;
-extern FILE* inputfile;
+extern input_type inputsrc;
+extern input_union inputadr;
 extern node* root;
 
 typedef enum

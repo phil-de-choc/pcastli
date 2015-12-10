@@ -23,6 +23,4 @@ void parse_init(void);
 void clos_stack_init(void);
 void read_params(void);
 
-extern FILE * inputfile;
-
 #endif

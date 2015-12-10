@@ -32,6 +32,10 @@
 char* sPrompt = NULL;
 node* root = NULL;
 
+extern input_type inputsrc;
+extern input_union inputadr;
+
+
 
 void free_tree(node* npt)
 {
@@ -1485,20 +1489,23 @@ void exec(void)
 
    g_lst_add(root, PT_NODE);
 
-   if (inputfile == stdin)
+   if (inputsrc == IT_FILE)
    {
-      display("", from_eval);
-
-      abort_called = 0;
-
-      if (nb_executions == max_executions - 1)
+      if (inputadr.inputfile == stdin)
       {
-         gc();
-         nb_executions = 0;
-      }
-      else
-      {
-         nb_executions++;
+         display("", from_eval);
+
+         abort_called = 0;
+
+         if (nb_executions == max_executions - 1)
+         {
+            gc();
+            nb_executions = 0;
+         }
+         else
+         {
+            nb_executions++;
+         }
       }
    }
 

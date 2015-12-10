@@ -32,7 +32,7 @@ int yyparse(void);
 int main(void)
 {
    printf("by Parent and Childset Accessible Syntax Tree Language ");
-   printf("Interpreter v2.6\n");
+   printf("Interpreter v2.7\n");
    printf("Copyright (C) 2008-2015  Philippe Choquette\n\n");
    printf("Type exit() or press Ctrl-c to exit.\n\n> ");
    parse_init();

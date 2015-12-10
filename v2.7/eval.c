@@ -132,6 +132,7 @@ typedef enum
    FID_MEMCLONE,
    FID_MEMORY,
    FID_TREETOCODE,
+   FID_PARSESTRING,
    NB_FUNC
 } EFuncID;
 
@@ -225,7 +226,8 @@ pair_fn_ID func_map[] =
    {"memset", FID_MEMSET},
    {"memclone", FID_MEMCLONE},
    {"memory", FID_MEMORY},
-   {"treetocode", FID_TREETOCODE}
+   {"treetocode", FID_TREETOCODE},
+   {"parsestring", FID_PARSESTRING}
 };
 
 
@@ -250,6 +252,11 @@ size_t sizes_classes[] =
    9, /* DT_DOUBLE */
    10 /* DT_LONG_DOUBLE */
 };
+
+
+
+extern size_t maxpos;
+extern size_t readpos;
 
 
 
@@ -4030,15 +4037,16 @@ data eval_source(node* to_eval)
    }
    else
    {
-      FILE* previnput = inputfile;
-      inputfile = fopen_res;
+      input_union previnputadr = inputadr;
+
+      inputadr.inputfile = fopen_res;
       while (!feof(fopen_res) && !abort_called)
       {
          yyparse();
          exec();
       }
       fclose(fopen_res);
-      inputfile = previnput;
+      inputadr = previnputadr;
    }
 
    free_data(from_eval);
@@ -7846,6 +7854,66 @@ data eval_memory(node* to_eval)
 
 
 
+data eval_parsestring(node* to_eval)
+{
+   int err = 0;
+   data retval, from_eval;
+   input_type previnputsrc;
+   input_union previnputadr;
+   node* prevroot = NULL;
+
+   memset(&retval, 0, sizeof(data));
+
+   /* Argument verification. */
+   if (to_eval)
+   {
+      if (to_eval->nb_childs != 1) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in parsestring.");
+      yyerror("       This function has one parameter.");
+      abort_called = 1;
+      return retval;
+   }
+
+
+   from_eval = eval(to_eval->childset[0]);
+   if (from_eval.ti.dtype != DT_STRING || from_eval.ti.nderef > 0)
+   {
+      yyerror("Error: Argument of parsestring is not a string.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+
+   maxpos = retval.value.str.length - 1;
+   readpos = 0;
+
+   previnputsrc = inputsrc;
+   previnputadr = inputadr;
+   prevroot = root;
+
+   inputsrc = IT_STRING;
+   inputadr.str = from_eval.value.str.tab;
+   yyparse();
+
+   retval.ti.dtype = DT_POINTER;
+   retval.value.ptr = root;
+
+   inputsrc = previnputsrc;
+   inputadr = previnputadr;
+   root = prevroot;
+
+   free_data(from_eval);
+
+   return retval;
+}
+
+
+
 data eval_func_call(node* to_eval)
 {
    size_t nb_param = 0, nb_args = 0, nb_members = 0, i;
@@ -8129,6 +8197,8 @@ data eval_func_call(node* to_eval)
          return eval_memory(to_eval->childset[1]);
       case FID_TREETOCODE:
          return eval_treetocode(to_eval->childset[1]);
+      case FID_PARSESTRING:
+         return eval_parsestring(to_eval->childset[1]);
       default:
          break;
       }

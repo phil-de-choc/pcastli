@@ -32,7 +32,8 @@ void parse_init(void)
     contextp = contextstack;
     *contextp = ' ';
     eatlines = 0;
-    inputfile = stdin;
+    inputadr.inputfile = stdin;
+    inputsrc = IT_FILE;
 }
 
 
