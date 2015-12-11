@@ -1177,8 +1177,9 @@ data eval_info(node* to_eval)
 {
    int err = 0, hasparams = 0;
    data retval, from_eval;
-   char* opstr = NULL;
+   char* opstr = NULL, * caststr = NULL;
    size_t i;
+   string* pstr = NULL;
 
    memset(&retval, 0, sizeof(data));
 
@@ -1445,7 +1446,7 @@ data eval_info(node* to_eval)
    case NT_VARGENLIST:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
-      object_str_val(&retval, 0, "genealogical dotted list");
+      object_str_val(&retval, 0, "vargenlist");
       object_member(&retval, 1, "nb_childs");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
       retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
@@ -1482,95 +1483,151 @@ data eval_info(node* to_eval)
       break;
 
    case NT_ACCESSLIST:
-      printf("\tNode type: Object member access list.\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "object member access list");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_SUBSCRIPT:
-      printf("\tNode type: array or chained list subscript.\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "array or chained list subscript");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_STDIN:
-      printf("\tNode type: stdin FILE* identifier.\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "stdin FILE* identifier");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_STDOUT:
-      printf("\tNode type: stdout FILE* identifier.\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "stdout FILE* identifier");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_STDERR:
-      printf("\tNode type: stderr FILE* identifier.\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "stderr FILE* identifier");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_CAST:
-      printf("\tNode type: cast.\n");
-      printf("\tCast type: ");
+      retval = object_base(3);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "cast");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+
       switch (to_eval->opval.ti.dtype)
       {
       case DT_CHAR:
-         printf("char\n");
+         caststr = "char";
          break;
       case DT_S_CHAR:
-         printf("signed char\n");
+         caststr = "signed char";
          break;
       case DT_U_CHAR:
-         printf("unsigned char\n");
+         caststr = "unsigned char";
          break;
       case DT_BYTE:
-         printf("byte\n");
+         caststr = "byte";
          break;
       case DT_SHORT:
-         printf("short\n");
+         caststr = "short";
          break;
       case DT_U_SHORT:
-         printf("unsigned short\n");
+         caststr = "unsigned short";
          break;
       case DT_INT:
-         printf("int\n");
+         caststr = "int";
          break;
       case DT_U_INT:
-         printf("unsigned int\n");
+         caststr = "unsigned int";
          break;
       case DT_LONG:
-         printf("long\n");
+         caststr = "long";
          break;
       case DT_U_LONG:
-         printf("unsigned long\n");
+         caststr = "unsigned long";
          break;
       case DT_LONG_LONG:
-         printf("long long\n");
+         caststr = "long long";
          break;
       case DT_U_LONG_LONG:
-         printf("unsigned long long\n");
+         caststr = "unsigned long long";
          break;
       case DT_SIZE_T:
-         printf("size_t\n");
+         caststr = "size_t";
          break;
       case DT_FLOAT:
-         printf("float\n");
+         caststr = "float";
          break;
       case DT_DOUBLE:
-         printf("double\n");
+         caststr = "double";
          break;
       case DT_LONG_DOUBLE:
-         printf("long double\n");
+         caststr = "long double";
          break;
       default:
-         yyerror("Error: Unknown cast type.");
-         exit(1);
+         fatal_error("Error: Unknown cast type in info function.");
       }
+
+      object_member(&retval, 2, "cast_type");
+
+      pstr = &retval.value.pObject->clos_array[2]->content.value.str;
+      pstr->length = strlen(caststr) + to_eval->opval.ti.nderef + 1;
+
+      retval.value.pObject->clos_array[2]->content.ti.dtype = DT_STRING;
+      pstr->tab = malloc(pstr->length);
+      if (!pstr->tab) fatal_error("Error : Lack of memory in info for name.");
+
+      strcpy(pstr->tab, caststr);
+      if (to_eval->opval.ti.nderef > 0)
+      {
+         memset(&pstr->tab[strlen(caststr)], '*', to_eval->opval.ti.nderef);
+         pstr->tab[pstr->length - 1] = '\0';
+      }
+
+      g_lst_add(pstr->tab, PT_CHAR_TAB);
       break;
 
    case NT_REF:
-      printf("\tNode type: structure reference operator \".\".\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "structure reference operator (.)");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    case NT_DEREF:
-      printf("\tNode type: dereference operator \"->\".\n");
+      retval = object_base(2);
+      object_member(&retval, 0, "node_type");
+      object_str_val(&retval, 0, "structure dereference operator (->)");
+      object_member(&retval, 1, "nb_childs");
+      retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
       break;
 
    default:
-      yyerror("Error: Unknown node type in info.");
-      exit(1);
+      fatal_error("Error: Unknown node type in info.");
    }
 
    free_data(from_eval);
