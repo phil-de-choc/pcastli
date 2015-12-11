@@ -8,6 +8,9 @@ v2.7
 Ajouté la fonction interne "parsestring".
 Le deuxième paramètre de la fonction interne "treetocode" est maintenant optionnel 
    et a pour défaut la valeur "   ".
+L'opérateur d'indice peut maintenant être directement appliqué à une chaîne de 
+   caractères et la valeur résultante sera du type "char".  Idem pour une variable 
+   contenant une chaîne de caractères.
 Le code avec erreur de syntaxe n'est plus exécuté après avoir été parsé.
 
 v2.6   2015-12-04

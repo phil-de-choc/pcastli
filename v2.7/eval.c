@@ -1494,7 +1494,7 @@ data eval_info(node* to_eval)
    case NT_SUBSCRIPT:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
-      object_str_val(&retval, 0, "array or chained list subscript");
+      object_str_val(&retval, 0, "subscript");
       object_member(&retval, 1, "nb_childs");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
       retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
@@ -8822,20 +8822,8 @@ data eval_subscript(node* to_eval)
          return retval;
       }
 
-      retval.value.str.length = 2;
-      retval.value.str.tab = malloc(2);
-      if (!retval.value.str.tab)
-      {
-         yyerror("Error: Lack of memory in eval_subscript for string data.");
-         exit(1);
-      }
-      memset(retval.value.str.tab, 0, 2);
-      g_lst_add(retval.value.str.tab, PT_CHAR_TAB);
-
-      retval.value.str.tab[0] = from_eval.value.str.tab[intindex];
-      retval.value.str.tab[1] = '\0';
-
-      retval.ti.dtype = DT_STRING;
+      retval.value.cnum = from_eval.value.str.tab[intindex];
+      retval.ti.dtype = DT_CHAR;
    }
    else /* from_eval.ti.dtype == DT_MEMORY */
    {

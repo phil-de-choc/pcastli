@@ -152,6 +152,7 @@ objectacces
    | objectacces DEREF VAR           { $$ = xxaddmember($1,$3,NT_DEREF); }
    | objectacces '(' sublist ')'     { $$ = xx2childs($1,$3,NT_FUNC_CALL); }
    | objectacces '[' exp ']'         { $$ = xx2childs($1,$3,NT_SUBSCRIPT); }
+   | STR '[' exp ']'                 { $$ = xx2childs($1,$3,NT_SUBSCRIPT); }
    ;
 
 codesegment

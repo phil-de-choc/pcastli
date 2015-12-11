@@ -117,7 +117,7 @@ char readchar(void)
    return retchar;
 }
 
-void unreadchar(int c)
+void unreadchar(char c)
 {
    if (inputsrc == IT_FILE)
    {
@@ -310,7 +310,7 @@ int token(void)
    /* Hex Numbers */
    if (c == '0')
    {
-      int c2 = readchar();
+      char c2 = readchar();
       if (c2 == 'x')
       {
          int hex_nb = 0;
@@ -364,7 +364,7 @@ int token(void)
    /* Numbers */
    if (c == '.' || isdigit (c))
    {
-      int c2 = readchar();
+      char c2 = readchar();
       if(c == '.' && !isdigit(c2))
       {
          unreadchar(c2);
