@@ -133,6 +133,7 @@ typedef enum
    FID_MEMORY,
    FID_TREETOCODE,
    FID_PARSESTRING,
+   FID_EXIST,
    NB_FUNC
 } EFuncID;
 
@@ -227,7 +228,8 @@ pair_fn_ID func_map[] =
    {"memclone", FID_MEMCLONE},
    {"memory", FID_MEMORY},
    {"treetocode", FID_TREETOCODE},
-   {"parsestring", FID_PARSESTRING}
+   {"parsestring", FID_PARSESTRING},
+   {"exist", FID_EXIST}
 };
 
 
@@ -259,6 +261,7 @@ extern size_t maxpos;
 extern size_t readpos;
 extern int yynerrs;
 
+data eval_dotlist(node* start_pt, node* dotlist);
 
 
 data assign_node_pointers(node* to_eval, data from_eval2)
@@ -8145,6 +8148,71 @@ data eval_parsestring(node* to_eval)
 
 
 
+data eval_exist(node* to_eval)
+{
+   int err = 0, bres = 0;
+   data retval, from_eval;
+   closure* pclos_ret;
+
+   memset(&retval, 0, sizeof(data));
+
+   /* Argument verification. */
+   if (to_eval)
+   {
+      if (to_eval->nb_childs != 1) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in exist.");
+      yyerror("       This function has one parameter.");
+      abort_called = 1;
+      return retval;
+   }
+
+   retval.ti.dtype = DT_INT;
+
+   switch (to_eval->childset[0]->ntype)
+   {
+   case NT_VARIABLE:
+      /* Search in all the closures for the variable name. */
+      bres = find_symbol(to_eval->childset[0]->opval.name) != NULL;
+      break;
+   case NT_LIST:
+      if (to_eval->childset[0]->childset)
+      {
+         if (to_eval->childset[0]->childset[0]->ntype == NT_PARENT)
+         {
+            from_eval = eval_dotlist(to_eval->childset[0], to_eval->childset[0]);
+            bres = from_eval.ti.dtype == DT_POINTER;
+            if (!bres) free_data(from_eval);
+         }
+      }
+      break;
+   case NT_VARGENLIST:
+      from_eval = eval(to_eval->childset[0]);
+      bres = from_eval.ti.dtype == DT_POINTER;
+      if (!bres) free_data(from_eval);
+      break;
+   case NT_ACCESSLIST:
+      bres = resolve_accesslist(to_eval->childset[0], &pclos_ret, &from_eval) == CLOSURE;
+      break;
+   case NT_SUBSCRIPT:
+      bres = resolve_subscript(to_eval->childset[0]) != NULL;
+      break;
+   default:
+      break;
+   }
+
+   retval.value.inum = bres;
+   abort_called = 0;
+
+   return retval;
+}
+
+
+
 data eval_func_call(node* to_eval)
 {
    size_t nb_param = 0, nb_args = 0, nb_members = 0, i;
@@ -8430,6 +8498,8 @@ data eval_func_call(node* to_eval)
          return eval_treetocode(to_eval->childset[1]);
       case FID_PARSESTRING:
          return eval_parsestring(to_eval->childset[1]);
+      case FID_EXIST:
+         return eval_exist(to_eval->childset[1]);
       default:
          break;
       }

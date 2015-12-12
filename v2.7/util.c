@@ -851,7 +851,7 @@ data* resolve_subscript(node* to_eval)
       pclos = find_symbol(to_eval->childset[0]->opval.name);
       if (!pclos)
       {
-         fprintf(stderr, "Error: Symbol \"%s\" not found.", to_eval->childset
+         fprintf(stderr, "Error: Symbol \"%s\" not found.\n", to_eval->childset
             [0]->opval.name);
          abort_called = 1;
          return NULL;
