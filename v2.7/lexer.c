@@ -661,7 +661,7 @@ escape_ok:
          /* Get another character. */
          c = readchar();
       }
-      while (isalnum (c) || c == '_');
+      while (isalnum(c) || c == '_');
 
       unreadchar(c);
       symbuf[i] = '\0';

@@ -134,6 +134,7 @@ typedef enum
    FID_TREETOCODE,
    FID_PARSESTRING,
    FID_EXIST,
+   FID_CREATENODE,
    NB_FUNC
 } EFuncID;
 
@@ -147,91 +148,152 @@ typedef struct
 
 pair_fn_ID func_map[] =
 {
-   {"print", FID_PRINT},
-   {"exit", FID_EXIT},
    {"abort", FID_ABORT},
-   {"info", FID_INFO},
-   {"mknode", FID_MKNODE},
-   {"rmnode", FID_RMNODE},
-   {"value", FID_VALUE},
-   {"length", FID_LENGTH},
-   {"scan", FID_SCAN},
-   {"read", FID_READ},
-   {"write", FID_WRITE},
-   {"getwd", FID_GETWD},
-   {"setwd", FID_SETWD},
-   {"tonode", FID_TONODE},
-   {"subseq", FID_SUBSEQ},
-   {"concat", FID_CONCAT},
-   {"ntoa", FID_NTOA},
-   {"aton", FID_ATON},
-   {"return", FID_RETURN},
-   {"copytree", FID_COPYTREE},
-   {"clear", FID_CLEAR},
-   {"execute", FID_EXECUTE},
-   {"prompt", FID_PROMPT},
-   {"names", FID_NAMES},
+   {"alloc_copy", FID_ALLOC_COPY},
    {"array", FID_ARRAY},
-   {"list", FID_LIST},
-   {"fillobject", FID_FILLOBJECT},
-   {"setlength", FID_SETLENGTH},
-   {"insert", FID_INSERT},
-   {"replace", FID_REPLACE},
-   {"source", FID_SOURCE},
-   {"strlen", FID_STRLEN},
    {"as_array", FID_AS_ARRAY},
    {"as_list", FID_AS_LIST},
    {"as_statements", FID_AS_STATEMENTS},
-   {"gettype", FID_GETTYPE},
-   {"undefine", FID_UNDEFINE},
-   {"printf", FID_PRINTF},
-   {"scanf", FID_SCANF},
-   {"fopen", FID_FOPEN},
-   {"fclose", FID_FCLOSE},
-   {"fprintf", FID_FPRINTF},
-   {"fscanf", FID_FSCANF},
-   {"feof", FID_FEOF},
-   {"fread", FID_FREAD},
-   {"fwrite", FID_FWRITE},
+   {"aton", FID_ATON},
+   {"atovar", FID_ATOVAR},
+   {"clear", FID_CLEAR},
    {"clearerr", FID_CLEARERR},
-   {"fgetpos", FID_FGETPOS},
-   {"fsetpos", FID_FSETPOS},
+   {"closelib", FID_CLOSELIB},
+   {"cls", FID_CLS},
+   {"concat", FID_CONCAT},
+   {"copytree", FID_COPYTREE},
+   {"createnode", FID_CREATENODE},
+   {"execute", FID_EXECUTE},
+   {"exist", FID_EXIST},
+   {"exit", FID_EXIT},
+   {"fclose", FID_FCLOSE},
+   {"feof", FID_FEOF},
    {"ferror", FID_FERROR},
-   {"fgetc", FID_FGETC},
-   {"ungetc", FID_UNGETC},
    {"fflush", FID_FFLUSH},
+   {"fgetc", FID_FGETC},
+   {"fgetpos", FID_FGETPOS},
+   {"fillobject", FID_FILLOBJECT},
+   {"fopen", FID_FOPEN},
+   {"fprintf", FID_FPRINTF},
    {"fputc", FID_FPUTC},
-   {"fseek", FID_FSEEK},
-   {"ftell", FID_FTELL},
+   {"fread", FID_FREAD},
+   {"free", FID_FREE},
+   {"freetree", FID_FREETREE},
    {"freopen", FID_FREOPEN},
+   {"fscanf", FID_FSCANF},
+   {"fseek", FID_FSEEK},
+   {"fsetpos", FID_FSETPOS},
+   {"ftell", FID_FTELL},
+   {"fwrite", FID_FWRITE},
+   {"getfuncpt", FID_GETFUNCPT},
+   {"gettype", FID_GETTYPE},
+   {"getwd", FID_GETWD},
+   {"info", FID_INFO},
+   {"insert", FID_INSERT},
+   {"length", FID_LENGTH},
+   {"list", FID_LIST},
+   {"memclone", FID_MEMCLONE},
+   {"memcpy", FID_MEMCPY},
+   {"memory", FID_MEMORY},
+   {"memset", FID_MEMSET},
+   {"memtovar", FID_MEMTOVAR},
+   {"mknode", FID_MKNODE},
+   {"names", FID_NAMES},
+   {"ntoa", FID_NTOA},
+   {"openlib", FID_OPENLIB},
+   {"parsestring", FID_PARSESTRING},
+   {"print", FID_PRINT},
+   {"printf", FID_PRINTF},
+   {"prompt", FID_PROMPT},
+   {"read", FID_READ},
+   {"remove", FID_REMOVE},
+   {"repeat", FID_REPEAT},
+   {"replace", FID_REPLACE},
+   {"return", FID_RETURN},
    {"rewind", FID_REWIND},
-   {"tmpfile", FID_TMPFILE},
+   {"rmnode", FID_RMNODE},
+   {"scan", FID_SCAN},
+   {"scanf", FID_SCANF},
+   {"setlength", FID_SETLENGTH},
+   {"setwd", FID_SETWD},
+   {"source", FID_SOURCE},
    {"sprintf", FID_SPRINTF},
    {"sscanf", FID_SSCANF},
-   {"remove", FID_REMOVE},
-   {"cls", FID_CLS},
-   {"atovar", FID_ATOVAR},
-   {"vartoa", FID_VARTOA},
-   {"freetree", FID_FREETREE},
    {"strclone", FID_STRCLONE},
    {"strcpy", FID_STRCPY},
-   {"openlib", FID_OPENLIB},
-   {"getfuncpt", FID_GETFUNCPT},
-   {"closelib", FID_CLOSELIB},
-   {"alloc_copy", FID_ALLOC_COPY},
-   {"free", FID_FREE},
-   {"repeat", FID_REPEAT},
-   {"vartomem", FID_VARTOMEM},
-   {"memtovar", FID_MEMTOVAR},
-   {"memcpy", FID_MEMCPY},
-   {"memset", FID_MEMSET},
-   {"memclone", FID_MEMCLONE},
-   {"memory", FID_MEMORY},
+   {"strlen", FID_STRLEN},
+   {"subseq", FID_SUBSEQ},
+   {"tmpfile", FID_TMPFILE},
+   {"tonode", FID_TONODE},
    {"treetocode", FID_TREETOCODE},
-   {"parsestring", FID_PARSESTRING},
-   {"exist", FID_EXIST}
+   {"undefine", FID_UNDEFINE},
+   {"ungetc", FID_UNGETC},
+   {"value", FID_VALUE},
+   {"vartoa", FID_VARTOA},
+   {"vartomem", FID_VARTOMEM},
+   {"write", FID_WRITE}
 };
 
+
+typedef struct
+{
+   char* descr;
+   node_type ntype;
+} pair_desc_NT;
+
+
+pair_desc_NT ntype_map[] =
+{
+   {"->", NT_DEREF},
+   {".", NT_REF},
+   {"access list", NT_ACCESSLIST},
+   {"call",NT_FUNC_CALL},
+   {"cast", NT_CAST},
+   {"childset", NT_CHILDSET},
+   {"childset reserved word", NT_CHILDSET},
+   {"code segment", NT_CODESEGMENT},
+   {"constant", NT_NUM_CONST},
+   {"decr", NT_INCR_DECR},
+   {"decrementation", NT_INCR_DECR},
+   {"dereference", NT_DEREF},
+   {"for", NT_FOR_STMT},
+   {"for statement", NT_FOR_STMT},
+   {"function call",NT_FUNC_CALL},
+   {"function definition",NT_FUNC_DEF},
+   {"if", NT_IF_STMT},
+   {"if else", NT_IFELSE_STMT},
+   {"if else statement", NT_IFELSE_STMT},
+   {"if statement", NT_IF_STMT},
+   {"incr", NT_INCR_DECR},
+   {"incrementation", NT_INCR_DECR},
+   {"incrementation or decrementation", NT_INCR_DECR},
+   {"list", NT_LIST},
+   {"logical operator", NT_REL_OPER},
+   {"mathematical operator", NT_MATH_OPER},
+   {"numerical constant", NT_NUM_CONST},
+   {"object member access list", NT_ACCESSLIST},
+   {"parent reserved word", NT_PARENT},
+   {"relational operator", NT_REL_OPER},
+   {"relational or logical operator", NT_REL_OPER},
+   {"stderr", NT_STDERR},
+   {"stderr FILE* identifier", NT_STDERR},
+   {"stdin", NT_STDIN},
+   {"stdin FILE* identifier", NT_STDIN},
+   {"stdout", NT_STDOUT},
+   {"stdout FILE* identifier", NT_STDOUT},
+   {"string", NT_STRING},
+   {"structure dereference operator", NT_DEREF},
+   {"structure dereference operator (->)", NT_DEREF},
+   {"structure reference operator", NT_REF},
+   {"structure reference operator (.)", NT_REF},
+   {"subscript", NT_SUBSCRIPT},
+   {"reference", NT_REF},
+   {"vargenlist", NT_VARGENLIST},
+   {"variable", NT_VARIABLE},
+   {"while", NT_WHILE_STMT},
+   {"while statement", NT_WHILE_STMT},
+   {"", NT_UNDEF}
+};
 
 
 size_t sizes_classes[] = 
@@ -8213,6 +8275,272 @@ data eval_exist(node* to_eval)
 
 
 
+int valid_id(char* id)
+{
+   int i = 1;
+
+   if (!isalpha(id[0]) && id[0] != '_') return 0;
+
+   while (id[i] != '\0')
+   {
+      if (!isalnum(id[i]) && id[i] != '_') return 0;
+      i++;
+   }
+
+   return 1;
+}
+
+
+
+data eval_createnode(node* to_eval)
+{
+   int err = 0, bcont = 1, i = 0, relop = 0;
+   data retval, from_eval;
+   node_type typetocreate = NT_UNDEF;
+   node* newnode;
+
+   memset(&retval, 0, sizeof(data));
+
+   /* Argument verification. */
+   if (to_eval)
+   {
+      if (to_eval->nb_childs < 1) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in createnode.");
+      yyerror("       This function has at least one parameter.");
+      abort_called = 1;
+      return retval;
+   }
+
+   from_eval = eval(to_eval->childset[0]);
+   if (from_eval.ti.dtype != DT_STRING || from_eval.ti.nderef > 0)
+   {
+      yyerror("Error: First argument of createnode is not a string.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+
+   while (bcont)
+   {
+      char c1search = from_eval.value.str.tab[0];
+      char c1map = ntype_map[i].descr[0];
+
+      if (c1map == '\0') bcont = 0;
+      else
+      {
+         if (c1search == c1map)
+         {
+            if (!strcmp(from_eval.value.str.tab, ntype_map[i].descr))
+            {
+               typetocreate = ntype_map[i].ntype;
+               bcont = 0;
+            }
+         }
+         else if (c1search > c1map) bcont = 0;
+      }
+
+      i++;
+   }
+
+
+   switch(typetocreate)
+   {
+   case NT_UNDEF:
+      yyerror("Error: Specified node type in createnode not found.");
+      abort_called = 1;
+      break;
+   case NT_NUM_CONST:
+      if (to_eval->nb_childs < 2)
+      {
+         yyerror("Error: Second argument expected in createnode. ");
+         abort_called = 1;
+         return retval;
+      }
+      from_eval = eval(to_eval->childset[1]);
+      if (from_eval.ti.dtype != DT_DOUBLE || from_eval.ti.nderef > 0)
+      {
+         yyerror("Error: Second argument of createnode is not a double.");
+         abort_called = 1;
+         free_data(from_eval);
+         return retval;
+      }
+
+      newnode = malloc(sizeof(node));
+      if (!newnode) fatal_error("Error: Lack of memory for new node in createnode function.");
+      memset(newnode, 0, sizeof(node));
+
+      newnode->ntype = typetocreate;
+      newnode->opval.value = from_eval.value.num;
+
+      retval.ti.dtype = DT_POINTER;
+      retval.value.ptr = newnode;
+      break;
+   case NT_MATH_OPER:
+      if (to_eval->nb_childs < 2)
+      {
+         yyerror("Error: Second argument expected in createnode. ");
+         abort_called = 1;
+         return retval;
+      }
+      from_eval = eval(to_eval->childset[1]);
+      if (from_eval.ti.dtype != DT_CHAR || from_eval.ti.nderef > 0)
+      {
+         yyerror("Error: Second argument of createnode is not a char.");
+         abort_called = 1;
+         free_data(from_eval);
+         return retval;
+      }
+      if (from_eval.value.cnum != '-' && from_eval.value.cnum != '+' && from_eval.value.cnum != '*'  && 
+         from_eval.value.cnum != '/' && from_eval.value.cnum != '^' && from_eval.value.cnum != '=' && 
+         from_eval.value.cnum != '&')
+      {
+         yyerror("Error: Second argument of createnode is not a known operator.");
+         abort_called = 1;
+         return retval;
+      }
+
+      newnode = malloc(sizeof(node));
+      if (!newnode) fatal_error("Error: Lack of memory for new node in createnode function.");
+      memset(newnode, 0, sizeof(node));
+
+      newnode->ntype = typetocreate;
+      newnode->opval.math_oper = from_eval.value.cnum;
+
+      retval.ti.dtype = DT_POINTER;
+      retval.value.ptr = newnode;
+      break;
+   case NT_REL_OPER:
+      if (to_eval->nb_childs < 2)
+      {
+         yyerror("Error: Second argument expected in createnode. ");
+         abort_called = 1;
+         return retval;
+      }
+      from_eval = eval(to_eval->childset[1]);
+      if (from_eval.ti.dtype != DT_STRING || from_eval.ti.nderef > 0)
+      {
+         yyerror("Error: Second argument of createnode is not a string.");
+         abort_called = 1;
+         free_data(from_eval);
+         return retval;
+      }
+      if (!strcmp(from_eval.value.str.tab, "||")) relop = OR;
+      else if (!strcmp(from_eval.value.str.tab, "&&")) relop = AND;
+      else if (!strcmp(from_eval.value.str.tab, "!")) relop = NOT;
+      else if (!strcmp(from_eval.value.str.tab, ">")) relop = GT;
+      else if (!strcmp(from_eval.value.str.tab, ">=")) relop = GE;
+      else if (!strcmp(from_eval.value.str.tab, "<")) relop = LT;
+      else if (!strcmp(from_eval.value.str.tab, "<=")) relop = LE;
+      else if (!strcmp(from_eval.value.str.tab, "==")) relop = EQ;
+      else if (!strcmp(from_eval.value.str.tab, "!=")) relop = NE;
+      else
+      {
+         yyerror("Error: Unknown operator requested in createnode function.");
+         abort_called = 1;
+         return retval;
+      }
+
+      newnode = malloc(sizeof(node));
+      if (!newnode) fatal_error("Error: Lack of memory for new node in createnode function.");
+      memset(newnode, 0, sizeof(node));
+
+      newnode->ntype = typetocreate;
+      newnode->opval.rel_oper = relop;
+
+      retval.ti.dtype = DT_POINTER;
+      retval.value.ptr = newnode;
+      break;
+   case NT_VARIABLE:
+      if (to_eval->nb_childs < 2)
+      {
+         yyerror("Error: Second argument expected in createnode. ");
+         abort_called = 1;
+         return retval;
+      }
+      from_eval = eval(to_eval->childset[1]);
+      if (from_eval.ti.dtype != DT_STRING || from_eval.ti.nderef > 0)
+      {
+         yyerror("Error: Second argument of createnode is not a string.");
+         abort_called = 1;
+         free_data(from_eval);
+         return retval;
+      }
+      if (!valid_id(from_eval.value.str.tab))
+      {
+         yyerror("Error: Second argument of createnode is not a valid identifier.");
+         abort_called = 1;
+         return retval;
+      }
+
+      newnode = malloc(sizeof(node));
+      if (!newnode) fatal_error("Error: Lack of memory for new node in createnode function.");
+      memset(newnode, 0, sizeof(node));
+
+      newnode->ntype = typetocreate;
+      newnode->opval.name = malloc(from_eval.value.str.length);
+      if (!newnode->opval.name) 
+         fatal_error("Error: Lack of memory for variable name in createnode function.");
+      strcpy(!newnode->opval.name, from_eval.value.str.tab);
+
+      retval.ti.dtype = DT_POINTER;
+      retval.value.ptr = newnode;
+      break;
+   case NT_STRING:
+      break;
+   case NT_FUNC_DEF:
+      break;
+   case NT_FUNC_CALL:
+      break;
+   case NT_IF_STMT:
+      break;
+   case NT_IFELSE_STMT:
+      break;
+   case NT_FOR_STMT:
+      break;
+   case NT_WHILE_STMT:
+      break;
+   case NT_LIST:
+      break;
+   case NT_CODESEGMENT:
+      break;
+   case NT_PARENT:
+      break;
+   case NT_CHILDSET:
+      break;
+   case NT_VARGENLIST:
+      break;
+   case NT_INCR_DECR:
+      break;
+   case NT_ACCESSLIST:
+      break;
+   case NT_SUBSCRIPT:
+      break;
+   case NT_STDIN:
+      break;
+   case NT_STDOUT:
+      break;
+   case NT_STDERR:
+      break;
+   case NT_CAST:
+      break;
+   case NT_REF:
+      break;
+   case NT_DEREF:
+      break;
+   default:
+      break;
+   }
+
+   return retval;
+}
+
+
+
 data eval_func_call(node* to_eval)
 {
    size_t nb_param = 0, nb_args = 0, nb_members = 0, i;
@@ -8325,11 +8653,18 @@ data eval_func_call(node* to_eval)
 
       for (i = 0; i < NB_FUNC; i++)
       {
-         if (!strcmp(to_eval->childset[0]->opval.name, func_map[i].func_name))
+         char c1search = to_eval->childset[0]->opval.name[0];
+         char c1map = func_map[i].func_name[0];
+
+         if (c1search == c1map)
          {
-            eFnCalled = func_map[i].eFnID;
-            break;
+            if (!strcmp(to_eval->childset[0]->opval.name, func_map[i].func_name))
+            {
+               eFnCalled = func_map[i].eFnID;
+               break;
+            }
          }
+         else if (c1search > c1map) break;
       }
 
       switch (eFnCalled)
@@ -8500,6 +8835,8 @@ data eval_func_call(node* to_eval)
          return eval_parsestring(to_eval->childset[1]);
       case FID_EXIST:
          return eval_exist(to_eval->childset[1]);
+      case FID_CREATENODE:
+         return eval_createnode(to_eval->childset[1]);
       default:
          break;
       }

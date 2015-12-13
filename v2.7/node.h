@@ -40,6 +40,7 @@ void yyerror(char const*);
 
 typedef enum 
 {
+   NT_UNDEF = 0,
    NT_NUM_CONST,
    NT_MATH_OPER,
    NT_REL_OPER,
