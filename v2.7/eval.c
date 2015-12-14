@@ -322,6 +322,12 @@ size_t sizes_classes[] =
 extern size_t maxpos;
 extern size_t readpos;
 extern int yynerrs;
+extern struct
+{
+   char* rword;
+   int num_symbol;
+}
+reserved_words_table[];
 
 data eval_dotlist(node* start_pt, node* dotlist);
 
@@ -8278,6 +8284,7 @@ data eval_exist(node* to_eval)
 int valid_id(char* id)
 {
    int i = 1;
+   char* resword = (char*)0x1;
 
    if (!isalpha(id[0]) && id[0] != '_') return 0;
 
@@ -8287,17 +8294,163 @@ int valid_id(char* id)
       i++;
    }
 
+   i = 0;
+   while (resword != NULL)
+   {
+      resword = reserved_words_table[i].rword;
+      if (!strcmp(id, resword)) return 0;
+      i++;
+   }
+
    return 1;
 }
 
 
+int first_valid(char* str)
+{
+   int i = 0;
+
+   while (str[i] == ' ' && str[i] != '\0') i++;
+
+   if (str[i - 1] == '\0') return -1;
+   else return i - 1;
+}
+
+
+int type_token(char* str, int* nextpos)
+{
+   char buf[9];
+   int ibuf = 0, istr = 0, ires = 10;
+
+   istr = first_valid(str);
+
+   if (istr == -1) return -1;
+   else if (str[istr] == '*')
+   {
+      *nextpos = istr + 1;
+      return '*';
+   }
+
+   memset(buf, 0, 9);
+
+   while (ibuf < 8 && str[istr] != ' ' && str[istr] != '\0')
+   {
+      buf[ibuf] = str[istr];
+      ibuf++;
+      istr++;
+   }
+
+   while (reserved_words_table[ires].rword != NULL)
+   {
+      if (!strcmp(buf, reserved_words_table[ires].rword))
+      {
+         *nextpos = istr;
+         return reserved_words_table[ires].num_symbol;
+      }
+      ires++;
+   }
+
+   return -1;
+}
+
+
+struct
+{
+   int a, b, c, d;
+   data_type dtype;
+}
+oktoktab[] = 
+{
+   {CHAR,     0,      0,    0,   DT_CHAR},
+   {SIGNED,   CHAR,   0,    0,   DT_S_CHAR},
+   {UNSIGNED, CHAR,   0,    0,   DT_U_CHAR},
+   {BYTE,     0,      0,    0,   DT_BYTE},
+   {SHORT,    0,      0,    0,   DT_SHORT},
+   {SHORT,    INT,    0,    0,   DT_SHORT},
+   {SIGNED,   SHORT,  0,    0,   DT_SHORT},
+   {SIGNED,   SHORT,  INT,  0,   DT_SHORT},
+   {UNSIGNED, SHORT,  0,    0,   DT_U_SHORT},
+   {UNSIGNED, SHORT,  INT,  0,   DT_U_SHORT},
+   {INT,      0,      0,    0,   DT_INT},
+   {SIGNED,   INT,    0,    0,   DT_INT},
+   {UNSIGNED, 0,      0,    0,   DT_U_INT},
+   {UNSIGNED, INT,    0,    0,   DT_U_INT},
+   {LONG,     0,      0,    0,   DT_LONG},
+   {LONG,     INT,    0,    0,   DT_LONG},
+   {SIGNED,   LONG,   0,    0,   DT_LONG},
+   {SIGNED,   LONG,   INT,  0,   DT_LONG},
+   {UNSIGNED, LONG,   0,    0,   DT_U_LONG},
+   {UNSIGNED, LONG,   INT,  0,   DT_U_LONG},
+   {LONG,     LONG,   0,    0,   DT_LONG_LONG},
+   {LONG,     LONG,   INT,  0,   DT_LONG_LONG},
+   {SIGNED,   LONG,   LONG, 0,   DT_LONG_LONG},
+   {SIGNED,   LONG,   LONG, INT, DT_LONG_LONG},
+   {UNSIGNED, LONG,   LONG, 0,   DT_U_LONG_LONG},
+   {UNSIGNED, LONG,   LONG, INT, DT_U_LONG_LONG},
+   {SIZE_T,   0,      0,    0,   DT_SIZE_T},
+   {FLOAT,    0,      0,    0,   DT_FLOAT},
+   {DOUBLE,   0,      0,    0,   DT_DOUBLE},
+   {LONG,     DOUBLE, 0,    0,   DT_LONG_DOUBLE},
+   {0,        0,      0,    0,   0}
+};
+
+
+type_info parse_cast(char* str)
+{
+   type_info retinfo;
+   int token = 0, addpos = 0, toktab[4] = {0, 0, 0, 0};
+   size_t nindirec = 0;
+   int itok = 0, istr = 0, found = 0;
+
+   memset(&retinfo, 0, sizeof(type_info));
+
+   while (itok < 4)
+   {
+      token = type_token(&str[istr], &addpos);
+
+      if (token != -1 && token != '*') toktab[itok] = token;
+      else if (token == '*')
+      {
+         istr += addpos;
+         break;
+      }
+      else break;
+
+      itok++;
+      istr += addpos;
+   }
+
+   if (token == '*')
+   {
+      nindirec = 1;
+      while (type_token(&str[istr], &addpos) == '*')
+      {
+         nindirec++;
+         istr += addpos;
+      }
+   }
+
+   itok = 0;
+   while(!found && oktoktab[itok].a != 0)
+   {
+      found = !memcmp(toktab, &oktoktab[itok], 4 * sizeof(int));
+      itok++;
+   }
+
+   retinfo.dtype = oktoktab[itok - 1].dtype;
+   retinfo.nderef = nindirec;
+
+   return retinfo;
+}
+
 
 data eval_createnode(node* to_eval)
 {
-   int err = 0, bcont = 1, i = 0, relop = 0;
+   int err = 0, bcont = 1, i = 0, relop = 0, ppmm = 0;
    data retval, from_eval;
    node_type typetocreate = NT_UNDEF;
    node* newnode;
+   type_info castinfo;
 
    memset(&retval, 0, sizeof(data));
 
@@ -8341,7 +8494,7 @@ data eval_createnode(node* to_eval)
                bcont = 0;
             }
          }
-         else if (c1search > c1map) bcont = 0;
+         else if (c1map > c1search) bcont = 0;
       }
 
       i++;
@@ -8350,10 +8503,6 @@ data eval_createnode(node* to_eval)
 
    switch(typetocreate)
    {
-   case NT_UNDEF:
-      yyerror("Error: Specified node type in createnode not found.");
-      abort_called = 1;
-      break;
    case NT_NUM_CONST:
       if (to_eval->nb_childs < 2)
       {
@@ -8380,6 +8529,7 @@ data eval_createnode(node* to_eval)
       retval.ti.dtype = DT_POINTER;
       retval.value.ptr = newnode;
       break;
+
    case NT_MATH_OPER:
       if (to_eval->nb_childs < 2)
       {
@@ -8414,6 +8564,7 @@ data eval_createnode(node* to_eval)
       retval.ti.dtype = DT_POINTER;
       retval.value.ptr = newnode;
       break;
+
    case NT_REL_OPER:
       if (to_eval->nb_childs < 2)
       {
@@ -8455,6 +8606,7 @@ data eval_createnode(node* to_eval)
       retval.ti.dtype = DT_POINTER;
       retval.value.ptr = newnode;
       break;
+
    case NT_VARIABLE:
       if (to_eval->nb_childs < 2)
       {
@@ -8485,55 +8637,147 @@ data eval_createnode(node* to_eval)
       newnode->opval.name = malloc(from_eval.value.str.length);
       if (!newnode->opval.name) 
          fatal_error("Error: Lack of memory for variable name in createnode function.");
-      strcpy(!newnode->opval.name, from_eval.value.str.tab);
+      strcpy(newnode->opval.name, from_eval.value.str.tab);
 
       retval.ti.dtype = DT_POINTER;
       retval.value.ptr = newnode;
       break;
+
    case NT_STRING:
+      if (to_eval->nb_childs < 2)
+      {
+         yyerror("Error: Second argument expected in createnode. ");
+         abort_called = 1;
+         return retval;
+      }
+      from_eval = eval(to_eval->childset[1]);
+      if (from_eval.ti.dtype != DT_STRING || from_eval.ti.nderef > 0)
+      {
+         yyerror("Error: Second argument of createnode is not a string.");
+         abort_called = 1;
+         free_data(from_eval);
+         return retval;
+      }
+
+      newnode = malloc(sizeof(node));
+      if (!newnode) fatal_error("Error: Lack of memory for new node in createnode function.");
+      memset(newnode, 0, sizeof(node));
+
+      newnode->ntype = typetocreate;
+      newnode->opval.str.length = from_eval.value.str.length;
+      newnode->opval.str.tab = malloc(from_eval.value.str.length);
+      if (!newnode->opval.str.tab)
+         fatal_error("Error: Lack of memory for string in createnode function.");
+      strncpy(newnode->opval.str.tab, from_eval.value.str.tab, from_eval.value.str.length);
+
+      retval.ti.dtype = DT_POINTER;
+      retval.value.ptr = newnode;
       break;
+
    case NT_FUNC_DEF:
-      break;
    case NT_FUNC_CALL:
-      break;
    case NT_IF_STMT:
-      break;
    case NT_IFELSE_STMT:
-      break;
    case NT_FOR_STMT:
-      break;
    case NT_WHILE_STMT:
-      break;
    case NT_LIST:
-      break;
    case NT_CODESEGMENT:
-      break;
    case NT_PARENT:
-      break;
    case NT_CHILDSET:
-      break;
    case NT_VARGENLIST:
-      break;
-   case NT_INCR_DECR:
-      break;
    case NT_ACCESSLIST:
-      break;
    case NT_SUBSCRIPT:
-      break;
    case NT_STDIN:
-      break;
    case NT_STDOUT:
-      break;
    case NT_STDERR:
-      break;
-   case NT_CAST:
-      break;
    case NT_REF:
-      break;
    case NT_DEREF:
+      newnode = malloc(sizeof(node));
+      if (!newnode) fatal_error("Error: Lack of memory for new node in createnode function.");
+      memset(newnode, 0, sizeof(node));
+
+      newnode->ntype = typetocreate;
+
+      retval.ti.dtype = DT_POINTER;
+      retval.value.ptr = newnode;
       break;
+
+   case NT_INCR_DECR:
+      if (to_eval->nb_childs < 2)
+      {
+         yyerror("Error: Second argument expected in createnode. ");
+         abort_called = 1;
+         return retval;
+      }
+      from_eval = eval(to_eval->childset[1]);
+      if (from_eval.ti.dtype != DT_STRING || from_eval.ti.nderef > 0)
+      {
+         yyerror("Error: Second argument of createnode is not a string.");
+         abort_called = 1;
+         free_data(from_eval);
+         return retval;
+      }
+      if (!strcmp(from_eval.value.str.tab, "prefix ++")) ppmm = PREPLUSPLUS;
+      else if (!strcmp(from_eval.value.str.tab, "prefix --")) ppmm = PREMINUSMINUS;
+      else if (!strcmp(from_eval.value.str.tab, "postfix ++")) ppmm = POSTPLUSPLUS;
+      else if (!strcmp(from_eval.value.str.tab, "postfix --")) ppmm = POSTMINUSMINUS;
+      else
+      {
+         yyerror("Error: Unknown operator requested in createnode function.");
+         abort_called = 1;
+         return retval;
+      }
+
+      newnode = malloc(sizeof(node));
+      if (!newnode) fatal_error("Error: Lack of memory for new node in createnode function.");
+      memset(newnode, 0, sizeof(node));
+
+      newnode->ntype = typetocreate;
+      newnode->opval. ppmm = ppmm;
+
+      retval.ti.dtype = DT_POINTER;
+      retval.value.ptr = newnode;
+      break;
+
+   case NT_CAST:
+      if (to_eval->nb_childs < 2)
+      {
+         yyerror("Error: Second argument expected in createnode. ");
+         abort_called = 1;
+         return retval;
+      }
+      from_eval = eval(to_eval->childset[1]);
+      if (from_eval.ti.dtype != DT_STRING || from_eval.ti.nderef > 0)
+      {
+         yyerror("Error: Second argument of createnode is not a string.");
+         abort_called = 1;
+         free_data(from_eval);
+         return retval;
+      }
+      castinfo = parse_cast(from_eval.value.str.tab);
+      if (castinfo.dtype == DT_UNDEF)
+      {
+         yyerror("Error: Second argument of createnode is not a valid cast type.");
+         abort_called = 1;
+         return retval;
+      }
+      
+      newnode = malloc(sizeof(node));
+      if (!newnode) fatal_error("Error: Lack of memory for new node in createnode function.");
+      memset(newnode, 0, sizeof(node));
+
+      newnode->ntype = typetocreate;
+      newnode->opval.ti = castinfo;
+
+      retval.ti.dtype = DT_POINTER;
+      retval.value.ptr = newnode;
+      break;
+
+   case NT_UNDEF:
    default:
-      break;
+      yyerror("Error: Specified node type in createnode not found.");
+      abort_called = 1;
+      return retval;
    }
 
    return retval;
@@ -8664,7 +8908,7 @@ data eval_func_call(node* to_eval)
                break;
             }
          }
-         else if (c1search > c1map) break;
+         else if (c1map > c1search) break;
       }
 
       switch (eFnCalled)
