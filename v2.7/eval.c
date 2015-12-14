@@ -132,7 +132,7 @@ typedef enum
    FID_MEMCLONE,
    FID_MEMORY,
    FID_TREETOCODE,
-   FID_PARSESTRING,
+   FID_CODETOTREE,
    FID_EXIST,
    FID_CREATENODE,
    NB_FUNC
@@ -160,6 +160,7 @@ pair_fn_ID func_map[] =
    {"clearerr", FID_CLEARERR},
    {"closelib", FID_CLOSELIB},
    {"cls", FID_CLS},
+   {"codetotree", FID_CODETOTREE},
    {"concat", FID_CONCAT},
    {"copytree", FID_COPYTREE},
    {"createnode", FID_CREATENODE},
@@ -201,7 +202,6 @@ pair_fn_ID func_map[] =
    {"names", FID_NAMES},
    {"ntoa", FID_NTOA},
    {"openlib", FID_OPENLIB},
-   {"parsestring", FID_PARSESTRING},
    {"print", FID_PRINT},
    {"printf", FID_PRINTF},
    {"prompt", FID_PROMPT},
@@ -272,6 +272,7 @@ pair_desc_NT ntype_map[] =
    {"mathematical operator", NT_MATH_OPER},
    {"numerical constant", NT_NUM_CONST},
    {"object member access list", NT_ACCESSLIST},
+   {"parent", NT_PARENT},
    {"parent reserved word", NT_PARENT},
    {"relational operator", NT_REL_OPER},
    {"relational or logical operator", NT_REL_OPER},
@@ -1382,7 +1383,10 @@ data eval_info(node* to_eval)
       break;
 
    case NT_FUNC_DEF:
-      if (to_eval->childset[0]) hasparams = to_eval->childset[0]->nb_childs > 0;
+      if (to_eval->nb_childs >= 1)
+      {
+         if (to_eval->childset[0]) hasparams = to_eval->childset[0]->nb_childs > 0;
+      }
       if (hasparams) retval = object_base(3);
       else retval = object_base(2);
       object_member(&retval, 0, "node_type");
@@ -8154,7 +8158,7 @@ data eval_memory(node* to_eval)
 
 
 
-data eval_parsestring(node* to_eval)
+data eval_codetotree(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
@@ -8173,7 +8177,7 @@ data eval_parsestring(node* to_eval)
 
    if (err)
    {
-      yyerror("Error: Wrong number of arguments in parsestring.");
+      yyerror("Error: Wrong number of arguments in codetotree.");
       yyerror("       This function has one parameter.");
       abort_called = 1;
       return retval;
@@ -8183,7 +8187,7 @@ data eval_parsestring(node* to_eval)
    from_eval = eval(to_eval->childset[0]);
    if (from_eval.ti.dtype != DT_STRING || from_eval.ti.nderef > 0)
    {
-      yyerror("Error: Argument of parsestring is not a string.");
+      yyerror("Error: Argument of codetotree is not a string.");
       abort_called = 1;
       free_data(from_eval);
       return retval;
@@ -8295,11 +8299,11 @@ int valid_id(char* id)
    }
 
    i = 0;
+   resword = reserved_words_table[0].rword;
    while (resword != NULL)
    {
-      resword = reserved_words_table[i].rword;
       if (!strcmp(id, resword)) return 0;
-      i++;
+      resword = reserved_words_table[++i].rword;
    }
 
    return 1;
@@ -8312,8 +8316,8 @@ int first_valid(char* str)
 
    while (str[i] == ' ' && str[i] != '\0') i++;
 
-   if (str[i - 1] == '\0') return -1;
-   else return i - 1;
+   if (str[i] == '\0') return -1;
+   else return i;
 }
 
 
@@ -8333,7 +8337,7 @@ int type_token(char* str, int* nextpos)
 
    memset(buf, 0, 9);
 
-   while (ibuf < 8 && str[istr] != ' ' && str[istr] != '\0')
+   while (ibuf < 8 && str[istr] != ' ' && str[istr] != '\0' && str[istr] != '*')
    {
       buf[ibuf] = str[istr];
       ibuf++;
@@ -8422,12 +8426,17 @@ type_info parse_cast(char* str)
 
    if (token == '*')
    {
+      char currchar = str[istr];
       nindirec = 1;
-      while (type_token(&str[istr], &addpos) == '*')
+
+      while (currchar == '*' || currchar == ' ')
       {
-         nindirec++;
-         istr += addpos;
+         if (currchar == '*') nindirec++;
+         istr++;
+         currchar = str[istr];
       }
+
+      if (currchar != '\0') return retinfo;
    }
 
    itok = 0;
@@ -8437,8 +8446,11 @@ type_info parse_cast(char* str)
       itok++;
    }
 
-   retinfo.dtype = oktoktab[itok - 1].dtype;
-   retinfo.nderef = nindirec;
+   if (found)
+   {
+      retinfo.dtype = oktoktab[itok - 1].dtype;
+      retinfo.nderef = nindirec;
+   }
 
    return retinfo;
 }
@@ -9075,8 +9087,8 @@ data eval_func_call(node* to_eval)
          return eval_memory(to_eval->childset[1]);
       case FID_TREETOCODE:
          return eval_treetocode(to_eval->childset[1]);
-      case FID_PARSESTRING:
-         return eval_parsestring(to_eval->childset[1]);
+      case FID_CODETOTREE:
+         return eval_codetotree(to_eval->childset[1]);
       case FID_EXIST:
          return eval_exist(to_eval->childset[1]);
       case FID_CREATENODE:
