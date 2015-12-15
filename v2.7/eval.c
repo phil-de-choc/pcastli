@@ -135,7 +135,8 @@ typedef enum
    FID_CODETOTREE,
    FID_EXIST,
    FID_CREATENODE,
-   FID_APPENDCHILD,
+   FID_APPENDNODE,
+   FID_INSERTNODE,
    NB_FUNC
 } EFuncID;
 
@@ -151,7 +152,7 @@ pair_fn_ID func_map[] =
 {
    {"abort", FID_ABORT},
    {"alloc_copy", FID_ALLOC_COPY},
-   {"appendchild", FID_APPENDCHILD},
+   {"appendnode", FID_APPENDNODE},
    {"array", FID_ARRAY},
    {"as_array", FID_AS_ARRAY},
    {"as_list", FID_AS_LIST},
@@ -193,6 +194,7 @@ pair_fn_ID func_map[] =
    {"getwd", FID_GETWD},
    {"info", FID_INFO},
    {"insert", FID_INSERT},
+   {"insertnode", FID_INSERTNODE},
    {"length", FID_LENGTH},
    {"list", FID_LIST},
    {"memclone", FID_MEMCLONE},
@@ -1852,11 +1854,6 @@ data eval_rmnode(node* to_eval)
    if (!list.value.ptr)
    {
       yyerror("Error: Argument one in rmnode is NULL.");
-      return retval;
-   }
-   if (list.value.ptr->ntype != NT_LIST)
-   {
-      yyerror("Error: Argument one in rmnode is not a list.");
       return retval;
    }
 
@@ -8816,7 +8813,7 @@ data eval_createnode(node* to_eval)
 
 
 
-data eval_appendchild(node* to_eval)
+data eval_appendnode(node* to_eval)
 {
    int err = 0;
    size_t insertpos = 0;
@@ -8836,7 +8833,7 @@ data eval_appendchild(node* to_eval)
 
    if (err)
    {
-      yyerror("Error: Wrong number of arguments in appendchild.");
+      yyerror("Error: Wrong number of arguments in appendnode.");
       yyerror("       This function has two parameters.");
       return retval;
    }
@@ -8844,7 +8841,7 @@ data eval_appendchild(node* to_eval)
    from_eval = eval(to_eval->childset[0]);
    if (from_eval.ti.dtype != DT_POINTER || from_eval.ti.nderef != 0)
    {
-      yyerror("Error: First argument of appendchild is not a pointer to a node.");
+      yyerror("Error: First argument of appendnode is not a pointer to a node.");
       abort_called = 1;
       free_data(from_eval);
       return retval;
@@ -8854,7 +8851,7 @@ data eval_appendchild(node* to_eval)
    from_eval = eval(to_eval->childset[1]);
    if (from_eval.ti.dtype != DT_POINTER || from_eval.ti.nderef != 0)
    {
-      yyerror("Error: Second argument of appendchild is not a pointer to a node.");
+      yyerror("Error: Second argument of appendnode is not a pointer to a node.");
       abort_called = 1;
       free_data(from_eval);
       return retval;
@@ -8871,11 +8868,93 @@ data eval_appendchild(node* to_eval)
       parent->childset = realloc(parent->childset, (parent->nb_childs + 1) * sizeof(node*));
       insertpos = parent->nb_childs;
    }
-   if (!parent->childset) fatal_error("Error: Lack of memory in appendchild for new child set.");
+   if (!parent->childset) fatal_error("Error: Lack of memory in appendnode for new child set.");
 
    parent->nb_childs++;
    parent->childset[insertpos] = toappend;
    toappend->parent = parent;
+
+   return retval;
+}
+
+
+
+data eval_insertnode(node* to_eval)
+{
+   int err = 0;
+   data retval, from_eval;
+   size_t i, lpos = 0;
+   node* parent = NULL, * toinsert = NULL;
+
+   memset(&retval, 0, sizeof(data));
+
+
+   /* Arguments verification. */
+
+   if (to_eval)
+   {
+      if (to_eval->nb_childs != 3) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in insertnode.");
+      yyerror("       This function has three parameters.");
+      abort_called = 1;
+      return retval;
+   }
+
+   from_eval = eval(to_eval->childset[0]);
+   if (from_eval.ti.dtype != DT_POINTER || from_eval.ti.nderef != 0)
+   {
+      yyerror("Error: First argument of insertnode is not a pointer to a node.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+   parent = from_eval.value.ptr;
+
+   from_eval = eval(to_eval->childset[1]);
+   if (from_eval.ti.dtype != DT_POINTER || from_eval.ti.nderef != 0)
+   {
+      yyerror("Error: Second argument of insertnode is not a pointer to a node.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+   toinsert = from_eval.value.ptr;
+
+   from_eval = eval(to_eval->childset[2]);
+   if (from_eval.ti.dtype < DT_CHAR || from_eval.ti.dtype > DT_LONG_DOUBLE ||
+      from_eval.ti.nderef > 0)
+   {
+      yyerror("Error: Third argument type in insertnode is not numeric.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+   mac_cast(lpos, size_t, from_eval)
+
+
+   if (lpos > parent->nb_childs)
+   {
+      yyerror("Error: Index out of bound in insertnode.");
+      abort_called = 1;
+      return retval;
+   }
+
+
+   parent->nb_childs++;
+   parent->childset = realloc(parent->childset, parent->nb_childs * sizeof(node*));
+   if (!parent->childset) fatal_error("Error: Lack of memory in insertnode for new list.");
+
+   for (i = parent->nb_childs - 1; i >= lpos + 1; i--)
+   {
+      parent->childset[i] = parent->childset[i - 1];
+   }
+   parent->childset[lpos] = toinsert;
+   toinsert->parent = parent;
 
    return retval;
 }
@@ -9178,8 +9257,10 @@ data eval_func_call(node* to_eval)
          return eval_exist(to_eval->childset[1]);
       case FID_CREATENODE:
          return eval_createnode(to_eval->childset[1]);
-      case FID_APPENDCHILD:
-         return eval_appendchild(to_eval->childset[1]);
+      case FID_APPENDNODE:
+         return eval_appendnode(to_eval->childset[1]);
+      case FID_INSERTNODE:
+         return eval_insertnode(to_eval->childset[1]);
       default:
          break;
       }
