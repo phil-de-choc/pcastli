@@ -3920,6 +3920,7 @@ data eval_insert(node* to_eval)
 
 
    /* Arguments verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs != 3) err = 1;
@@ -4134,6 +4135,7 @@ data eval_replace(node* to_eval)
 
 
    /* Arguments verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs != 3) err = 1;
@@ -4310,7 +4312,9 @@ data eval_source(node* to_eval)
 
    memset(&retval, 0, sizeof(data));
 
+
    /* Argument verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs != 1) err = 1;
@@ -4369,7 +4373,9 @@ data eval_strlen(node* to_eval)
 
    memset(&retval, 0, sizeof(data));
 
+
    /* Argument verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs != 1) err = 1;
@@ -4415,6 +4421,7 @@ data eval_as_array(node* to_eval)
 
 
    /* Argument verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs != 1) err = 1;
@@ -4581,6 +4588,7 @@ data eval_as_list(node* to_eval)
 
 
    /* Argument verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs != 1) err = 1;
@@ -4737,6 +4745,7 @@ data eval_as_statements(node* to_eval)
 
 
    /* Argument verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs != 1) err = 1;
@@ -4990,6 +4999,7 @@ data eval_gettype(node* to_eval)
 
 
    /* Argument verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs != 1) err = 1;
@@ -5133,6 +5143,7 @@ data eval_undefine(node* to_eval)
 
 
    /* Argument verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs != 1) err = 1;
@@ -8170,7 +8181,9 @@ data eval_codetotree(node* to_eval)
 
    memset(&retval, 0, sizeof(data));
 
+
    /* Argument verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs != 1) err = 1;
@@ -8230,7 +8243,9 @@ data eval_exist(node* to_eval)
 
    memset(&retval, 0, sizeof(data));
 
+
    /* Argument verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs != 1) err = 1;
@@ -8468,7 +8483,9 @@ data eval_createnode(node* to_eval)
 
    memset(&retval, 0, sizeof(data));
 
+
    /* Argument verification. */
+
    if (to_eval)
    {
       if (to_eval->nb_childs < 1) err = 1;
