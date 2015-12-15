@@ -135,6 +135,7 @@ typedef enum
    FID_CODETOTREE,
    FID_EXIST,
    FID_CREATENODE,
+   FID_APPENDCHILD,
    NB_FUNC
 } EFuncID;
 
@@ -150,6 +151,7 @@ pair_fn_ID func_map[] =
 {
    {"abort", FID_ABORT},
    {"alloc_copy", FID_ALLOC_COPY},
+   {"appendchild", FID_APPENDCHILD},
    {"array", FID_ARRAY},
    {"as_array", FID_AS_ARRAY},
    {"as_list", FID_AS_LIST},
@@ -8797,6 +8799,72 @@ data eval_createnode(node* to_eval)
 
 
 
+data eval_appendchild(node* to_eval)
+{
+   int err = 0;
+   size_t insertpos = 0;
+   data retval, from_eval;
+   node* parent = NULL, * toappend = NULL;
+
+   memset(&retval, 0, sizeof(data));
+
+
+   /* Arguments verification. */
+
+   if (to_eval)
+   {
+      if (to_eval->nb_childs != 2) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in appendchild.");
+      yyerror("       This function has two parameters.");
+      return retval;
+   }
+
+   from_eval = eval(to_eval->childset[0]);
+   if (from_eval.ti.dtype != DT_POINTER || from_eval.ti.nderef != 0)
+   {
+      yyerror("Error: First argument of appendchild is not a pointer to a node.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+   parent = from_eval.value.ptr;
+
+   from_eval = eval(to_eval->childset[1]);
+   if (from_eval.ti.dtype != DT_POINTER || from_eval.ti.nderef != 0)
+   {
+      yyerror("Error: Second argument of appendchild is not a pointer to a node.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+   toappend = from_eval.value.ptr;
+
+
+   if (parent->nb_childs == 0)
+   {
+      parent->childset = malloc(sizeof(node*));
+   }
+   else
+   {
+      parent->childset = realloc(parent->childset, (parent->nb_childs + 1) * sizeof(node*));
+      insertpos = parent->nb_childs;
+   }
+   if (!parent->childset) fatal_error("Error: Lack of memory in appendchild for new child set.");
+
+   parent->nb_childs++;
+   parent->childset[insertpos] = toappend;
+   toappend->parent = parent;
+
+   return retval;
+}
+
+
+
 data eval_func_call(node* to_eval)
 {
    size_t nb_param = 0, nb_args = 0, nb_members = 0, i;
@@ -9093,6 +9161,8 @@ data eval_func_call(node* to_eval)
          return eval_exist(to_eval->childset[1]);
       case FID_CREATENODE:
          return eval_createnode(to_eval->childset[1]);
+      case FID_APPENDCHILD:
+         return eval_appendchild(to_eval->childset[1]);
       default:
          break;
       }
