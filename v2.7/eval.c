@@ -137,18 +137,17 @@ typedef enum
    FID_CREATENODE,
    FID_APPENDNODE,
    FID_INSERTNODE,
+   FID_REPLACENODE,
    NB_FUNC
 } EFuncID;
 
 
-typedef struct
+struct
 {
    char* func_name;
    EFuncID eFnID;
-} pair_fn_ID;
-
-
-pair_fn_ID func_map[] =
+}
+func_map[] =
 {
    {"abort", FID_ABORT},
    {"alloc_copy", FID_ALLOC_COPY},
@@ -213,6 +212,7 @@ pair_fn_ID func_map[] =
    {"remove", FID_REMOVE},
    {"repeat", FID_REPEAT},
    {"replace", FID_REPLACE},
+   {"replacenode", FID_REPLACENODE},
    {"return", FID_RETURN},
    {"rewind", FID_REWIND},
    {"rmnode", FID_RMNODE},
@@ -239,14 +239,12 @@ pair_fn_ID func_map[] =
 };
 
 
-typedef struct
+struct
 {
    char* descr;
    node_type ntype;
-} pair_desc_NT;
-
-
-pair_desc_NT ntype_map[] =
+} 
+ntype_map[] =
 {
    {"->", NT_DEREF},
    {".", NT_REF},
@@ -861,6 +859,12 @@ data eval_math_oper(node* to_eval)
       }
 
    case '+':
+      if (to_eval->nb_childs != 2)
+      {
+         fprintf(stderr, "Error: Wrong child number ");
+         fprintf(stderr, "for a \'+\' in eval_math_oper.\n");
+         exit(1);
+      }
       from_eval1 = eval(to_eval->childset[0]);
       from_eval2 = eval(to_eval->childset[1]);
       if (from_eval1.ti.dtype < DT_CHAR || from_eval1.ti.dtype > DT_LONG_DOUBLE ||
@@ -906,6 +910,12 @@ data eval_math_oper(node* to_eval)
       }
 
    case '/':
+      if (to_eval->nb_childs != 2)
+      {
+         fprintf(stderr, "Error: Wrong child number ");
+         fprintf(stderr, "for a \'/\' in eval_math_oper.\n");
+         exit(1);
+      }
       from_eval1 = eval(to_eval->childset[0]);
       from_eval2 = eval(to_eval->childset[1]);
       if (from_eval1.ti.dtype < DT_CHAR || from_eval1.ti.dtype > DT_LONG_DOUBLE ||
@@ -979,6 +989,12 @@ data eval_math_oper(node* to_eval)
       return retval;
 
    case '^':
+      if (to_eval->nb_childs != 2)
+      {
+         fprintf(stderr, "Error: Wrong child number ");
+         fprintf(stderr, "for a \'^\' in eval_math_oper.\n");
+         exit(1);
+      }
       from_eval1 = eval(to_eval->childset[0]);
       from_eval2 = eval(to_eval->childset[1]);
       if (from_eval1.ti.dtype < DT_CHAR || from_eval1.ti.dtype > DT_LONG_DOUBLE ||
@@ -1011,9 +1027,21 @@ data eval_math_oper(node* to_eval)
       return retval;
       
    case '=':
+      if (to_eval->nb_childs != 2)
+      {
+         fprintf(stderr, "Error: Wrong child number ");
+         fprintf(stderr, "for a \'=\' in eval_math_oper.\n");
+         exit(1);
+      }
       return eval_math_oper_assign(to_eval);
 
    case '&':
+      if (to_eval->nb_childs != 1)
+      {
+         fprintf(stderr, "Error: Wrong child number ");
+         fprintf(stderr, "for a \'&\' in eval_math_oper.\n");
+         exit(1);
+      }
       return eval_ref(to_eval);
 
    default:
@@ -1090,6 +1118,8 @@ data eval_rel_oper(node* to_eval)
    switch (to_eval->opval.rel_oper)
    {
    case OR:
+      if (to_eval->nb_childs != 2) 
+         fatal_error("Error: OR operator node does not have two childs.");
       from_eval1 = eval(to_eval->childset[0]);
       from_eval2 = eval(to_eval->childset[1]);
       boolres1 = to_bool(from_eval1);
@@ -1101,6 +1131,8 @@ data eval_rel_oper(node* to_eval)
       break;
 
    case AND:
+      if (to_eval->nb_childs != 2)
+         fatal_error("Error: AND operator node does not have two childs.");
       from_eval1 = eval(to_eval->childset[0]);
       from_eval2 = eval(to_eval->childset[1]);
       boolres1 = to_bool(from_eval1);
@@ -1112,6 +1144,8 @@ data eval_rel_oper(node* to_eval)
       break;
 
    case NOT:
+      if (to_eval->nb_childs != 1)
+         fatal_error("Error: NOT operator node does not have one child.");
       from_eval1 = eval(to_eval->childset[0]);
       boolres1 = to_bool(from_eval1);
       free_data(from_eval1);
@@ -1120,22 +1154,32 @@ data eval_rel_oper(node* to_eval)
       break;
 
    case GT:
+      if (to_eval->nb_childs != 2)
+         fatal_error("Error: \">\" operator node does not have two childs.");
       mac_compare(>, <)
       break;
 
    case GE:
+      if (to_eval->nb_childs != 2)
+         fatal_error("Error: \">=\" operator node does not have two childs.");
       mac_compare(>=, <=)
       break;
 
    case LT:
+      if (to_eval->nb_childs != 2)
+         fatal_error("Error: \"<\" operator node does not have two childs.");
       mac_compare(<, >)
       break;
 
    case LE:
+      if (to_eval->nb_childs != 2)
+         fatal_error("Error: \"<=\" operator node does not have two childs.");
       mac_compare(<=, >=)
       break;
 
-case EQ:
+   case EQ:
+      if (to_eval->nb_childs != 2)
+         fatal_error("Error: \"==\" operator node does not have two childs.");
       from_eval1 = eval(to_eval->childset[0]);
       from_eval2 = eval(to_eval->childset[1]);
       retval = eval_rel_oper_eq(from_eval1, from_eval2);
@@ -1144,6 +1188,8 @@ case EQ:
       break;
 
    case NE:
+      if (to_eval->nb_childs != 2)
+         fatal_error("Error: \"!=\" operator node does not have two childs.");
       from_eval1 = eval(to_eval->childset[0]);
       from_eval2 = eval(to_eval->childset[1]);
       retval = eval_rel_oper_eq(from_eval1, from_eval2);
@@ -1153,8 +1199,7 @@ case EQ:
       break;
 
    default:
-      yyerror("Error: Unknown operator in eval_rel_oper.");
-      exit(1);
+      fatal_error("Error: Unknown operator in eval_rel_oper.");
    }
 
    return retval;
@@ -8961,6 +9006,80 @@ data eval_insertnode(node* to_eval)
 
 
 
+data eval_replacenode(node* to_eval)
+{
+   int err = 0;
+   data retval, from_eval;
+   size_t lpos = 0;
+   node* parent = NULL, * toinsert = NULL;
+
+   memset(&retval, 0, sizeof(data));
+
+
+   /* Arguments verification. */
+
+   if (to_eval)
+   {
+      if (to_eval->nb_childs != 3) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in replacenode.");
+      yyerror("       This function has three parameters.");
+      abort_called = 1;
+      return retval;
+   }
+
+   from_eval = eval(to_eval->childset[0]);
+   if (from_eval.ti.dtype != DT_POINTER || from_eval.ti.nderef != 0)
+   {
+      yyerror("Error: First argument of replacenode is not a pointer to a node.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+   parent = from_eval.value.ptr;
+
+   from_eval = eval(to_eval->childset[1]);
+   if (from_eval.ti.dtype != DT_POINTER || from_eval.ti.nderef != 0)
+   {
+      yyerror("Error: Second argument of replacenode is not a pointer to a node.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+   toinsert = from_eval.value.ptr;
+
+   from_eval = eval(to_eval->childset[2]);
+   if (from_eval.ti.dtype < DT_CHAR || from_eval.ti.dtype > DT_LONG_DOUBLE ||
+      from_eval.ti.nderef > 0)
+   {
+      yyerror("Error: Third argument type in replacenode is not numeric.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+   mac_cast(lpos, size_t, from_eval)
+
+
+   if (lpos > parent->nb_childs - 1)
+   {
+      yyerror("Error: Index out of bound in replacenode.");
+      abort_called = 1;
+      return retval;
+   }
+
+   free_tree(parent->childset[lpos]);
+   parent->childset[lpos] = toinsert;
+   toinsert->parent = parent;
+
+   return retval;
+}
+
+
+
 data eval_func_call(node* to_eval)
 {
    size_t nb_param = 0, nb_args = 0, nb_members = 0, i;
@@ -8972,6 +9091,11 @@ data eval_func_call(node* to_eval)
    clos_set* pObject = NULL;
 
    memset(&retval, 0, sizeof(data));
+
+   if (to_eval->nb_childs != 2)
+      fatal_error("Error: function call node does not have two childs.");
+   if (to_eval->childset[1]->ntype != NT_LIST)
+      fatal_error("Error: function call child node 2 is not a list.");
 
    if (to_eval->childset[0]->ntype == NT_VARIABLE)
    {
@@ -9261,6 +9385,8 @@ data eval_func_call(node* to_eval)
          return eval_appendnode(to_eval->childset[1]);
       case FID_INSERTNODE:
          return eval_insertnode(to_eval->childset[1]);
+      case FID_REPLACENODE:
+         return eval_replacenode(to_eval->childset[1]);
       default:
          break;
       }
@@ -9505,6 +9631,9 @@ data eval_incr_decr(node* to_eval)
 
    memset(&retval, 0, sizeof(data));
 
+   if (to_eval->nb_childs != 1)
+      fatal_error("Error: increment or decrement node does not have one child.");
+
    to_change = resolve(to_eval->childset[0]);
 
    if (!to_change) return retval;
@@ -9576,6 +9705,9 @@ data eval_subscript(node* to_eval)
    data retval, * from_resolve, from_eval, index;
 
    memset(&retval, 0, sizeof(data));
+
+   if (to_eval->nb_childs != 2)
+      fatal_error("Error: subscript node does not have two childs.");
 
    from_resolve = resolve_subscript(to_eval);
 
@@ -9682,6 +9814,8 @@ data eval_cast(node* to_eval)
 
    memset(&retval, 0, sizeof(data));
 
+   if (to_eval->nb_childs != 1)
+      fatal_error("Error: cast node does not have one child.");
 
    from_eval = eval(to_eval->childset[0]);
 
@@ -9954,6 +10088,9 @@ data eval(node* to_eval)
       return eval_func_call(to_eval);
 
    case NT_IF_STMT:
+      if (to_eval->nb_childs != 2)
+         fatal_error("Error: if statement node does not have two childs.");
+
       if (to_bool(eval(to_eval->childset[0])))
       {
          return eval(to_eval->childset[1]);
@@ -9964,6 +10101,9 @@ data eval(node* to_eval)
       }
 
    case NT_IFELSE_STMT:
+      if (to_eval->nb_childs != 3)
+         fatal_error("Error: if else statement node does not have three childs.");
+
       if (to_bool(eval(to_eval->childset[0])))
       {
          return eval(to_eval->childset[1]);
@@ -9974,6 +10114,9 @@ data eval(node* to_eval)
       }
 
    case NT_WHILE_STMT:
+      if (to_eval->nb_childs != 2)
+         fatal_error("Error: while statement node does not have two childs.");
+
       from_eval = eval(to_eval->childset[0]);
       doloop = to_bool(from_eval);
       free_data(from_eval);
@@ -9988,6 +10131,9 @@ data eval(node* to_eval)
       return retval;
 
    case NT_FOR_STMT:
+      if (to_eval->nb_childs != 4)
+         fatal_error("Error: for statement node does not have four childs.");
+
       create_context();
       from_eval = eval(to_eval->childset[0]);
       free_data(from_eval);
@@ -10041,6 +10187,9 @@ data eval(node* to_eval)
       return retval;
 
    case NT_VARGENLIST:
+      if (to_eval->nb_childs != 2)
+         fatal_error("Error: vargenlist node does not have two childs.");
+
       from_eval = eval(to_eval->childset[0]);
       if (from_eval.ti.dtype == DT_POINTER)
       {

@@ -664,6 +664,8 @@ cont_type resolve_accesslist(node* acclist, closure** ppclos, data* pdata)
       yyerror("Error: Access list expected in resolve_accesslist.");
       exit(1);
    }
+   if (acclist->nb_childs < 3)
+      fatal_error("Error: access list node does not have at least three childs.");
 
    if (acclist->childset[0]->ntype == NT_VARIABLE)
    {
