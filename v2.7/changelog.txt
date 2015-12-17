@@ -2,6 +2,20 @@
 by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 -----------------------------------------------------------------------------
 
+v2.7   2015-12-17
+
+Added internal functions "codetotree", "exist", "createnode", "appendnode", 
+   "insertnode" and "replacenode".
+The second parameter of the internal function "treetocode" is now optional and 
+   has "   " as default value.
+Internal function "info" now returns an object.
+Internal function "rmnode" now accepts a parent node of non-list type.
+The subscript operator can now be applied to a string and the resulting value
+   will be of "char" type.  Idem for a variable containing a string.
+Improved identifier validation in "atovar" internal function.
+The number of children nodes is now verified before the execution of a node.
+Code with syntax error is no more executed after being parsed.
+
 v2.6   2015-12-04
 
 Added internal function "treetocode".

@@ -333,6 +333,7 @@ extern struct
 reserved_words_table[];
 
 data eval_dotlist(node* start_pt, node* dotlist);
+int valid_id(char* id);
 
 
 data assign_node_pointers(node* to_eval, data from_eval2)
@@ -7055,8 +7056,7 @@ data eval_atovar(node* to_eval)
    }
 
    /* Name validation */
-   if (!isalpha(from_eval.value.str.tab[0]) && 
-      from_eval.value.str.tab[0] != '_')
+   if (!valid_id(from_eval.value.str.tab))
    {
       yyerror("Error: The string is not a valid identifier.");
       free_data(from_eval);
@@ -8220,6 +8220,7 @@ data eval_codetotree(node* to_eval)
    input_type previnputsrc;
    input_union previnputadr;
    node* prevroot = NULL;
+   size_t oldreadpos = readpos, oldmaxpos = maxpos;
 
    memset(&retval, 0, sizeof(data));
 
@@ -8269,6 +8270,8 @@ data eval_codetotree(node* to_eval)
    inputsrc = previnputsrc;
    inputadr = previnputadr;
    root = prevroot;
+   readpos = oldreadpos;
+   maxpos = oldmaxpos;
 
    free_data(from_eval);
 
@@ -8606,7 +8609,7 @@ data eval_createnode(node* to_eval)
    case NT_MATH_OPER:
       if (to_eval->nb_childs < 2)
       {
-         yyerror("Error: Second argument expected in createnode. ");
+         yyerror("Error: Second argument expected in createnode.");
          abort_called = 1;
          return retval;
       }

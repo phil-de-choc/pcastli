@@ -124,7 +124,7 @@ void unreadchar(char c)
       #ifdef _WIN32
       ungetc(c, inputadr.inputfile);
       #else
-      if (inputfile == stdin)
+      if (inputadr.inputfile == stdin)
       {
          readpos--;
       }

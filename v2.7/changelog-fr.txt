@@ -3,7 +3,7 @@ Liste des changements de l'interpréteur du
 by Parent and Childset Accessible Syntax Tree Language
 ------------------------------------------------------
 
-v2.7
+v2.7   2015-12-17
 
 Ajouté les fonctions internes "codetotree", "exist", "createnode", "appendnode", 
    "insertnode" et "replacenode".
@@ -14,6 +14,7 @@ La fonction interne "rmnode" accepte maintenant un noeud parent non de type list
 L'opérateur d'indice peut maintenant être directement appliqué à une chaîne de 
    caractères et la valeur résultante sera du type "char".  Idem pour une variable 
    contenant une chaîne de caractères.
+Amélioré la validation d'identifiant dans la fonction interne "atovar".
 Le nombre de noeuds fils est maintenant vérifié avant l'exécution d'un noeud.
 Le code avec erreur de syntaxe n'est plus exécuté après avoir été parsé.
 
