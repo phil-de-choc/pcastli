@@ -26,6 +26,7 @@
 #include "init.h"
 #include "node.h"
 #include "gcollection.h"
+#include "util.h"
 
 
 void parse_init(void)
@@ -42,6 +43,10 @@ void parse_init(void)
 /* Definition of the global closure set. */
 void clos_stack_init(void)
 {
+   clos_set_stack = malloc(50 * sizeof(closure*));
+   if (!clos_set_stack) fatal_error("Error: Lack of memory for closure stack.");
+   memset(clos_set_stack, 0, 50 * sizeof(closure*));
+
    clos_set_stack[0] = malloc(sizeof(closure));
    if (!clos_set_stack[0])
    {
@@ -49,6 +54,9 @@ void clos_stack_init(void)
       exit(1);
    }
    memset(clos_set_stack[0], 0, sizeof(closure));
+
+   set_stack_size = 1;
+   set_stack_limit = 50;
 }
 
 

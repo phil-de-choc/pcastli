@@ -31,6 +31,9 @@
 
 char* sPrompt = NULL;
 node* root = NULL;
+clos_set** clos_set_stack;
+size_t set_stack_size;
+size_t set_stack_limit;
 
 extern input_type inputsrc;
 extern input_union inputadr;
@@ -117,10 +120,11 @@ node* copy_tree(node* to_copy, node* parent)
 
 void create_context(int is_func_cont)
 {
-   if (++set_stack_size == CONTEXTSTACK_SIZE)
+   if (++set_stack_size > set_stack_limit)
    {
-      yyerror("Error: Too much nested contexts.");
-      exit(1);
+      set_stack_limit += 50;
+      clos_set_stack = realloc(clos_set_stack, set_stack_limit * sizeof(clos_set*));
+      if (!clos_set_stack) fatal_error("Error: Lack of memory for closures stack realloc.");
    }
 
    clos_set_stack[set_stack_size-1] = malloc(sizeof(clos_set));

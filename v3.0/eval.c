@@ -40,7 +40,6 @@
 
 int return_called = 0;
 int abort_called = 0;
-size_t set_stack_size = 1;
 
 #if defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
 void asmcall(size_t nchunks, void** raw_args, void (*funcpt)(void), size_t* chunkfloat, void** outregs);

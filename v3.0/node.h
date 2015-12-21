@@ -234,7 +234,8 @@ typedef union
 } input_union;
 
 extern size_t set_stack_size;
-clos_set* clos_set_stack[CONTEXTSTACK_SIZE];
+extern clos_set** clos_set_stack;
+extern size_t set_stack_limit;
 
 
 /* Other globals. */
