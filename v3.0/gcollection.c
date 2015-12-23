@@ -131,6 +131,7 @@ void gc(void)
    g_item* i_pt = g_lst;
    int found = 0;
 
+int count = 0;
    while (i_pt)
    {
       s_item* stack_top = NULL, * last_top = NULL, * new_top = NULL;
@@ -233,6 +234,7 @@ void gc(void)
          }
          i_pt = i_pt->next;
       }
+count++;
    }
 }
 

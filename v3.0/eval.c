@@ -4407,6 +4407,7 @@ data eval_source(node* to_eval)
    }
    else
    {
+      node* prevroot = root;
       input_union previnputadr = inputadr;
 
       inputadr.inputfile = fopen_res;
@@ -4417,6 +4418,7 @@ data eval_source(node* to_eval)
       }
       fclose(fopen_res);
       inputadr = previnputadr;
+      root = prevroot;
    }
 
    free_data(from_eval);

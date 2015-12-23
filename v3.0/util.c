@@ -397,7 +397,6 @@ void free_data(data dt)
    if (dt.ti.dtype == DT_OBJECT) free_object(dt.value.pObject);
    else if (dt.ti.dtype == DT_ARRAY) free_array(dt.value.pArray);
    else if (dt.ti.dtype == DT_LIST) free_list(dt.value.pList);
-   else if (dt.ti.dtype == DT_PFPOS_T) free(dt.value.pfpos);
 }
 
 

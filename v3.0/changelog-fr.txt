@@ -8,12 +8,14 @@ v3.0
 Dans le contexte courant, les variables des contextes précédents sont maintenant 
    seulement visibles jusqu'au contexte de la fonction courante.  Les seules 
    autres variables visibles sont celles du contexte global.
-Le nombre d'appels emboîtés est maintenant limité par la taille de la "stack".
+Le nombre d'appels emboîtés est maintenant limité par la taille de la pile.
 Le point-virgule peut maintenant être placé à la fin de toute expression.
 La fonction fgetc retourne maintenant un entier au lieu d'une chaîne de 
    caractères.
 Une variable de type chaîne de caractères avec un indice pour une assignation 
    peut maintenant recevoir un charactère.
+Le contenu de type pointeur vers fpos_t est maintenant libéré par le garbage 
+   collector uniquement au lieu d'être libéré en même temps que le contexte.
 Réglé le problème de subseq appliqué à un "array".
 Réglé le problème de "heap corruption" dans info appliqué à un noeud definition 
    de fonction.
