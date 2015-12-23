@@ -200,7 +200,7 @@ data eval_slib_call(data dtpfunc, node* to_eval)
    double outreal = 0.0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    size_t* chunkfloat = NULL;
-   void* outregs[3] = {0, 0, 0};
+   void* outregs[3] = {NULL, NULL, NULL};
    float flnum;
    #endif
 

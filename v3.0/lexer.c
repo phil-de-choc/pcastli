@@ -143,7 +143,7 @@ void unreadchar(char c)
 
 char skip_space(void)
 {
-   char c;
+   char c = '\0';
    while ((c = (char)readchar()) == ' ' || c == '\t' || c == '\f') /* nothing */;
    return c;
 }
@@ -224,6 +224,8 @@ int readhex(void)
    int retval = 0;
    char* currbuff = NULL;
 
+   memset(buf, 0, 11 * sizeof(char));
+
    if (inputsrc == IT_FILE) currbuff = line;
    else if (inputsrc == IT_STRING) currbuff = inputadr.str;
    else fatal_error("Error: Unpexpected input type found in readhex function.");
@@ -294,7 +296,7 @@ reserved_words_table[] =
 
 int token(void)
 {
-   char c;
+   char c = '\0';
    static char* symbuf = NULL;
    static int length = 0;
 
@@ -629,7 +631,7 @@ escape_ok:
    /* Identifiers */
    if (isalpha(c) || c == '_')
    {
-      int i;
+      int i = 0;
 
       /* Initially make the buffer long enough
       for a 40-character symbol name.  */
@@ -873,7 +875,7 @@ void ifpop(void)
 
 int yylex(void)
 {
-   int tok;
+   int tok = 0;
 
 again:
 

@@ -15,6 +15,8 @@ La fonction fgetc retourne maintenant un entier au lieu d'une chaîne de
 Une variable de type chaîne de caractères avec un indice pour une assignation 
    peut maintenant recevoir un charactère.
 Réglé le problème de subseq appliqué à un "array".
+Réglé le problème de "heap corruption" dans info appliqué à un noeud definition 
+   de fonction.
 
 v2.7   2015-12-17
 

@@ -36,7 +36,7 @@ int max_executions = 5;
 /* Recursive object search for a pointer. */
 int pt_in_object(const clos_set* pobject, alloc_ptr aptr, pointer_type pt)
 {
-   size_t i;
+   size_t i = 0;
 
    if (pt == PT_OBJECT)
    {
@@ -59,7 +59,7 @@ int pt_in_object(const clos_set* pobject, alloc_ptr aptr, pointer_type pt)
 
 int pt_in_array(const array* parr, alloc_ptr aptr, pointer_type pt)
 {
-   size_t i;
+   size_t i = 0;
 
    if (pt == PT_ARRAY)
    {
@@ -82,7 +82,7 @@ int pt_in_array(const array* parr, alloc_ptr aptr, pointer_type pt)
 
 int pt_in_list(const list* plst, alloc_ptr aptr, pointer_type pt)
 {
-   size_t i;
+   size_t i = 0;
    listlink * plink = plst->start;
 
    if (pt == PT_LIST)
@@ -108,7 +108,7 @@ int pt_in_list(const list* plst, alloc_ptr aptr, pointer_type pt)
 /* Search a pointer in closures. */
 int search(alloc_ptr aptr, pointer_type pt)
 {
-   size_t j;
+   size_t j = 0;
 
    /* No "i" because gc is only called between top statements. */
    for (j = 0; j < clos_set_stack[0]->nb_clos; j++)
@@ -129,11 +129,11 @@ int search(alloc_ptr aptr, pointer_type pt)
 void gc(void)
 {
    g_item* i_pt = g_lst;
-   int found;
+   int found = 0;
 
    while (i_pt)
    {
-      s_item* stack_top = NULL, * last_top, * new_top;
+      s_item* stack_top = NULL, * last_top = NULL, * new_top = NULL;
 
       found = 0;
 
@@ -146,12 +146,12 @@ void gc(void)
             yyerror("Error: Lack of memory in gc for stack_top.");
             exit(1);
          }
-         stack_top->prev = NULL;
+         memset(stack_top, 0, sizeof(s_item));
          stack_top->aptr = i_pt->aptr;
 
          while (stack_top && !found)
          {
-            size_t i_child;
+            size_t i_child = 0;
             alloc_ptr searched_aptr;
 
             /* Popping a node. */
@@ -173,6 +173,7 @@ void gc(void)
                   yyerror("Error: Lack of memory in gc for new_top.");
                   exit(1);
                }
+               memset(new_top, 0, sizeof(s_item));
                new_top->prev = stack_top;
                new_top->aptr.ptr = searched_aptr.ptr->childset[i_child];
 
@@ -242,6 +243,8 @@ void g_lst_add(void* vptr, pointer_type pt)
 {
    alloc_ptr aptr;
 
+   memset(&aptr, 0, sizeof(alloc_ptr));
+
    if (!vptr) return;
 
    aptr.vptr = vptr;
@@ -302,7 +305,7 @@ void g_lst_remove(void* vptr, pointer_type pt)
 
 void g_free_object(clos_set* pcs)
 {
-   size_t i;
+   size_t i = 0;
 
    for (i = 0; i < pcs->nb_clos; i++)
    {
@@ -327,8 +330,8 @@ void g_free_array(array* pArray)
 
 void g_free_list(list* pList)
 {
-   listlink* plink = pList->start, * next;
-   size_t i;
+   listlink* plink = pList->start, * next = NULL;
+   size_t i = 0;;
 
    for (i = 0; i < pList->length; i++)
    {

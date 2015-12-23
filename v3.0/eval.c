@@ -338,8 +338,8 @@ int valid_id(char* id);
 data assign_node_pointers(node* to_eval, data from_eval2)
 {
    data from_eval1, retval;
-   node* argroot;
-   unsigned int found, i;
+   node* argroot = NULL;
+   unsigned int found = 0, i = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -405,13 +405,16 @@ data assign_node_pointers(node* to_eval, data from_eval2)
 
 data eval_math_oper_assign(node* to_eval)
 {
-   data retval, from_eval1, from_eval2, dt_ret, * from_resolve;
-   size_t nb_clos;
-   closure* destination = NULL, source, * pclos_ret;
-   char* left_symbol;
-   cont_type ct_ret;
+   data retval, from_eval1, from_eval2, dt_ret, * from_resolve = NULL;
+   size_t nb_clos = 0;
+   closure* destination = NULL, source, * pclos_ret = NULL;
+   char* left_symbol = NULL;
+   cont_type ct_ret = NEITHER;
 
    memset(&retval, 0, sizeof(data));
+   memset(&from_eval1, 0, sizeof(data));
+   memset(&dt_ret, 0, sizeof(data));
+   memset(&source, 0, sizeof(closure));
 
    if (!to_eval) return retval;
    if (to_eval->nb_childs <= 1) return retval;
@@ -693,7 +696,7 @@ data eval_indir(node* to_eval)
 
 data eval_ref(node* to_eval)
 {
-   data retval, * pdata;
+   data retval, * pdata = NULL;
 
    memset(&retval, 0, sizeof(data));
 
@@ -768,9 +771,11 @@ data eval_math_oper(node* to_eval)
 {
    data retval, from_eval1, from_eval2;
    int err = 0;
-   data_type dtmaxt;
+   data_type dtmaxt = DT_UNDEF;
 
    memset(&retval, 0, sizeof(data));
+   memset(&from_eval1, 0, sizeof(data));
+   memset(&from_eval2, 0, sizeof(data));
 
    switch (to_eval->opval.math_oper)
    {
@@ -1119,9 +1124,11 @@ data eval_rel_oper_eq(data dat1, data dat2)
 data eval_rel_oper(node* to_eval)
 {
    data retval, from_eval1, from_eval2;
-   int boolres1, boolres2;
+   int boolres1 = 0, boolres2 = 0;
 
    memset(&retval, 0, sizeof(data));
+   memset(&from_eval1, 0, sizeof(data));
+   memset(&from_eval2, 0, sizeof(data));
 
    switch (to_eval->opval.rel_oper)
    {
@@ -1307,7 +1314,7 @@ data eval_info(node* to_eval)
    int err = 0, hasparams = 0;
    data retval, from_eval;
    char* opstr = NULL, * caststr = NULL;
-   size_t i;
+   size_t i = 0;
    string* pstr = NULL;
 
    memset(&retval, 0, sizeof(data));
@@ -1472,12 +1479,12 @@ data eval_info(node* to_eval)
          if (!parr->dtable) fatal_error("Error: Lack of memory in info for array data.");
          memset(parr->dtable, 0, parr->length * sizeof(data));
 
-         for (i = 0; i < to_eval->childset[0]->nb_childs; i++)
+         for (i = 0; i < parr->length; i++)
          {
             if (to_eval->childset[0]->childset[i]->ntype != NT_VARIABLE)
                fatal_error("Error: Found a non variable function parameter in info.");
 
-            parr->dtable[i].value.str.length = strlen(to_eval->childset[0]->childset[i]->opval.name + 1);
+            parr->dtable[i].value.str.length = strlen(to_eval->childset[0]->childset[i]->opval.name) + 1;
             parr->dtable[i].value.str.tab = malloc(parr->dtable[i].value.str.length);
             if (!parr->dtable[i].value.str.tab) fatal_error("Error: Lack of memory in info for string data.");
             g_lst_add(parr->dtable[i].value.str.tab, PT_CHAR_TAB);
@@ -1772,7 +1779,7 @@ data eval_mknode(node* to_eval)
 {
    int err = 0;
    data retval, source, dest, index;
-   size_t i, lindx = 0;
+   size_t i = 0, lindx = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -1875,7 +1882,7 @@ data eval_mknode(node* to_eval)
 data eval_rmnode(node* to_eval)
 {
    int err = 0;
-   size_t lindx = 0, i;
+   size_t lindx = 0, i = 0;
    data retval, list, index;
 
    memset(&retval, 0, sizeof(data));
@@ -2093,7 +2100,7 @@ char scanbuf[SCANBUF_LEN];
 
 data eval_scan(void)
 {
-   int i, wbegin, wlen;
+   int i = 0, wbegin = 0, wlen = 0;
    data retval;
    node* listnode = xxemptylist();
 
@@ -2145,11 +2152,11 @@ data eval_scan(void)
 
 data eval_read(node* to_eval)
 {
-   int err = 0, wlen;
+   int err = 0, wlen = 0;
    data retval, from_eval;
-   FILE* is;
-   node* listnode;
-   char c;
+   FILE* is = NULL;
+   node* listnode = NULL;
+   char c = '\0';
 
    memset(&retval, 0, sizeof(data));
 
@@ -2243,8 +2250,8 @@ data eval_write(node* to_eval)
 {
    int err = 0;
    data retval, dest, list, separ;
-   FILE* os;
-   size_t i;
+   FILE* os = NULL;
+   size_t i = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -2433,7 +2440,7 @@ data eval_tonode(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
-   node* npt;
+   node* npt = NULL;
 
    memset(&retval, 0, sizeof(data));
 
@@ -2508,7 +2515,7 @@ data eval_tonode(node* to_eval)
 data eval_subseq(node* to_eval)
 {
    int err = 0;
-   size_t lstart = 0, lend = 0, len, i, j;
+   size_t lstart = 0, lend = 0, len = 0, i = 0, j = 0;
    data retval, seq, start, end;
    size_t seqlen = 0;
 
@@ -2711,7 +2718,7 @@ data eval_subseq(node* to_eval)
    }
    else if (seq.ti.dtype == DT_LIST)
    {
-      listlink** destination, * src = seq.value.pList->start;
+      listlink** destination = NULL, * src = seq.value.pList->start;
       list* plst = malloc(sizeof(list));
       if (!plst)
       {
@@ -2756,8 +2763,8 @@ data eval_subseq(node* to_eval)
 data eval_concat(node* to_eval)
 {
    int err = 0;
-   data retval, * data_tab;
-   size_t len = 0, i, j, k;
+   data retval, * data_tab = NULL;
+   size_t len = 0, i = 0, j = 0, k = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -2813,7 +2820,7 @@ data eval_concat(node* to_eval)
 
    if (data_tab[0].ti.dtype == DT_POINTER)
    {
-      node* npt;
+      node* npt = NULL;
 
       /* Lists verification */
       for (i = 0; i < to_eval->nb_childs; i++)
@@ -2880,7 +2887,7 @@ data eval_concat(node* to_eval)
    }
    else if (data_tab[0].ti.dtype == DT_ARRAY)
    {
-      array* parr;
+      array* parr = NULL;
 
       /* Output array length. */
       for (i = 0; i < to_eval->nb_childs; i++)
@@ -2920,8 +2927,8 @@ data eval_concat(node* to_eval)
    }
    else if (data_tab[0].ti.dtype == DT_LIST)
    {
-      list* plst;
-      listlink** destination, * plink_dest, * plink_src;
+      list* plst = NULL;
+      listlink** destination = NULL, * plink_dest = NULL, * plink_src = NULL;
 
       /* Output list length. */
       for (i = 0; i < to_eval->nb_childs; i++)
@@ -2971,7 +2978,7 @@ data eval_concat(node* to_eval)
    }
    else if (data_tab[0].ti.dtype == DT_STRING)
    {
-      char* str;
+      char* str = NULL;
 
       /* Output string length. */
       for (i = 0; i < to_eval->nb_childs; i++)
@@ -3020,6 +3027,7 @@ data eval_ntoa(node* to_eval)
    char buf[40];
 
    memset(&retval, 0, sizeof(data));
+   memset(buf, 0, 40 * sizeof(char));
 
 
    /* Argument verification. */
@@ -3159,6 +3167,7 @@ data eval_aton(node* to_eval)
 data eval_return(node* to_eval)
 {
    data retval;
+
    memset(&retval, 0, sizeof(data));
 
    if (!to_eval)
@@ -3230,7 +3239,7 @@ data eval_copytree(node* to_eval)
 data eval_clear(node* to_eval)
 {
    data retval;
-   size_t i, j, arg;
+   size_t i = 0, j = 0, arg = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -3361,8 +3370,8 @@ data eval_prompt(node* to_eval)
 data eval_names(node* to_eval)
 {
    int err = 0;
-   data retval, * from_eval;
-   size_t arg, i;
+   data retval, * from_eval = NULL;
+   size_t arg = 0, i = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -3466,8 +3475,8 @@ data eval_array(node* to_eval)
 {
    int zerolen = 0;
    data retval;
-   array* pArr;
-   size_t arg;
+   array* pArr = NULL;
+   size_t arg = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -3520,9 +3529,9 @@ data eval_list(node* to_eval)
 {
    int zerolen = 0;
    data retval;
-   list* plst;
-   listlink** destination;
-   size_t arg;
+   list* plst = NULL;
+   listlink** destination = NULL;
+   size_t arg = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -3575,12 +3584,13 @@ data eval_list(node* to_eval)
 data eval_fillobject(node* to_eval)
 {
    int err = 0;
-   data retval, * pdata, from_eval;
-   clos_set* pobj;
-   closure* pclos;
-   size_t nIter, i;
+   data retval, * pdata = NULL, from_eval;
+   clos_set* pobj = NULL;
+   closure* pclos = NULL;
+   size_t nIter = 0, i = 0;
 
    memset(&retval, 0, sizeof(data));
+   memset(&from_eval, 0, sizeof(data));
 
 
    /* Arguments verification. */
@@ -3623,8 +3633,7 @@ data eval_fillobject(node* to_eval)
    }
    else if (to_eval->childset[0]->ntype == NT_ACCESSLIST)
    {
-      cont_type ct;
-      ct = resolve_accesslist(to_eval->childset[0], &pclos, &from_eval);
+      cont_type ct = resolve_accesslist(to_eval->childset[0], &pclos, &from_eval);
 
       if (ct != CLOSURE) return retval;
 
@@ -3715,8 +3724,8 @@ data eval_fillobject(node* to_eval)
 data eval_setlength(node* to_eval)
 {
    int err = 0;
-   data retval, length, * pdest;
-   size_t oldlen, i, llength = 0;
+   data retval, length, * pdest = NULL;
+   size_t oldlen = 0, i = 0, llength = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -3964,8 +3973,8 @@ data eval_setlength(node* to_eval)
 data eval_insert(node* to_eval)
 {
    int err = 0;
-   data retval, pos, * pdest, from_eval;
-   size_t oldlen, i, j, addlen, lpos = 0;
+   data retval, pos, * pdest = NULL, from_eval;
+   size_t oldlen = 0, i = 0, j = 0, addlen = 0, lpos = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -4087,7 +4096,7 @@ data eval_insert(node* to_eval)
    }
    else if (pdest->ti.dtype == DT_ARRAY)
    {
-      data* alias;
+      data* alias = NULL;
       addlen = from_eval.value.pArray->length;
       if (addlen == 0)
       {
@@ -4142,7 +4151,7 @@ data eval_insert(node* to_eval)
    }
    else /* pdest->ti.dtype == DT_POINTER */
    {
-      node** nptab;
+      node** nptab = NULL;
       addlen = from_eval.value.ptr->nb_childs;
       if (addlen == 0)
       {
@@ -4179,8 +4188,8 @@ data eval_insert(node* to_eval)
 data eval_replace(node* to_eval)
 {
    int err = 0;
-   data retval, pos, * pdest, from_eval;
-   size_t oldlen, i, j, addlen, end, lpos = 0;
+   data retval, pos, * pdest = NULL, from_eval;
+   size_t oldlen = 0, i = 0, j = 0, addlen = 0, end = 0, lpos = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -4465,8 +4474,8 @@ data eval_as_array(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
-   array* parr;
-   size_t i;
+   array* parr = NULL;
+   size_t i = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -4578,7 +4587,7 @@ data eval_as_array(node* to_eval)
 
    else if (from_eval.ti.dtype == DT_LIST)
    {
-      listlink* plink;
+      listlink* plink = NULL;
 
       parr = malloc(sizeof(array));
       if (!parr)
@@ -4631,9 +4640,9 @@ data eval_as_list(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
-   list* plst;
-   listlink** destination;
-   size_t i;
+   list* plst = NULL;
+   listlink** destination = NULL;
+   size_t i = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -4707,6 +4716,7 @@ data eval_as_list(node* to_eval)
          if (from_eval.value.ptr->childset[i]->ntype == NT_STRING)
          {
             string str;
+            memset(&str, 0, sizeof(string));
             str.length = from_eval.value.ptr->childset[i]->opval.str.length;
             str.tab = malloc(str.length);
             if (!str.tab)
@@ -4789,8 +4799,8 @@ data eval_as_statements(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
-   node* npt;
-   size_t i;
+   node* npt = NULL;
+   size_t i = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -4874,7 +4884,7 @@ data eval_as_statements(node* to_eval)
          else if (from_eval.value.pArray->dtable[i].ti.dtype == DT_STRING)
          {
             size_t len = from_eval.value.pArray->dtable[i].value.str.length;
-            char* str;
+            char* str = NULL;
 
             npt->childset[i] = malloc(sizeof(node));
             if (!npt->childset[i])
@@ -4922,7 +4932,7 @@ data eval_as_statements(node* to_eval)
 
    else if (from_eval.ti.dtype == DT_LIST)
    {
-      listlink* plink;
+      listlink* plink = NULL;
 
       npt = malloc(sizeof(node));
       if (!npt)
@@ -4980,7 +4990,7 @@ data eval_as_statements(node* to_eval)
          else if (plink->content.ti.dtype == DT_STRING)
          {
             size_t len = plink->content.value.str.length;
-            char* str;
+            char* str = NULL;
 
             npt->childset[i] = malloc(sizeof(node));
             if (!npt->childset[i])
@@ -5042,8 +5052,8 @@ data eval_gettype(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
-   char* type;
-   size_t i, len, len_type;
+   char* type = NULL;
+   size_t i = 0, len = 0, len_type = 0;
 
    memset(&retval, 0, sizeof(data));
    retval.ti.dtype = DT_STRING;
@@ -5188,7 +5198,7 @@ data eval_gettype(node* to_eval)
 data eval_undefine(node* to_eval)
 {
    int err = 0;
-   data retval, * resolved;
+   data retval, * resolved = NULL;
 
    memset(&retval, 0, sizeof(data));
 
@@ -5223,14 +5233,14 @@ data eval_undefine(node* to_eval)
 data eval_printf(node* to_eval)
 {
    int err = 0;
-   data arg1, retval, * argtab;
-   void** raw_args;
-   size_t i, sznchunks;
+   data arg1, retval, * argtab = NULL;
+   void** raw_args = NULL;
+   size_t i = 0, sznchunks = 0;
    #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
-   size_t* chunkfloat;
-   void* outregs[3] = {0, 0, 0};
+   size_t* chunkfloat = NULL;
+   void* outregs[3] = {NULL, NULL, NULL};
    #endif
 
    memset(&retval, 0, sizeof(data));
@@ -5320,14 +5330,14 @@ data eval_printf(node* to_eval)
 data eval_scanf(node* to_eval)
 {
    int err = 0;
-   data retval, arg1, * argtab;
-   void** raw_args;
-   size_t i, sznchunks;
+   data retval, arg1, * argtab = NULL;
+   void** raw_args = NULL;
+   size_t i = 0, sznchunks = 0;
    #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
-   size_t* chunkfloat;
-   void* outregs[3] = {0, 0, 0};
+   size_t* chunkfloat = NULL;
+   void* outregs[3] = {NULL, NULL, NULL};
    #endif
 
    memset(&retval, 0, sizeof(data));
@@ -5525,14 +5535,14 @@ data eval_fclose(node* to_eval)
 data eval_fprintf(node* to_eval)
 {
    int err = 0;
-   data retval, arg1, arg2, * argtab;
-   void** raw_args;
-   size_t i, sznchunks;
+   data retval, arg1, arg2, * argtab = NULL;
+   void** raw_args = NULL;
+   size_t i = 0, sznchunks = 0;
    #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
-   size_t* chunkfloat;
-   void* outregs[3] = {0, 0, 0};
+   size_t* chunkfloat = NULL;
+   void* outregs[3] = {NULL, NULL, NULL};
    #endif
 
    memset(&retval, 0, sizeof(data));
@@ -5632,14 +5642,14 @@ data eval_fprintf(node* to_eval)
 data eval_fscanf(node* to_eval)
 {
    int err = 0;
-   data retval, arg1, arg2, * argtab;
-   void** raw_args;
-   size_t i, sznchunks;
+   data retval, arg1, arg2, * argtab = NULL;
+   void** raw_args = NULL;
+   size_t i = 0, sznchunks = 0;
    #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
-   size_t* chunkfloat;
-   void* outregs[3] = {0, 0, 0};
+   size_t* chunkfloat = NULL;
+   void* outregs[3] = {NULL, NULL, NULL};
    #endif
 
    memset(&retval, 0, sizeof(data));
@@ -5781,7 +5791,7 @@ data eval_feof(node* to_eval)
 data eval_fread(node* to_eval)
 {
    int err = 0;
-   data retval, * buff, size, count, stream;
+   data retval, * buff = NULL, size, count, stream;
    long lsize = 0, lcount = 0;
 
    memset(&retval, 0, sizeof(data));
@@ -5978,7 +5988,7 @@ data eval_clearerr(node* to_eval)
 data eval_fgetpos(node* to_eval)
 {
    int err = 0;
-   data retval, arg1, * arg2;
+   data retval, arg1, * arg2 = NULL;
 
    memset(&retval, 0, sizeof(data));
 
@@ -6168,7 +6178,7 @@ data eval_fgetc(node* to_eval)
 
 data eval_ungetc(node* to_eval)
 {
-   int err = 0, unget_ret;
+   int err = 0, unget_ret = 0;
    data retval, arg1, arg2;
 
    memset(&retval, 0, sizeof(data));
@@ -6571,14 +6581,14 @@ data eval_tmpfile(void)
 data eval_sprintf(node* to_eval)
 {
    int err = 0;
-   data retval, arg1, arg2, * argtab;
-   void** raw_args;
-   size_t i, sznchunks;
+   data retval, arg1, arg2, * argtab = NULL;
+   void** raw_args = NULL;
+   size_t i = 0, sznchunks = 0;
    #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
-   size_t* chunkfloat;
-   void* outregs[3] = {0, 0, 0};
+   size_t* chunkfloat = NULL;
+   void* outregs[3] = {NULL, NULL, NULL};
    #endif
 
    memset(&retval, 0, sizeof(data));
@@ -6677,14 +6687,14 @@ data eval_sprintf(node* to_eval)
 data eval_sscanf(node* to_eval)
 {
    int err = 0;
-   data retval, arg1, arg2, * argtab;
-   void** raw_args;
-   size_t i, sznchunks;
+   data retval, arg1, arg2, * argtab = NULL;
+   void** raw_args = NULL;
+   size_t i = 0, sznchunks = 0;
    #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
-   size_t* chunkfloat;
-   void* outregs[3] = {0, 0, 0};
+   size_t* chunkfloat = NULL;
+   void* outregs[3] = {NULL, NULL, NULL};
    #endif
 
    memset(&retval, 0, sizeof(data));
@@ -6783,11 +6793,13 @@ data eval_sscanf(node* to_eval)
 
 data eval_remove(node* to_eval)
 {
-   data retval, * symbol, dataStart, dataEnd;
+   data retval, * symbol = NULL, dataStart, dataEnd;
    int err = 0;
-   size_t oldlen, lstart = 0, lend = 0;
+   size_t oldlen = 0, lstart = 0, lend = 0;
 
    memset(&retval, 0, sizeof(data));
+   memset(&dataStart, 0, sizeof(data));
+   memset(&dataEnd, 0, sizeof(data));
 
 
   /* Arguments verification. */
@@ -6877,7 +6889,7 @@ data eval_remove(node* to_eval)
 
    if (symbol->ti.dtype == DT_STRING)
    {
-      size_t i;
+      size_t i = 0;
       size_t gap = lend - lstart + 1;
       size_t newlen = oldlen - gap;
       size_t end_copy = newlen + 1;
@@ -6908,7 +6920,7 @@ data eval_remove(node* to_eval)
    }
    else if (symbol->ti.dtype == DT_ARRAY)
    {
-      size_t i;
+      size_t i = 0;
       size_t gap = lend - lstart + 1;
       size_t newlen = oldlen - gap;
       size_t end_copy = newlen + 1;
@@ -6947,9 +6959,9 @@ data eval_remove(node* to_eval)
    }
    else if (symbol->ti.dtype == DT_LIST)
    {
-      size_t i;
+      size_t i = 0;
       size_t gap = lend - lstart + 1;
-      listlink** ppLink = &symbol->value.pList->start, * pNext;
+      listlink** ppLink = &symbol->value.pList->start, * pNext = NULL;
 
       for (i = 0; i < lstart; i++)
       {
@@ -6971,7 +6983,7 @@ data eval_remove(node* to_eval)
    }
    else /* symbol->ti.dtype == DT_POINTER */
    {
-      size_t i;
+      size_t i = 0;
       size_t gap = lend - lstart + 1;
       size_t newlen = oldlen - gap;
       size_t end_copy = newlen + 1;
@@ -7025,7 +7037,7 @@ data eval_atovar(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
-   node* npt;
+   node* npt = NULL;
 
    memset(&retval, 0, sizeof(data));
 
@@ -7098,7 +7110,7 @@ data eval_vartoa(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
-   size_t namelen;
+   size_t namelen = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -7312,7 +7324,7 @@ data eval_alloc_copy(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
-   data* pdat;
+   data* pdat = NULL;
 
    memset(&retval, 0, sizeof(data));
 
@@ -7410,7 +7422,7 @@ data eval_free(node* to_eval)
 
 data eval_repeat(node* to_eval)
 {
-   int err = 0, n = -1, i;
+   int err = 0, n = -1, i = 0;
    data retval, arg1, arg2;
 
    memset(&retval, 0, sizeof(data));
@@ -7490,7 +7502,7 @@ data eval_repeat(node* to_eval)
 
 int sametype(data d1, data d2)
 {
-   size_t i;
+   size_t i = 0;
 
    if (d1.ti.dtype != d2.ti.dtype) return 0;
    if (d1.ti.nderef != d2.ti.nderef) return 0;
@@ -7524,7 +7536,7 @@ int sametype(data d1, data d2)
 
 size_t buffersize(data var, size_t* alignpt)
 {
-   size_t i, max_align = 1, size, remain, local_offset;
+   size_t i = 0, max_align = 1, size = 0, remain = 0, local_offset = 0;
 
    if (abort_called) return 0;
 
@@ -7636,7 +7648,7 @@ size_t buffersize(data var, size_t* alignpt)
          local_offset = 0;
          for (i = 0; i < var.value.pObject->nb_clos; i++)
          {
-            size_t align;
+            size_t align = 0;
             size = buffersize(var.value.pObject->clos_array[i]->content, &align);
             remain = local_offset % align;
             if (remain)
@@ -7682,7 +7694,7 @@ size_t buffersize(data var, size_t* alignpt)
 
 void fillbuffer(data var, char* buffer, size_t offset)
 {
-   size_t i, local_offset, size, align;
+   size_t i = 0, local_offset = 0, size = 0, align = 0;
 
    if (var.ti.nderef > 0)
    {
@@ -7741,7 +7753,7 @@ void fillbuffer(data var, char* buffer, size_t offset)
          local_offset = 0;
          for (i = 0; i < var.value.pObject->nb_clos; i++)
          {
-            size_t remain;
+            size_t remain = 0;
             size = buffersize(var.value.pObject->clos_array[i]->content, &align);
             remain = local_offset % align;
             if (remain)
@@ -7773,7 +7785,7 @@ data eval_vartomem(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
-   size_t align, size;
+   size_t align = 0, size = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -7823,7 +7835,7 @@ data eval_vartomem(node* to_eval)
 
 void readbuffer(data* var, char* buffer, size_t offset)
 {
-   size_t i, local_offset, size, align;
+   size_t i = 0, local_offset = 0, size = 0, align = 0;
 
    if (var->ti.nderef > 0)
    {
@@ -7913,8 +7925,8 @@ void readbuffer(data* var, char* buffer, size_t offset)
 data eval_memtovar(node* to_eval)
 {
    int err = 0;
-   data retval, dmem, * var;
-   size_t size, align;
+   data retval, dmem, * var = NULL;
+   size_t size = 0, align = 0;
 
    memset(&retval, 0, sizeof(data));
 
@@ -8215,9 +8227,9 @@ data eval_codetotree(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
-   input_type previnputsrc;
-   input_union previnputadr;
-   node* prevroot = NULL;
+   input_type previnputsrc = inputsrc;
+   input_union previnputadr = inputadr;
+   node* prevroot = root;
    size_t oldreadpos = readpos, oldmaxpos = maxpos;
 
    memset(&retval, 0, sizeof(data));
@@ -8252,10 +8264,6 @@ data eval_codetotree(node* to_eval)
    maxpos = retval.value.str.length - 1;
    readpos = 0;
 
-   previnputsrc = inputsrc;
-   previnputadr = inputadr;
-   prevroot = root;
-
    inputsrc = IT_STRING;
    inputadr.str = from_eval.value.str.tab;
    yyparse();
@@ -8282,9 +8290,10 @@ data eval_exist(node* to_eval)
 {
    int err = 0, bres = 0;
    data retval, from_eval;
-   closure* pclos_ret;
+   closure* pclos_ret = NULL;
 
    memset(&retval, 0, sizeof(data));
+   memset(&from_eval, 0, sizeof(data));
 
 
    /* Argument verification. */
@@ -8386,6 +8395,8 @@ int type_token(char* str, int* nextpos)
    char buf[9];
    int ibuf = 0, istr = 0, ires = 10;
 
+   memset(buf, 0, 9);
+
    istr = first_valid(str);
 
    if (istr == -1) return -1;
@@ -8394,8 +8405,6 @@ int type_token(char* str, int* nextpos)
       *nextpos = istr + 1;
       return '*';
    }
-
-   memset(buf, 0, 9);
 
    while (ibuf < 8 && str[istr] != ' ' && str[istr] != '\0' && str[istr] != '*')
    {
@@ -8521,10 +8530,11 @@ data eval_createnode(node* to_eval)
    int err = 0, bcont = 1, i = 0, relop = 0, ppmm = 0;
    data retval, from_eval;
    node_type typetocreate = NT_UNDEF;
-   node* newnode;
+   node* newnode = NULL;
    type_info castinfo;
 
    memset(&retval, 0, sizeof(data));
+   memset(&castinfo, 0, sizeof(type_info));
 
 
    /* Argument verification. */
@@ -8929,7 +8939,7 @@ data eval_insertnode(node* to_eval)
 {
    int err = 0;
    data retval, from_eval;
-   size_t i, lpos = 0;
+   size_t i = 0, lpos = 0;
    node* parent = NULL, * toinsert = NULL;
 
    memset(&retval, 0, sizeof(data));
@@ -9083,15 +9093,16 @@ data eval_replacenode(node* to_eval)
 
 data eval_func_call(node* to_eval)
 {
-   size_t nb_param = 0, nb_args = 0, nb_members = 0, i;
+   size_t nb_param = 0, nb_args = 0, nb_members = 0, i = 0;
    node* func_pt = NULL;
-   data* data_tab;
+   data* data_tab = NULL;
    data retval, ret_data;
-   closure* cpt, * ret_pclos;
-   cont_type ret_ct;
+   closure* cpt = NULL, * ret_pclos = NULL;
+   cont_type ret_ct = NEITHER;
    clos_set* pObject = NULL;
 
    memset(&retval, 0, sizeof(data));
+   memset(&ret_data, 0, sizeof(data));
 
    if (to_eval->nb_childs != 2)
       fatal_error("Error: function call node does not have two childs.");
@@ -9490,7 +9501,7 @@ data eval_func_call(node* to_eval)
    }
    for (i = 0; i < nb_param; i++)
    {
-      size_t len;
+      size_t len = 0;
 
       /* Parameter verification. */
       if (func_pt->childset[0]->childset[i]->ntype != NT_VARIABLE)
@@ -9677,10 +9688,11 @@ data eval_incr_decr(node* to_eval)
 data eval_accesslist(node* to_eval)
 {
    data retval, from_eval;
-   cont_type ct_ret;
-   closure* pclos;
+   cont_type ct_ret = NEITHER;
+   closure* pclos = NULL;
 
    memset(&retval, 0, sizeof(data));
+   memset(&from_eval, 0, sizeof(data));
 
    ct_ret = resolve_accesslist(to_eval, &pclos, &from_eval);
 
@@ -9703,7 +9715,7 @@ data eval_accesslist(node* to_eval)
 data eval_subscript(node* to_eval)
 {
    size_t intindex = 0;
-   data retval, * from_resolve, from_eval, index;
+   data retval, * from_resolve = NULL, from_eval, index;
 
    memset(&retval, 0, sizeof(data));
 
@@ -9759,7 +9771,7 @@ data eval_subscript(node* to_eval)
    else if (from_eval.ti.dtype == DT_LIST)
    {
       listlink* plink = from_eval.value.pList->start;
-      size_t i;
+      size_t i = 0;
 
       if (intindex >= from_eval.value.pList->length)
       {
@@ -10019,12 +10031,13 @@ data eval_cast(node* to_eval)
 
 data eval(node* to_eval)
 {
-   int isdotlist = 0, doloop;
-   closure* src;
+   int isdotlist = 0, doloop = 0;
+   closure* src = NULL;
    data retval, from_eval;
-   size_t i;
+   size_t i = 0;
 
    memset(&retval, 0, sizeof(data));
+   memset(&from_eval, 0, sizeof(data));
 
    if (!to_eval)
    {

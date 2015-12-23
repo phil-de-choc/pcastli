@@ -374,9 +374,7 @@ node* xxone(void)
 
 node* xxppmm(node* var, int op)
 {
-   node* npt;
-
-   npt = malloc(sizeof(node));
+   node* npt = malloc(sizeof(node));
    if (!npt)
    {
       yyerror("Error: Lack of memory for new node in xxppmm.");
@@ -406,7 +404,7 @@ node* xxppmm(node* var, int op)
 
 node* xxaddmember(node* list, node* member, node_type nt)
 {
-   node* ret_lst;
+   node* ret_lst = NULL;
 
    node* npt = malloc(sizeof(node));
    if (!npt)
@@ -438,9 +436,7 @@ node* xxaddmember(node* list, node* member, node_type nt)
 
 node* xxtype(data_type dt)
 {
-   node* npt;
-
-   npt = malloc(sizeof(node));
+   node* npt = malloc(sizeof(node));
    if (!npt)
    {
       yyerror("Error: Lack of memory for new node in xxtype.");
