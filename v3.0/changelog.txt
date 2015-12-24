@@ -2,6 +2,22 @@
 by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 -----------------------------------------------------------------------------
 
+v3.0   2015-12-24
+
+In the current context, the variables of preceding contexts are now only visible 
+   to the context of the current function.  The only other visible variable are 
+   those of the global context.
+The number of nested calls is now limited by the size of the stack.
+A semicolon can now be placed at the end of any expression.
+The "fgetc" function now returns an integer instead of a string.
+A string type variable with a subscript for an assign can now receive a 
+   character.
+The fpos_t type content is now freed by the garbage collector only, instead of 
+   being freed at the same time as the context.
+Fixed the problem occurring when applying subseq to an array.
+Fixed the heap corruption issue with "info" applied to a function definition
+   node.
+
 v2.7   2015-12-17
 
 Added internal functions "codetotree", "exist", "createnode", "appendnode", 
