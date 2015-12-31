@@ -6,6 +6,7 @@ by Parent and Childset Accessible Syntax Tree Language
 v3.1
 
 Ajouté l'opérateur modulo (%).
+Réglé le problème de taille d'allocation d'élément de liste dans "concat".
 
 v3.0   2015-12-24
 
@@ -18,8 +19,8 @@ La fonction "fgetc" retourne maintenant un entier au lieu d'une chaîne de
    caractères.
 Une variable de type chaîne de caractères avec un indice pour une assignation 
    peut maintenant recevoir un caractère.
-Le contenu de type pointeur vers fpos_t est maintenant libéré par le garbage 
-   collector uniquement au lieu d'être libéré en même temps que le contexte.
+Le contenu de type pointeur vers fpos_t est maintenant libéré par le "garbage 
+   collector" uniquement au lieu d'être libéré en même temps que le contexte.
 Réglé le problème de subseq appliqué à un "array".
 Réglé le problème de "heap corruption" dans "info" appliqué à un noeud définition 
    de fonction.

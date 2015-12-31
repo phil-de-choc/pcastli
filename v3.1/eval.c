@@ -1,6 +1,6 @@
 /*
  * by Parent and Childset Accessible Syntax Tree Language Interpreter
- * Copyright (C) 2008-2015  Philippe Choquette
+ * Copyright (C) 2008-2016  Philippe Choquette
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -3524,7 +3524,7 @@ data eval_concat(node* to_eval)
       {
          for (j = 0; j < data_tab[i].value.pArray->length; j++)
          {
-            copy_data(&parr->dtable[k], data_tab[i].value.pArray->dtable[j]);
+            parr->dtable[k] = data_tab[i].value.pArray->dtable[j];
             k++;
          }
       }
@@ -3557,12 +3557,13 @@ data eval_concat(node* to_eval)
       destination = &plst->start;
       for (i = 0; i < len; i++)
       {
-         *destination = malloc(sizeof(list));
+         *destination = malloc(sizeof(listlink));
          if (!*destination)
          {
             yyerror("Error: Lack of memory in concat for chain link.");
             exit(1);
          }
+         memset(*destination, 0, sizeof(listlink));
          destination = &(*destination)->next;
       }
       *destination = NULL;
@@ -3574,7 +3575,7 @@ data eval_concat(node* to_eval)
          plink_src = data_tab[i].value.pList->start;
          for (j = 0; j < data_tab[i].value.pList->length; j++)
          {
-            copy_data(&plink_dest->content, plink_src->content);
+            plink_dest->content = plink_src->content;
             plink_src = plink_src->next;
             plink_dest = plink_dest->next;
          }
@@ -3619,7 +3620,6 @@ data eval_concat(node* to_eval)
       abort_called = 1;
    }
 
-   for (i = 0; i < to_eval->nb_childs; i++) free_data(data_tab[i]);
    free(data_tab);
 
    return retval;
@@ -5797,7 +5797,7 @@ data eval_gettype(node* to_eval)
    }
    retval.value.str.tab[i] = '\0';
 
-   free_data(from_eval);
+   /* free_data(from_eval); */
 
    return retval;
 }
