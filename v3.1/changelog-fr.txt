@@ -6,6 +6,7 @@ by Parent and Childset Accessible Syntax Tree Language
 v3.1
 
 Ajouté l'opérateur modulo (%).
+Ajouté les fonctions internes "pushfront", "pushback", "popfront" et "popback".
 Réglé le problème de taille d'allocation d'élément de liste dans "concat".
 
 v3.0   2015-12-24

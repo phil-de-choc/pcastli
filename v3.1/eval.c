@@ -137,6 +137,10 @@ typedef enum
    FID_APPENDNODE,
    FID_INSERTNODE,
    FID_REPLACENODE,
+   FID_PUSHFRONT,
+   FID_PUSHBACK,
+   FID_POPFRONT,
+   FID_POPBACK,
    NB_FUNC
 } EFuncID;
 
@@ -204,9 +208,13 @@ func_map[] =
    {"names", FID_NAMES},
    {"ntoa", FID_NTOA},
    {"openlib", FID_OPENLIB},
+   {"popback", FID_POPBACK},
+   {"popfront", FID_POPFRONT},
    {"print", FID_PRINT},
    {"printf", FID_PRINTF},
    {"prompt", FID_PROMPT},
+   {"pushback", FID_PUSHBACK},
+   {"pushfront", FID_PUSHFRONT},
    {"read", FID_READ},
    {"remove", FID_REMOVE},
    {"repeat", FID_REPEAT},
@@ -9700,6 +9708,319 @@ data eval_replacenode(node* to_eval)
 
 
 
+data eval_pushfront(node* to_eval)
+{
+   int err = 0;
+   data retval, from_eval;
+
+   memset(&retval, 0, sizeof(data));
+
+
+   /* Arguments verification. */
+
+   if (to_eval)
+   {
+      if (to_eval->nb_childs != 2) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in pushfront.");
+      yyerror("       This function has two parameters.");
+      abort_called = 1;
+      return retval;
+   }
+
+   from_eval = eval(to_eval->childset[0]);
+   if ((from_eval.ti.dtype != DT_LIST && from_eval.ti.dtype != DT_ARRAY) || 
+      from_eval.ti.nderef != 1)
+   {
+      yyerror("Error: First argument of pushfront is not the ");
+      yyerror("       address of a list or an array.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+
+   if (from_eval.ti.dtype == DT_LIST)
+   {
+      list* pList = ((data*)from_eval.value.genptr)->value.pList;
+      listlink* newitem = NULL;
+
+      from_eval = eval(to_eval->childset[1]);
+
+      newitem = malloc(sizeof(listlink));
+      if (!newitem) fatal_error("Error: Lack of memory for new list item in pushfront.");
+      memset(newitem, 0, sizeof(listlink));
+
+      newitem->next = pList->start;
+      newitem->content = from_eval;
+
+      pList->start = newitem;
+      pList->length++;
+   }
+   else
+   {
+      size_t i = 0;
+      array* pArray = ((data*)from_eval.value.genptr)->value.pArray;
+
+      from_eval = eval(to_eval->childset[1]);
+
+      if (pArray->dtable) pArray->dtable = realloc(pArray->dtable, (pArray->length + 1) * sizeof(data));
+      else pArray->dtable = malloc(sizeof(data));
+      if (!pArray->dtable) fatal_error("Error: Lack of memory for new array in pushfront.");
+
+      for (i = pArray->length; i > 0; i--) pArray->dtable[i] = pArray->dtable[i-1];
+      pArray->dtable[0] = from_eval;
+      pArray->length++;
+   }
+
+   return retval;
+}
+
+
+
+data eval_pushback(node* to_eval)
+{
+   int err = 0;
+   data retval, from_eval;
+
+   memset(&retval, 0, sizeof(data));
+
+
+   /* Arguments verification. */
+
+   if (to_eval)
+   {
+      if (to_eval->nb_childs != 2) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in pushback.");
+      yyerror("       This function has two parameters.");
+      abort_called = 1;
+      return retval;
+   }
+
+   from_eval = eval(to_eval->childset[0]);
+   if ((from_eval.ti.dtype != DT_LIST && from_eval.ti.dtype != DT_ARRAY) ||
+      from_eval.ti.nderef != 1)
+   {
+      yyerror("Error: First argument of pushback is not the ");
+      yyerror("       address of a list or an array.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+
+   if (from_eval.ti.dtype == DT_LIST)
+   {
+      size_t i = 0;
+      list* pList = ((data*)from_eval.value.genptr)->value.pList;
+      listlink* newitem = NULL;
+
+      from_eval = eval(to_eval->childset[1]);
+
+      newitem = malloc(sizeof(listlink));
+      if (!newitem) fatal_error("Error: Lack of memory for new list item in pushback.");
+      memset(newitem, 0, sizeof(listlink));
+
+      if (pList->length == 0)
+      {
+         pList->start = newitem;
+      }
+      else
+      {
+         listlink* lastitem = pList->start;
+         for (i = 1; i < pList->length; i++) lastitem = lastitem->next;
+         lastitem->next = newitem;
+      }
+
+      newitem->content = from_eval;
+      pList->length++;
+   }
+   else
+   {
+      array* pArray = ((data*)from_eval.value.genptr)->value.pArray;
+
+      from_eval = eval(to_eval->childset[1]);
+
+      if (pArray->dtable) pArray->dtable = realloc(pArray->dtable, (pArray->length + 1) * sizeof(data));
+      else pArray->dtable = malloc(sizeof(data));
+      if (!pArray->dtable) fatal_error("Error: Lack of memory for new array in pushback.");
+
+      pArray->dtable[pArray->length++] = from_eval;
+   }
+
+   return retval;
+}
+
+
+
+data eval_popfront(node* to_eval)
+{
+   int err = 0;
+   data retval, from_eval;
+
+   memset(&retval, 0, sizeof(data));
+
+
+   /* Argument verification. */
+
+   if (to_eval)
+   {
+      if (to_eval->nb_childs != 1) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in popfront.");
+      yyerror("       This function has one parameter.");
+      abort_called = 1;
+      return retval;
+   }
+
+   from_eval = eval(to_eval->childset[0]);
+   if ((from_eval.ti.dtype != DT_LIST && from_eval.ti.dtype != DT_ARRAY) ||
+      from_eval.ti.nderef != 1)
+   {
+      yyerror("Error: Argument of popfront is not the ");
+      yyerror("       address of a list or an array.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+
+   if (from_eval.ti.dtype == DT_LIST)
+   {
+      list* pList = ((data*)from_eval.value.genptr)->value.pList;
+      listlink* tofree = pList->start;
+
+      if (pList->length == 0) return retval;
+
+      retval = tofree->content;
+
+      pList->start = tofree->next;
+      pList->length--;
+
+      free(tofree);
+   }
+   else
+   {
+      array* pArray = ((data*)from_eval.value.genptr)->value.pArray;
+      size_t i = 0;
+
+      if (pArray->length == 0) return retval;
+
+      retval = pArray->dtable[0];
+      pArray->length--;
+
+      if (pArray->length)
+      {
+         for (i = 0; i < pArray->length; i++)
+         {
+            pArray->dtable[i] = pArray->dtable[i+1];
+         }
+
+         pArray->dtable = realloc(pArray->dtable, pArray->length * sizeof(data));
+         if (!pArray->dtable) 
+            fatal_error("Error: Lack of memory for new array in popfront.");
+      }
+   }
+
+   return retval;
+}
+
+
+
+data eval_popback(node* to_eval)
+{
+   int err = 0;
+   data retval, from_eval;
+
+   memset(&retval, 0, sizeof(data));
+
+
+   /* Argument verification. */
+
+   if (to_eval)
+   {
+      if (to_eval->nb_childs != 1) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in popback.");
+      yyerror("       This function has one parameter.");
+      abort_called = 1;
+      return retval;
+   }
+
+   from_eval = eval(to_eval->childset[0]);
+   if ((from_eval.ti.dtype != DT_LIST && from_eval.ti.dtype != DT_ARRAY) ||
+      from_eval.ti.nderef != 1)
+   {
+      yyerror("Error: Argument of popback is not the ");
+      yyerror("       address of a list or an array.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+
+   if (from_eval.ti.dtype == DT_LIST)
+   {
+      list* pList = ((data*)from_eval.value.genptr)->value.pList;
+      listlink* prev = pList->start;
+      size_t i = 0;
+
+      if (pList->length == 0) return retval;
+
+      if (pList->length == 1)
+      {
+         retval = prev->content;
+         pList->start = NULL;
+      }
+      else
+      {
+         for (i = 1; i < pList->length - 1; i++) prev = prev->next;
+         retval = prev->next->content;
+         free(prev->next);
+         prev->next = NULL;
+      }
+
+      pList->length--;
+   }
+   else
+   {
+      array* pArray = ((data*)from_eval.value.genptr)->value.pArray;
+
+      if (pArray->length == 0) return retval;
+
+      retval = pArray->dtable[--pArray->length];
+
+      if (pArray->length == 0)
+      {
+         free(pArray->dtable);
+         pArray->dtable = NULL;
+      }
+      else
+      {
+         pArray->dtable = realloc(pArray->dtable, pArray->length * sizeof(data));
+         if (!pArray->dtable)
+            fatal_error("Error: Lack of memory for new array in popfront.");
+      }
+   }
+
+   return retval;
+}
+
+
+
 data eval_func_call(node* to_eval)
 {
    size_t nb_param = 0, nb_args = 0, nb_members = 0, i = 0;
@@ -10008,6 +10329,14 @@ data eval_func_call(node* to_eval)
          return eval_insertnode(to_eval->childset[1]);
       case FID_REPLACENODE:
          return eval_replacenode(to_eval->childset[1]);
+      case FID_PUSHFRONT:
+         return eval_pushfront(to_eval->childset[1]);
+      case FID_PUSHBACK:
+         return eval_pushback(to_eval->childset[1]);
+      case FID_POPFRONT:
+         return eval_popfront(to_eval->childset[1]);
+      case FID_POPBACK:
+         return eval_popback(to_eval->childset[1]);
       default:
          break;
       }
