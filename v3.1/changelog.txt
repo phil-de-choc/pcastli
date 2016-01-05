@@ -2,9 +2,12 @@
 by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 -----------------------------------------------------------------------------
 
-v3.1
+v3.1   2016-01-05
 
 Added modulo (%) operator.
+Added internal functions "pushfront", "pushback", "popfront" and "popback".
+Added an installer for Windows.
+Fixed the element allocation size issue in "concat" function for a list.
 
 v3.0   2015-12-24
 
