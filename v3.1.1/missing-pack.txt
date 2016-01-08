@@ -1,0 +1,3 @@
+gcc-4.4
+libreadline-dev
+libncurses-dev
