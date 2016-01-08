@@ -3,6 +3,10 @@ Liste des changements de l'interpréteur du
 by Parent and Childset Accessible Syntax Tree Language
 ------------------------------------------------------
 
+v3.1.1   2016-01-08
+
+Réglé le problème de "garbage collection" des arbres construits.
+
 v3.1   2016-01-05
 
 Ajouté l'opérateur modulo (%).

@@ -44,6 +44,7 @@ VIAddVersionKey "FileVersion"      "${VERSION}"
 VIAddVersionKey "LegalCopyright"   "${PUBLISHER}"
 VIAddVersionKey "OriginalFilename" "pcastli-v${VERSION}-setup.exe"
 
+!define MUI_PAGE_CUSTOMFUNCTION_PRE PageLicensePre
 !insertmacro MUI_PAGE_LICENSE "license.rtf"
 !insertmacro MUI_PAGE_COMPONENTS
 !insertmacro MUI_PAGE_DIRECTORY
@@ -64,7 +65,18 @@ Var STARTMENU_FOLDER
 !insertmacro MUI_UNPAGE_FINISH
 !insertmacro MUI_LANGUAGE "English"
 
-Section "Binaries" SecMain
+Function PageLicensePre
+
+   ReadRegStr $0 HKLM "Software\PCASTL Interpreter" ""
+
+   ${If} $0 != ""
+      MessageBox MB_OK "Please uninstall before reinstalling."
+      Quit
+   ${EndIf}
+
+FunctionEnd
+
+Section "Core Files" SecMain
 
    SectionIn RO
 
