@@ -1,0 +1,248 @@
+------------------------------------------------------
+Liste des changements de l'interpréteur du
+by Parent and Childset Accessible Syntax Tree Language
+------------------------------------------------------
+
+v3.1.2
+
+Il est maintenant possible d'appliquer à une indirection l'opérateur d'indice, 
+   l'appel de fonction et la sélection de membre d'objet.
+Amélioré la grammaire : réduit le nombre de conflits "shift/reduce".
+Réglé le problème d'assignement vers une indirection multiple.
+
+v3.1.1   2016-01-08
+
+Réglé le problème de "garbage collection" des arbres construits.
+
+v3.1   2016-01-05
+
+Ajouté l'opérateur modulo (%).
+Ajouté les fonctions internes "pushfront", "pushback", "popfront" et "popback".
+Ajouté un installeur pour Windows
+Réglé le problème de taille d'allocation d'élément de liste dans "concat".
+
+v3.0   2015-12-24
+
+Dans le contexte courant, les variables des contextes précédents sont maintenant 
+   seulement visibles jusqu'au contexte de la fonction courante.  Les seules 
+   autres variables visibles sont celles du contexte global.
+Le nombre d'appels emboîtés est maintenant limité par la taille de la pile.
+Le point-virgule peut maintenant être placé à la fin de toute expression.
+La fonction "fgetc" retourne maintenant un entier au lieu d'une chaîne de 
+   caractères.
+Une variable de type chaîne de caractères avec un indice pour une assignation 
+   peut maintenant recevoir un caractère.
+Le contenu de type pointeur vers fpos_t est maintenant libéré par le "garbage 
+   collector" uniquement au lieu d'être libéré en même temps que le contexte.
+Réglé le problème de subseq appliqué à un "array".
+Réglé le problème de "heap corruption" dans "info" appliqué à un noeud définition 
+   de fonction.
+
+v2.7   2015-12-17
+
+Ajouté les fonctions internes "codetotree", "exist", "createnode", "appendnode", 
+   "insertnode" et "replacenode".
+Le deuxième paramètre de la fonction interne "treetocode" est maintenant optionnel 
+   et a pour défaut la valeur "   ".
+La fonction interne "info" retourne maintenant un objet.
+La fonction interne "rmnode" accepte maintenant un noeud parent non de type liste.
+L'opérateur d'indice peut maintenant être directement appliqué à une chaîne de 
+   caractères et la valeur résultante sera du type "char".  Idem pour une variable 
+   contenant une chaîne de caractères.
+Amélioré la validation d'identifiant dans la fonction interne "atovar".
+Le nombre de noeuds fils est maintenant vérifié avant l'exécution d'un noeud.
+Le code avec erreur de syntaxe n'est plus exécuté après avoir été parsé.
+
+v2.6   2015-12-04
+
+Ajouté la fonction interne "treetocode".
+La fonction interne "gettype" retourne maintenant "node pointer" au lieu de 
+   "reference" pour un pointeur vers un noeud.
+Explicité la priorité de l'opérateur de référence de structure (.).
+Réglé le problème de corruption de la pile avec printf, scanf, fprintf, fscanf, 
+   sprintf et sscanf.
+
+v2.5   2014-11-23
+
+Les appels à une "dynamic-link library" ou une "shared object library" maintenant 
+   retourne les valeurs de retour possibles par type.
+Les opérandes d'un "cast" peuvent maintenant être d'un type non fondamental.
+Les côté droit résultant avant une assignation n'est plus dupliqué.
+Réglé le non affichage des "handles" de librairies pour les compilations 32-bit.
+Réglé la confusion type de noeud / type de donnée pour la fonction interne 
+   fillobject.
+Réglé l'erreur pour les opérateurs mathématiques 32-bit avec opérandes de type 
+   float.
+Réglé le non ajout d'énoncés dans un fichier source pour la "garbage collection".
+
+v2.4   2012-11-11
+
+Réajouté le type de variable float pour l'accès aux librairies.
+Réglé les conflits de double effacement des données allouées dans  le "garbage 
+   collector".
+Réglé le passage de paramètres à virgule flottante ou double aux dlls de Windows 
+   64-bit.
+Ajouté l'alignement de la pile pour les appels à des fonctions de moins de cinq 
+   ou nombre pair de paramètres dans des dlls de Windows 64-bit pour les 
+   compilations optimisées pour la vitesse.
+
+v2.3   2012-10-21
+
+L'interpréteur peut maintenant être compilé pour Windows 64-bit, Linux 64-bit 
+   et Mac OS X Mountain Lion.  Le code compile encore pour Windows 32-bit et 
+   Linux 32-bit
+L'appel d'une fonction avec seulement un énoncé return à l'intérieur d'une 
+   autre fonction ne cause plus le retour de la première fonction. 
+L'opérateur de référence "&" appliqué à un indice à l'intérieur d'une fonction
+   ne cause plus l'arrêt du script.
+Les fonctions internes "vartomem" et "memtovar" peuvent maintenant recevoir le
+   résultat de l'opérateur de référence.
+Réglé les appels à la fonction interne "source" à l'intérieur d'autres 
+   fonctions.
+Ajouté le type de variable size_t.
+Enlevé le type de variable float.
+
+v2.2   2012-03-06
+
+Ajouté les fonctions internes "repeat", "vartomem", "memtovar", "memcpy", 
+  "memset", "memclone" et "memory".
+Ajouté les types de variable "raw memory", "byte" et "memory address".
+Les appels à une "dynamic-link library" ou une "shared object library" peuvent 
+  maintenant recevoir un argument "raw memory".
+L'opérateur de référence "&" peut maintenant être utilisé en combinaison avec 
+  l'opérateur indice pour chaîne de caractères et mémoire brute.
+L'opérateur d'indirection "*" appliqué à l'opérande gauche d'une assignation 
+  fait maintenant que la valeur de droite est assignée à la variable référencée. 
+Réglé le problème du "garbage collector" pour la suite d'un pointeur.
+
+v2.1.1   2012-02-03
+
+Les énoncés dans l'argument d'un appel à "return" sont maintenant tous exécutés.
+
+v2.1   2012-01-27
+
+Ajouté les fonctions internes "alloc_copy" et "free".
+La fonction interne "source" peut maintenant lire des fichiers texte Windows 
+  (CR LF) sur Linux.
+La fonction interne "source" peut maintenant être utilisée à l'intérieur d'un 
+  fichier lu par cette fonction.
+
+v2.0.1   2012-01-08
+
+Les énoncés sur la ligne de commande ne sont plus effacés immédiatement après 
+  leur exécution.  Ils sont effacés par le "garbage collector" quand ils ne sont
+  plus référencés.
+Réglé le problème avec l'opérateur "!=".
+
+v2.0   2011-12-26
+
+Ajouté les type fondamentaux du C : char, signed char, unsigned char, short, 
+  unsigned short, int, unsigned int, long, unsigned long, long long, 
+  unsigned long long, float et long double.
+Ajouté l'opérateur cast.
+Ajouté les opérateurs du C de référence "&", d'indirection "*" et de 
+  déréference "->".
+Ajouté les types pointeur vers tous les types de base du PCASTL.  Aussi, pointeur 
+  vers pointeur et ainsi de suite.
+Les membres d'objets, de tableaux et de listes peuvent maintenant être utilisés 
+  avec les opérateurs ++ et --.
+Les assignations de fonctions et de segments de code copient maintenant l'arbre 
+  syntaxique de la commande, donc les énoncés sur la ligne de commande sont effacés
+  immédiatement après leur exécution.
+Ajouté la fonction interne "freetree".
+La "garbage collection" gère maintenant les chaînes de caractères, les objets, 
+  les tableaux et les listes.
+L'assignation de chaînes de caractères depuis une variable vers une autre n'alloue
+  maintenant plus de mémoire et ne copie plus la chaîne.
+Ajouté les fonctions internes "strclone" et "strcpy".
+Les arguments pour "scanf", "fscanf" et "sscanf" doivent maintenant être passés 
+  comme dans le langage C.
+Ajouté les fonctions internes "openlib", "getfuncpt" et "closelib" pour permettre 
+  les appels à une "dynamic-link library" ou une "shared object library".
+Enlevé les fonctions internes "catlist", "listsize" et "sublist".
+
+v1.10   2011-11-18
+
+La recherche de nom de fonction interne a été améliorée.
+Ajouté les fonctions internes "atovar" et "vartoa".
+Les boucles "for" et "while" peuvent maintenant avoir des champs de contrôle vides.
+
+v1.9   2009-09-18
+
+Ajouté le type de donnée pointeur vers fichier.
+Ajouté les fonctions internes d'e/s "printf", "scanf", "fopen", "fclose", 
+  "fprintf", "fscanf", "feof", "fread", "fwrite", "clearerr", "fgetpos", 
+  "fsetpos", "ferror", "fgetc", "ungetc", "fflush", "fputc", "fseek", "ftell", 
+  "freopen", "rewind", "tmpfile", "sprintf" et "sscanf". 
+Réglé le problème de coller plusieurs lignes avec Linux.
+Ajouté la fonction interne "cls".
+Les chaînes de caractères acceptent maintenant des caractères ASCII en notation 
+  octale et hexadécimale dans les séquences échappatoires.
+Les opérateurs logiques ET, OU et NON, peuvent maintenant avoir des opérandes 
+  pointeur vers noeud et pointeur vers fichier.
+Les nombres peuvent maintenant être entrés en format hexadécimal et ceux-ci 
+  sont interprétés comme des entiers signés.
+
+v1.8   2009-04-04
+
+Ajouté les types de données objet, tableau et liste chaînée. Ils sont respectivement 
+   créés par les fonctions internes "names", "array" et "list".
+Remplacé la fonction interne "catlist" par la plus flexible fonction "concat".
+Remplacé la fonction interne "sublist" par la plus polyvalente fonction "subseq".
+Remplacé la fonction interne "listsize" par la plus polyvalente fonction "length".
+Ajouté les fonctions internes "setlength", "insert", "replace", "source", "strlen", 
+   "as_array", "as_list", "as_statements", "gettype", "undefine" et "abort".
+Activé les indices pour les variables chaînes de caractères.
+Baissé la priorité de l'opérateur exposant.
+Réglé l'erreur de portée dans l'initialisation du "for".
+Réglé le saut des noeuds de type chaîne de caractères dans la copie d'arbre.
+Réglé les listes pointillées généalogiques à partir de symboles qui ne sont pas des références.
+
+v1.7   2009-02-20
+
+Ajouté les fonctions internes "execute" et "prompt".
+Le fichier de paramètres est maintenant créé s'il n'existe pas.
+
+v1.6.1   2008-11-02
+
+Réglé le problème de lecture de variables chaînes de caractères.
+Amélioré la gestion de la mémoire dans les opérations relationnelles et logiques.
+
+v1.6   2008-06-23
+
+Amélioré la gestion de la mémoire.
+Ajouté le fichier de paramètres pcastli.ini.
+Ajouté la fonction interne "clear".
+
+v1.5   2008-04-12
+
+Étendu les messages "Type error." pour les opérateurs.
+Les énoncés dans une liste d'énoncés peuvent maintenant être séparés par un ';'.
+Amélioré les messages "Symbol not found." avec le nom du symbole.
+
+v1.4   2008-03-16
+
+Ajouté l'opérateur unaire '*'.
+Ajouté la fonction interne "copytree".
+
+v1.3.1   2008-03-15
+
+Les identifiants peuvent maintenant inclure le caractère '_'.
+
+v1.3   2008-03-15
+
+Ajouté la fonction interne "return".
+
+v1.2   2008-03-05
+
+Ajouté les opérateurs ++ et --.
+Réglé le problème d'incrémentation du "for".
+
+v1.1   2008-02-24
+
+Ajouté les fonctions internes d'e/s "scan", "read" and "write".
+Ajouté les fonctions internes "getwd", "setwd", "tonode", "sublist", "catlist", 
+  "ntoa" et "aton".
+Réglé les problèmes avec '\\' et "" dans la lecture de chaînes de caractères.
+
+v1.0   2008-02-16
