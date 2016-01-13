@@ -2,6 +2,14 @@
 by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 -----------------------------------------------------------------------------
 
+v3.2   2016-01-12
+
+It's now possible to apply to an indirection the subscript operator, function 
+   call and object member selection.
+Added multiline comments.
+Improved grammar: reduced number of shift/reduce conflicts.
+Fixed multiple indirection assign issue.
+
 v3.1.1   2016-01-08
 
 Fixed the built trees garbage collection issue.

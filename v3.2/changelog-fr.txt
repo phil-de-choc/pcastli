@@ -3,10 +3,11 @@ Liste des changements de l'interpréteur du
 by Parent and Childset Accessible Syntax Tree Language
 ------------------------------------------------------
 
-v3.1.2
+v3.2   2016-01-12
 
 Il est maintenant possible d'appliquer à une indirection l'opérateur d'indice, 
    l'appel de fonction et la sélection de membre d'objet.
+Ajouté les commentaires multiligne.
 Amélioré la grammaire : réduit le nombre de conflits "shift/reduce".
 Réglé le problème d'assignement vers une indirection multiple.
 

@@ -144,7 +144,7 @@ void unreadchar(char c)
 char skip_space(void)
 {
    char c = '\0';
-   while ((c = (char)readchar()) == ' ' || c == '\t' || c == '\f') /* nothing */;
+   while ((c = readchar()) == ' ' || c == '\t' || c == '\f') /* nothing */;
    return c;
 }
 
@@ -307,6 +307,34 @@ int token(void)
    {
       do c = readchar();
       while(c != '\n' && c != EOF && c != '\r');
+   }
+   if (c == '/')
+   {
+      c = readchar();
+      if (c == '*')
+      {
+         int done = 0;
+         c = readchar();
+
+         while (!done)
+         {
+            if (c == '*')
+            {
+               c = readchar();
+               if (c == '/')
+               {
+                  done = 1;
+                  c = skip_space();
+               }
+            }
+            else if (c == EOF) done = 1;
+            else c = readchar();
+         }
+      }
+      else
+      {
+         unreadchar(c);
+      }
    }
 
    /* Hex Numbers */

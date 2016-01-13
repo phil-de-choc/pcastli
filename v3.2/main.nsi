@@ -16,10 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-!define VERSION       "3.1.2"
+!define VERSION       "3.2"
 !define VERSION_MAJOR "3"
-!define VERSION_MINOR "1"
-!define VERSION_FULL  "3.1.2.0"
+!define VERSION_MINOR "2"
+!define VERSION_FULL  "3.2.0.0"
 !define PUBLISHER     "Philippe Choquette"
 !define WEBSITE_URL   "http://pcosmos.ca/pcastl/"
 
