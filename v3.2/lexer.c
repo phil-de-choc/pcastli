@@ -73,6 +73,49 @@ void math_yylval(char c)
 }
 
 
+
+char* readlinebygetc(void)
+{
+   char c = (char)getc(inputadr.inputfile);
+   char* retval = malloc(128);
+   size_t pos = 0, bufflen = 128;
+
+   if (!retval) fatal_error("Error: Lack of memory in readlinebygetc for initial buffer.");
+
+   while (c != '\n' && c != '\r' && c != EOF)
+   {
+      if (pos == bufflen)
+      {
+         bufflen += 128;
+         retval = realloc(retval, bufflen);
+         if (!retval) fatal_error("Error: Lack of memory in readlinebygetc for reallocated buffer.");
+      }
+
+      retval[pos++] = c;
+
+      c = (char)getc(inputadr.inputfile);
+   }
+
+   if (c == '\r')
+   {
+      c = (char)getc(inputadr.inputfile);
+      if (c != '\n') ungetc(c, inputadr.inputfile);
+   }
+
+   if (pos == bufflen)
+   {
+      bufflen += 1;
+      retval = realloc(retval, bufflen);
+      if (!retval) fatal_error("Error: Lack of memory in readlinebygetc for reallocated buffer.");
+   }
+
+   retval[pos] = '\0';
+
+   return retval;
+}
+
+
+
 size_t readpos = 0;
 size_t maxpos = 0;
 char* line = NULL;
@@ -83,28 +126,24 @@ char readchar(void)
 
    if (inputsrc == IT_FILE)
    {
-      #ifdef _WIN32
-      retchar = (char)getc(inputadr.inputfile);
-      #else
-      if (inputadr.inputfile == stdin)
+      if (readpos > maxpos || !line)
       {
-         if (readpos > maxpos || !line)
-         {
-            free(line);
-            readpos = 0;
-            line = readline("");
-            maxpos = strlen(line);
-         }
+         free(line);
+         readpos = 0;
 
-         retchar = line[readpos++];
+         #ifdef _WIN32
+         line = readlinebygetc();
+         #else
+         if (inputadr.inputfile == stdin) line = readline("");
+         else line = readlinebygetc();
+         #endif
 
-         if (retchar == '\0') retchar = '\n';
+         maxpos = strlen(line);
       }
-      else
-      {
-         retchar = (char)getc(inputadr.inputfile);
-      }
-      #endif
+
+      retchar = line[readpos++];
+
+      if (retchar == '\0') retchar = '\n';
    }
    else if (inputsrc == IT_STRING)
    {
@@ -115,30 +154,6 @@ char readchar(void)
    else fatal_error("Error: Unexpected input type found in readchar function.");
 
    return retchar;
-}
-
-void unreadchar(char c)
-{
-   if (inputsrc == IT_FILE)
-   {
-      #ifdef _WIN32
-      ungetc(c, inputadr.inputfile);
-      #else
-      if (inputadr.inputfile == stdin)
-      {
-         readpos--;
-      }
-      else
-      {
-         ungetc(c, inputadr.inputfile);
-      }
-      #endif
-   }
-   else if (inputsrc == IT_STRING)
-   {
-      readpos--;
-   }
-   else fatal_error("Error: Unexpected input type found in unreadchar function.");
 }
 
 char skip_space(void)
@@ -159,7 +174,7 @@ double readdouble(void)
 
    if (inputsrc == IT_FILE) currbuff = line;
    else if (inputsrc == IT_STRING) currbuff = inputadr.str;
-   else fatal_error("Error: Unpexpected input type found in readhex function.");
+   else fatal_error("Error: Unpexpected input type found in readdouble function.");
 
    while (i < 100 && charOK && readpos <= maxpos)
    {
@@ -333,7 +348,8 @@ int token(void)
       }
       else
       {
-         unreadchar(c);
+         readpos--;
+         c = '/';
       }
    }
 
@@ -345,8 +361,7 @@ int token(void)
       {
          int hex_nb = 0;
 
-         unreadchar(c2);
-         unreadchar(c);
+         readpos -= 2;
 
          yylval = malloc(sizeof(node));
          if (!yylval)
@@ -357,26 +372,7 @@ int token(void)
          memset(yylval, 0, sizeof(node));
          yylval->ntype = NT_NUM_CONST;
 
-         if (inputsrc == IT_FILE)
-         {
-            #ifdef _WIN32
-            fscanf(inputadr.inputfile, "%x", &hex_nb);
-            #else
-            if (inputadr.inputfile != stdin)
-            {
-               fscanf(inputadr.inputfile, "%x", &hex_nb);
-            }
-            else
-            {
-               hex_nb = readhex();
-            }
-            #endif
-         }
-         else if (inputsrc == IT_STRING)
-         {
-            hex_nb = readhex();
-         }
-         else fatal_error("Error: Unexpected input type found in token function.");
+         hex_nb = readhex();
 
          yylval->opval.value = (double)hex_nb;
          yylval->parent = NULL;
@@ -387,7 +383,7 @@ int token(void)
       }
       else
       {
-         unreadchar(c2);
+         readpos--;
       }
    }
 
@@ -397,11 +393,10 @@ int token(void)
       char c2 = readchar();
       if(c == '.' && !isdigit(c2))
       {
-         unreadchar(c2);
+         readpos--;
          return '.';
       }
-      unreadchar(c2);
-      unreadchar(c);
+      readpos -= 2;
 
       yylval = malloc(sizeof(node));
       if (!yylval)
@@ -412,26 +407,7 @@ int token(void)
       memset(yylval, 0, sizeof(node));
       yylval->ntype = NT_NUM_CONST;
 
-      if (inputsrc == IT_FILE)
-      {
-         #ifdef _WIN32
-         fscanf(inputadr.inputfile, "%lf", &yylval->opval.value);
-         #else
-         if (inputadr.inputfile != stdin)
-         {
-            fscanf(inputadr.inputfile, "%lf", &yylval->opval.value);
-         }
-         else
-         {
-            yylval->opval.value = readdouble();
-         }
-         #endif
-      }
-      else if (inputsrc == IT_STRING)
-      {
-         yylval->opval.value = readdouble();
-      }
-      else fatal_error("Error: Unexpected input type found in token function.");
+      yylval->opval.value = readdouble();
 
       yylval->parent = NULL;
       yylval->nb_childs = 0;
@@ -472,7 +448,7 @@ int token(void)
             }
          }
 
-         if (inputsrc ==  IT_FILE)
+         if (inputsrc == IT_FILE)
          {
             if (c == '\n' && inputadr.inputfile == stdin) printf("+ ");
          }
@@ -511,7 +487,7 @@ int token(void)
                   }
                   else
                   {
-                     unreadchar(c);
+                     readpos--;
                   }
                   for (k = nb_digits - 1; k >= 0; k--)
                   {
@@ -536,13 +512,13 @@ int token(void)
                }
                else /* c is not hex */
                {
-                  unreadchar(c);
+                  readpos--;
 
                   for (j = 0; j < zero_count; j++)
                   {
-                     unreadchar('0');
+                     readpos--;
                   }
-                  unreadchar('x');
+                  readpos--;
                   c = '\\';
                }
                goto escape_ok;
@@ -561,7 +537,7 @@ int token(void)
                   j++;
                }
 
-               unreadchar(c);
+               readpos--;
 
                if (j == 1 && oct[0] == '0')
                {
@@ -575,10 +551,7 @@ int token(void)
                }
                if (sum > 255)
                {
-                  for (k = j - 1; k >= 0; k--)
-                  {
-                     unreadchar(oct[k]);
-                  }
+                  readpos -= j;
                   c = '\\';
                }
                else
@@ -618,7 +591,7 @@ int token(void)
             case '\\':
                break;
             default:
-               unreadchar(c);
+               readpos--;
                c = '\\';
             }
          }
@@ -693,7 +666,7 @@ escape_ok:
       }
       while (isalnum(c) || c == '_');
 
-      unreadchar(c);
+      readpos--;
       symbuf[i] = '\0';
 
       /* Search in the reserved words table. */
@@ -775,14 +748,14 @@ escape_ok:
          return DEREF;
       }
 
-      unreadchar(c);
+      readpos--;
       math_yylval('-');
       return '-';
    case '+':
       if ((c = readchar()) == '+')
          return PLUSPLUS;
 
-      unreadchar(c);
+      readpos--;
       math_yylval('+');
       return '+';
    case '*':
@@ -798,7 +771,7 @@ escape_ok:
          rel_yylval(OR, "OR");
          return OR;
       }
-      unreadchar(c);
+      readpos--;
       return '|';
 
    case '&':
@@ -807,7 +780,7 @@ escape_ok:
          rel_yylval(AND, "AND");
          return AND;
       }
-      unreadchar(c);
+      readpos--;
       math_yylval('&');
       return '&';
 
@@ -817,7 +790,7 @@ escape_ok:
          rel_yylval(NE, "NE");
          return NE;
       }
-      unreadchar(c);
+      readpos--;
       rel_yylval(NOT, "NOT");
       return NOT;
 
@@ -827,7 +800,7 @@ escape_ok:
          rel_yylval(GE, "GE");
          return GE;
       }
-      unreadchar(c);
+      readpos--;
       rel_yylval(GT, "GT");
       return GT;
 
@@ -837,7 +810,7 @@ escape_ok:
          rel_yylval(LE, "LE");
          return LE;
       }
-      unreadchar(c);
+      readpos--;
       rel_yylval(LT, "LT");
       return LT;
 
@@ -847,7 +820,7 @@ escape_ok:
          rel_yylval(EQ, "EQ");
          return EQ;
       }
-      unreadchar(c);
+      readpos--;
 
       yylval = malloc(sizeof(node));
       if (!yylval)
@@ -863,14 +836,6 @@ escape_ok:
       yylval->nb_childs = 0;
 
       return '=';
-
-   case '\r':
-      c = (char) getc(inputadr.inputfile);
-      if (c != '\n')
-      {
-         ungetc(c, inputadr.inputfile);
-      }
-      return EOL;
 
    case '\n':
       return EOL;
@@ -901,7 +866,7 @@ void ifpop(void)
 }
 
 
-
+int lineno = 0;
 int yylex(void)
 {
    int tok = 0;
@@ -915,7 +880,7 @@ again:
    /* deals directly with newlines in the */
    /* body of "if" statements. */
 
-   if (tok == EOL) 
+   if (tok == EOL)
    {
       if (eatlines || *contextp != ' ')
       {

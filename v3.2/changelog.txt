@@ -2,12 +2,13 @@
 by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 -----------------------------------------------------------------------------
 
-v3.2   2016-01-12
+v3.2   2016-01-16
 
 It's now possible to apply to an indirection the subscript operator, function 
    call and object member selection.
-Added multiline comments.
+Added multiline comments: /* */.
 Improved grammar: reduced number of shift/reduce conflicts.
+Improved lexer: now there can't be anymore two consecutive calls to ungetc.
 Fixed multiple indirection assign issue.
 
 v3.1.1   2016-01-08

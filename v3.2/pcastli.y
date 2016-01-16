@@ -53,6 +53,7 @@
 %left  POSTPLUSPLUS POSTMINUSMINUS
 %left  DEREF
 
+%define parse.error verbose
 
 %%
 
