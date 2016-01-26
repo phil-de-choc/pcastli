@@ -4,7 +4,7 @@ by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 
 v3.3
 
-Added internal functions "detachnode" and "swapnodes".
+Added internal functions "detachnode", "swapnodes" and "osfamily".
 
 v3.2.1   2016-01-21
 

@@ -143,6 +143,7 @@ typedef enum
    FID_POPBACK,
    FID_DETACHNODE,
    FID_SWAPNODES,
+   FID_OSFAMILY,
    NB_FUNC
 } EFuncID;
 
@@ -211,6 +212,7 @@ func_map[] =
    {"names", FID_NAMES},
    {"ntoa", FID_NTOA},
    {"openlib", FID_OPENLIB},
+   {"osfamily", FID_OSFAMILY},
    {"popback", FID_POPBACK},
    {"popfront", FID_POPFRONT},
    {"print", FID_PRINT},
@@ -10151,6 +10153,40 @@ data eval_swapnodes(node* to_eval)
 
 
 
+data eval_osfamily(void)
+{
+   data retval;
+   char* osfamily = NULL;
+
+   memset(&retval, 0, sizeof(data));
+
+   osfamily = malloc(6);
+   if (!osfamily) fatal_error("Error: Lack of memory in osfamily.");
+   memset(osfamily, 0, 6);
+
+   retval.ti.dtype = DT_STRING;
+   retval.value.str.length = 6;
+   retval.value.str.tab = osfamily;
+
+   g_lst_add(osfamily, PT_CHAR_TAB);
+
+   #if defined(_WIN32) && !defined(_WIN64)
+      strncpy(osfamily, "win32", 5);
+   #elif defined(_WIN64) 
+      strncpy(osfamily, "win64", 5);
+   #elif defined(__linux__) && defined(__i386__)
+      strncpy(osfamily, "lin32", 5);
+   #elif defined(__linux__) && defined(__amd64__)
+      strncpy(osfamily, "lin64", 5);
+   #elif defined(__APPLE__) && defined(__MACH__)
+      strncpy(osfamily, "mac64", 5);
+   #endif 
+
+   return retval;
+}
+
+
+
 data eval_func_call(node* to_eval)
 {
    size_t nb_param = 0, nb_args = 0, nb_members = 0, i = 0;
@@ -10471,6 +10507,8 @@ data eval_func_call(node* to_eval)
          return eval_detachnode(to_eval->childset[1]);
       case FID_SWAPNODES:
          return eval_swapnodes(to_eval->childset[1]);
+      case FID_OSFAMILY:
+         return eval_osfamily();
       default:
          break;
       }
