@@ -6,6 +6,8 @@ by Parent and Childset Accessible Syntax Tree Language
 v3.3
 
 Ajouté les functions internes "detachnode", "swapnodes" et "osfamily".
+Réglé le problème d'indirection prioritaire non mise entre parenthèse dans 
+   la sortie de "treetocode".
 
 v3.2.1   2016-01-21
 

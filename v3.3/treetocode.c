@@ -126,13 +126,13 @@ assoc get_op_assoc(node* nodept)
       {
          if (nodept->nb_childs == 2) return ASSOC_LEFT;
          else if (nodept->nb_childs == 1) return ASSOC_RIGHT;
-         else fatal_error("Error: Unforeseen \'-\' operator childs number in get_op_prio function.");
+         else fatal_error("Error: Unforeseen \'-\' operator childs number in get_op_assoc function.");
       }
       else if (nodept->opval.math_oper == '*')
       {
          if (nodept->nb_childs == 2) return ASSOC_LEFT;
          else if (nodept->nb_childs == 1) return ASSOC_RIGHT;
-         else fatal_error("Error: Unforeseen \'*\' operator childs number in get_op_prio function.");
+         else fatal_error("Error: Unforeseen \'*\' operator childs number in get_op_assoc function.");
       }
       else if (nodept->opval.math_oper == '/') return ASSOC_LEFT;
       else if (nodept->opval.math_oper == '^') return ASSOC_RIGHT;
@@ -291,8 +291,10 @@ data eval_treetocode(node* to_eval)
          * placeholder = NULL, * id = NULL, * comma = NULL, * left = NULL, * right = NULL, 
          * stratom = NULL, * semicol1 = NULL, * semicol2 = NULL, * previous = NULL, 
          * leftquote = NULL, * rightquote = NULL, * accessor = NULL, * leftbracket = NULL, 
-         * rightbracket = NULL, * opcode = NULL, * type = NULL, * starlist = NULL;
-      int caseone = (queueend == queuestart), bgene = 0;
+         * rightbracket = NULL, * opcode = NULL, * type = NULL, * starlist = NULL, 
+         * leftparenth0 = NULL, * rightparenth0 = NULL;
+      int caseone = (queueend == queuestart), bgene = 0, bincpre = 0;
+      int bpar = 0; /* Boolean for parentheses insertion */
       queue_atom* qa, * tmp_qa;
       char numstr[128];
       int haslist = 0;
@@ -385,9 +387,10 @@ data eval_treetocode(node* to_eval)
          }
          else if (currnode->nb_childs == 2)
          {
-            int bpar = 0; /* Boolean for parentheses insertion */
             int bmathrel = 0;
             int priocurr = 0, prioparent = 0;
+
+            bpar = 0;
 
             priocurr = get_op_prio(currnode);
             prioparent = get_op_prio(currnode->parent);
@@ -553,9 +556,10 @@ data eval_treetocode(node* to_eval)
          else if (currnode->nb_childs == 2)
          {
             opcode = NULL;
-            int bpar = 0; /* Boolean for parentheses insertion */
             int bmathrel = 0;
             int priocurr = 0, prioparent = 0;
+
+            bpar = 0;
 
             priocurr = get_op_prio(currnode);
             prioparent = get_op_prio(currnode->parent);
@@ -874,12 +878,38 @@ data eval_treetocode(node* to_eval)
          break;
 
       case NT_FUNC_CALL:
+         if (currnode->childset[0]->ntype == NT_MATH_OPER &&
+            currnode->childset[0]->opval.math_oper == '*' &&
+            currnode->childset[0]->nb_childs == 1)
+         {
+            bpar = 1;
+
+            leftparenth0 = malloc(sizeof(code_atom));
+            rightparenth0 = malloc(sizeof(code_atom));
+            if (!leftparenth0 || !rightparenth0) fatal_error("Error: Lack of memory in treetocode function.");
+            memset(leftparenth0, 0, sizeof(code_atom));
+            memset(rightparenth0, 0, sizeof(code_atom));
+            leftparenth0->str = malloc(2);
+            rightparenth0->str = malloc(2);
+            if (!leftparenth0->str || !rightparenth0->str)
+               fatal_error("Error: Lack of memory in treetocode function.");
+            strncpy(leftparenth0->str, "(", 2);
+            strncpy(rightparenth0->str, ")", 2);
+
+            listlen += 2;
+
+            left = leftparenth0;
+
+            leftparenth0->next = rightparenth0;
+         }
+         else left = atleft;
+
          qa = malloc(sizeof(queue_atom));
          if (!qa) fatal_error("Error: Lack of memory in treetocode function.");
          memset(qa, 0, sizeof(queue_atom));
          qa->next = NULL;
          qa->nodept = currnode->childset[0];
-         qa->atleft = atleft;
+         qa->atleft = left;
          if (caseone)
          {
             queuestart = qa;
@@ -909,12 +939,30 @@ data eval_treetocode(node* to_eval)
          if (atleft)
          {
             rightparenth->next = atleft->next;
-            atleft->next = leftparenth;
+
+            if (bpar)
+            {
+               rightparenth0->next = leftparenth;
+               atleft->next = leftparenth0;
+            }
+            else
+            {
+               atleft->next = leftparenth;
+            }
          }
          else
          {
             rightparenth->next = liststart;
-            liststart = leftparenth;
+
+            if (bpar)
+            {
+               rightparenth0->next = leftparenth;
+               liststart = leftparenth0;
+            }
+            else
+            {
+               liststart = leftparenth;
+            }
          }
          listlen += 2;
 
@@ -1550,15 +1598,46 @@ data eval_treetocode(node* to_eval)
 
          listlen++;
 
+         if (currnode->childset[0]->ntype == NT_MATH_OPER &&
+            currnode->childset[0]->opval.math_oper == '*' &&
+            currnode->childset[0]->nb_childs == 1)
+         {
+            bpar = 1;
+
+            leftparenth = malloc(sizeof(code_atom));
+            rightparenth = malloc(sizeof(code_atom));
+            if (!leftparenth || !rightparenth) fatal_error("Error: Lack of memory in treetocode function.");
+            memset(leftparenth, 0, sizeof(code_atom));
+            memset(rightparenth, 0, sizeof(code_atom));
+            leftparenth->str = malloc(2);
+            rightparenth->str = malloc(2);
+            if (!leftparenth->str || !rightparenth->str)
+               fatal_error("Error: Lack of memory in treetocode function.");
+            strncpy(leftparenth->str, "(", 2);
+            strncpy(rightparenth->str, ")", 2);
+
+            listlen += 2;
+
+            leftparenth->next = rightparenth;
+            rightparenth->next = accessor;
+
+            left = leftparenth;
+         }
+         else left = atleft;
+
          if (atleft)
          {
             accessor->next = atleft->next;
-            atleft->next = accessor;
+
+            if (bpar) atleft->next = leftparenth;
+            else atleft->next = accessor;
          }
          else
          {
             accessor->next = liststart;
-            liststart = accessor;
+
+            if (bpar) liststart = leftparenth;
+            else liststart = accessor;
          }
 
          qa = malloc(sizeof(queue_atom));
@@ -1567,7 +1646,7 @@ data eval_treetocode(node* to_eval)
 
          qa->next = NULL;
          qa->nodept = currnode->childset[0];
-         qa->atleft = atleft;
+         qa->atleft = left;
          if (!queuelen)
          {
             queuestart = qa;
@@ -1605,15 +1684,53 @@ data eval_treetocode(node* to_eval)
 
          listlen++;
 
+         bincpre = currnode->opval.ppmm == PREPLUSPLUS || currnode->opval.ppmm == PREMINUSMINUS;
+
+         /* There are parenthesises only if the increment is after. */
+         if (currnode->childset[0]->ntype == NT_MATH_OPER &&
+            currnode->childset[0]->opval.math_oper == '*' &&
+            currnode->childset[0]->nb_childs == 1 && !bincpre)
+         {
+            bpar = 1;
+
+            leftparenth = malloc(sizeof(code_atom));
+            rightparenth = malloc(sizeof(code_atom));
+            if (!leftparenth || !rightparenth) fatal_error("Error: Lack of memory in treetocode function.");
+            memset(leftparenth, 0, sizeof(code_atom));
+            memset(rightparenth, 0, sizeof(code_atom));
+            leftparenth->str = malloc(2);
+            rightparenth->str = malloc(2);
+            if (!leftparenth->str || !rightparenth->str)
+               fatal_error("Error: Lack of memory in treetocode function.");
+            strncpy(leftparenth->str, "(", 2);
+            strncpy(rightparenth->str, ")", 2);
+
+            listlen += 2;
+
+            leftparenth->next = rightparenth;
+            rightparenth->next = opcode;
+
+            left = leftparenth;
+         }
+         else 
+         {
+            if (bincpre) left = opcode;
+            else left = atleft;
+         }
+
          if (atleft)
          {
             opcode->next = atleft->next;
-            atleft->next = opcode;
+
+            if (bpar) atleft->next = leftparenth;
+            else atleft->next = opcode;
          }
          else
          {
             opcode->next = liststart;
-            liststart = opcode;
+
+            if (bpar) liststart = leftparenth;
+            else liststart = opcode;
          }
 
          qa = malloc(sizeof(queue_atom));
@@ -1623,9 +1740,7 @@ data eval_treetocode(node* to_eval)
          qa->next = NULL;
          qa->nodept = currnode->childset[0];
 
-         if (currnode->opval.ppmm == PREPLUSPLUS || currnode->opval.ppmm == PREMINUSMINUS)
-            qa->atleft = opcode;
-         else qa->atleft = atleft;
+         qa->atleft = left;
 
          if (!queuelen)
          {
@@ -1640,13 +1755,42 @@ data eval_treetocode(node* to_eval)
          break;
 
       case NT_ACCESSLIST:
+         if (currnode->childset[0]->ntype == NT_MATH_OPER &&
+            currnode->childset[0]->opval.math_oper == '*' &&
+            currnode->childset[0]->nb_childs == 1)
+         {
+            bpar = 1;
+
+            leftparenth = malloc(sizeof(code_atom));
+            rightparenth = malloc(sizeof(code_atom));
+            if (!leftparenth || !rightparenth) fatal_error("Error: Lack of memory in treetocode function.");
+            memset(leftparenth, 0, sizeof(code_atom));
+            memset(rightparenth, 0, sizeof(code_atom));
+            leftparenth->str = malloc(2);
+            rightparenth->str = malloc(2);
+            if (!leftparenth->str || !rightparenth->str)
+               fatal_error("Error: Lack of memory in treetocode function.");
+            strncpy(leftparenth->str, "(", 2);
+            strncpy(rightparenth->str, ")", 2);
+
+            listlen += 2;
+
+            leftparenth->next = rightparenth;
+
+            left = leftparenth;
+
+            if (atleft) atleft->next = leftparenth;
+            else liststart = leftparenth;
+         }
+         else left = atleft;
+
          qa = malloc(sizeof(queue_atom));
          if (!qa) fatal_error("Error: Lack of memory in treetocode function.");
          memset(qa, 0, sizeof(queue_atom));
 
          qa->next = NULL;
          qa->nodept = currnode->childset[0];
-         qa->atleft = atleft;
+         qa->atleft = left;
          if (!queuelen)
          {
             queuestart = qa;
@@ -1658,7 +1802,6 @@ data eval_treetocode(node* to_eval)
          queueend = qa;
          queuelen++;
 
-         left = atleft;
          for (i = 1; i < currnode->nb_childs; i += 2)
          {
             opcode = malloc(sizeof(code_atom));
@@ -1670,17 +1813,28 @@ data eval_treetocode(node* to_eval)
             else if (currnode->childset[i]->ntype == NT_DEREF) strncpy(opcode->str, "->", 3);
             else fatal_error("Error: Unexpected operator for access list in treetocode function.");
 
-            if (left)
+            if (i == 1 && bpar) 
             {
-               opcode->next = left->next;
-               left->next = opcode;
+               rightparenth->next = opcode;
+
+               if (atleft) opcode->next = atleft->next;
+               else opcode->next = liststart;
             }
             else
             {
-               opcode->next = liststart;
-               liststart = opcode;
+               if (left)
+               {
+                  opcode->next = left->next;
+                  left->next = opcode;
+               }
+               else
+               {
+                  opcode->next = liststart;
+                  liststart = opcode;
+               }
             }
             left = opcode;
+
 
             listlen++;
 
@@ -1710,17 +1864,62 @@ data eval_treetocode(node* to_eval)
          strncpy(leftbracket->str, "[", 2);
          strncpy(rightbracket->str, "]", 2);
 
+         if (currnode->childset[0]->ntype == NT_MATH_OPER &&
+            currnode->childset[0]->opval.math_oper == '*' &&
+            currnode->childset[0]->nb_childs == 1)
+         {
+            bpar = 1;
+
+            leftparenth = malloc(sizeof(code_atom));
+            rightparenth = malloc(sizeof(code_atom));
+            if (!leftparenth || !rightparenth) fatal_error("Error: Lack of memory in treetocode function.");
+            memset(leftparenth, 0, sizeof(code_atom));
+            memset(rightparenth, 0, sizeof(code_atom));
+            leftparenth->str = malloc(2);
+            rightparenth->str = malloc(2);
+            if (!leftparenth->str || !rightparenth->str)
+               fatal_error("Error: Lack of memory in treetocode function.");
+            strncpy(leftparenth->str, "(", 2);
+            strncpy(rightparenth->str, ")", 2);
+
+            listlen += 2;
+
+            leftparenth->next = rightparenth;
+         }
+
          listlen += 2;
 
          if (atleft)
          {
             rightbracket->next = atleft->next;
-            atleft->next = leftbracket;
+
+            if (bpar)
+            {
+               atleft->next = leftparenth;
+               rightparenth->next = leftbracket;
+               left = leftparenth;
+            }
+            else
+            {
+               atleft->next = leftbracket;
+               left = atleft;
+            }
          }
          else
          {
             rightbracket->next = liststart;
-            liststart = leftbracket;
+
+            if (bpar)
+            {
+               liststart = leftparenth;
+               rightparenth->next = leftbracket;
+               left = leftparenth;
+            }
+            else
+            {
+               liststart = leftbracket;
+               left = NULL;
+            }
          }
          leftbracket->next = rightbracket;
 
@@ -1730,7 +1929,7 @@ data eval_treetocode(node* to_eval)
 
          qa->next = NULL;
          qa->nodept = currnode->childset[0];
-         qa->atleft = atleft;
+         qa->atleft = left;
          if (!queuelen)
          {
             queuestart = qa;

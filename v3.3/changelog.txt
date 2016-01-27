@@ -5,6 +5,8 @@ by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 v3.3
 
 Added internal functions "detachnode", "swapnodes" and "osfamily".
+Fixed issue of priority indirection not placed in parenthesis in "treetocode".
+   function output.
 
 v3.2.1   2016-01-21
 
