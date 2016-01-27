@@ -8841,6 +8841,7 @@ data eval_codetotree(node* to_eval)
    {
       retval.ti.dtype = DT_POINTER;
       retval.value.ptr = root;
+      g_lst_add(root, PT_NODE);
    }
 
    inputsrc = previnputsrc;

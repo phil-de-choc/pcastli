@@ -5,6 +5,9 @@ by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 v3.3
 
 Added internal functions "detachnode", "swapnodes" and "osfamily".
+Now function "treetocode" places a semicolon at the end previous statement in 
+   a statement list if next statements begins with * or (.
+The output of "codetotree" is now garbage collected.
 Fixed issue of priority indirection not placed in parenthesis in "treetocode".
    function output.
 

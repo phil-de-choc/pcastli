@@ -158,6 +158,8 @@ assoc get_op_assoc(node* nodept)
    return ASSOC_UNDEF;
 }
 
+
+
 code_atom* enqueue_stmt(
    code_atom* atleft,
    node* currnode,
@@ -217,6 +219,68 @@ code_atom* enqueue_stmt(
 
    return eolatom;
 }
+
+
+
+void semicolons(code_atom* liststart)
+{
+   code_atom* atom1 = NULL, * atom2 = NULL, * atom3 = NULL;
+   size_t len1 = 0, len2 = 0, len3 = 0;
+
+   atom1 = liststart;
+
+   if (liststart) 
+   {
+      atom2 = liststart->next;
+
+      if (liststart->str) len1 = strlen(liststart->str);
+      else len1 = 0;
+   }
+
+   if (atom2)
+   {
+      atom3 = atom2->next;
+
+      if (atom2->str) len2 = strlen(liststart->str);
+      else len2 = 0;
+   }
+
+   while (atom3 != NULL)
+   {
+      int binsertsc = 0;
+
+      if (atom3->str) len3 = strlen(atom3->str);
+      else len3 = 0;
+
+      if (len1 == 1 && atom2->linestart && len2 == 0)
+      {
+         if (atom1->str[0] == '\n')
+         {
+            if (len3 > 0)
+            {
+               if (atom3->str[0] == '*' || atom3->str[0] == '(') binsertsc = 1;
+            }
+         }
+      }
+
+      if (binsertsc)
+      {
+         atom1->str = realloc(atom1->str, 3);
+         if (!atom1->str) fatal_error("Error: Lack of memory in semicolons.");
+
+         strncpy(atom1->str, ";\n", 3);
+      }
+
+      atom1 = atom2;
+      atom2 = atom3;
+      atom3 = atom3->next;
+
+      len1 = len2;
+      len2 = len3;
+   }
+}
+
+
 
 data eval_treetocode(node* to_eval)
 {
@@ -2131,6 +2195,7 @@ data eval_treetocode(node* to_eval)
       }
    }
 
+   semicolons(liststart);
 
    curr = liststart;
    for (i = 0; i < listlen; i++)

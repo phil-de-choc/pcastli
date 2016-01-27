@@ -6,6 +6,9 @@ by Parent and Childset Accessible Syntax Tree Language
 v3.3
 
 Ajouté les functions internes "detachnode", "swapnodes" et "osfamily".
+Maintenant la fonction "treetocode" place un point-virgule à la fin d'un 
+   énoncé dans une liste d'énoncés si l'énoncé suivant commence par * ou (.
+Le résultat de "codetotree" est maintenant "garbage collecté".
 Réglé le problème d'indirection prioritaire non mise entre parenthèse dans 
    la sortie de "treetocode".
 
