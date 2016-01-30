@@ -3,8 +3,10 @@ Liste des changements de l'interpréteur du
 by Parent and Childset Accessible Syntax Tree Language
 ------------------------------------------------------
 
-v3.3
+v3.3   2016-01-31
 
+Remplacé le membre "nb_childs" par "nb_children" dans l'objet retourné par 
+   "info".
 Ajouté les functions internes "detachnode", "swapnodes" et "osfamily".
 Maintenant la fonction "treetocode" place un point-virgule à la fin d'un 
    énoncé dans une liste d'énoncés si l'énoncé suivant commence par * ou (.

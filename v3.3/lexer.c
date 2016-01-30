@@ -50,7 +50,7 @@ void rel_yylval(int op, const char* opname)
    yylval->opval.rel_oper = op;
    yylval->parent = NULL;
    yylval->childset = NULL;
-   yylval->nb_childs = 0;
+   yylval->nb_children = 0;
 }
 
 
@@ -69,7 +69,7 @@ void math_yylval(char c)
    yylval->opval.math_oper = c;
    yylval->parent = NULL;
    yylval->childset = NULL;
-   yylval->nb_childs = 0;
+   yylval->nb_children = 0;
 }
 
 
@@ -376,7 +376,7 @@ int token(void)
 
          yylval->opval.value = (double)hex_nb;
          yylval->parent = NULL;
-         yylval->nb_childs = 0;
+         yylval->nb_children = 0;
          yylval->childset = NULL;
 
          return NUM;
@@ -410,7 +410,7 @@ int token(void)
       yylval->opval.value = readdouble();
 
       yylval->parent = NULL;
-      yylval->nb_childs = 0;
+      yylval->nb_children = 0;
       yylval->childset = NULL;
 
       return NUM;
@@ -623,7 +623,7 @@ escape_ok:
       }
       memcpy(yylval->opval.str.tab, symbuf, yylval->opval.str.length);
       yylval->parent = NULL;
-      yylval->nb_childs = 0;
+      yylval->nb_children = 0;
       yylval->childset = NULL;
 
       return STR;
@@ -704,7 +704,7 @@ escape_ok:
                yylval->opval.name = NULL;
                yylval->parent = NULL;
                yylval->childset = NULL;
-               yylval->nb_childs = 0;
+               yylval->nb_children = 0;
             }
 
             return reserved_words_table[i].num_symbol;
@@ -730,7 +730,7 @@ escape_ok:
       }
       strcpy(yylval->opval.name, symbuf);
       yylval->parent = NULL;
-      yylval->nb_childs = 0;
+      yylval->nb_children = 0;
       yylval->childset = NULL;
 
       return VAR;
@@ -833,7 +833,7 @@ escape_ok:
       yylval->opval.math_oper = '=';
       yylval->parent = NULL;
       yylval->childset = NULL;
-      yylval->nb_childs = 0;
+      yylval->nb_children = 0;
 
       return '=';
 

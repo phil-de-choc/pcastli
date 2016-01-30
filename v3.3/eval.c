@@ -372,7 +372,7 @@ data assign_node_pointers(node* to_eval, data from_eval2)
    /* Find from_eval1.value.ptr in argroot->childset. */
    found = 0;
    i = 0;
-   while (!found && i < argroot->nb_childs)
+   while (!found && i < argroot->nb_children)
    {
       if (from_eval1.value.ptr == argroot->childset[i])
          found = 1;
@@ -431,7 +431,7 @@ data eval_math_oper_assign(node* to_eval)
    memset(&source, 0, sizeof(closure));
 
    if (!to_eval) return retval;
-   if (to_eval->nb_childs <= 1) return retval;
+   if (to_eval->nb_children <= 1) return retval;
    if (!to_eval->childset[0] || !to_eval->childset[1]) return retval;
 
    /* Right child value computation. */
@@ -743,7 +743,7 @@ data eval_ref(node* to_eval)
    case NT_MATH_OPER:
       if (to_eval->childset[0]->opval.math_oper == '*')
       {
-         if (to_eval->childset[0]->nb_childs == 1)
+         if (to_eval->childset[0]->nb_children == 1)
          {
             retval = eval_ref(to_eval->childset[0]->childset[0]);
          }
@@ -779,7 +779,7 @@ data eval_math_oper(node* to_eval)
    switch (to_eval->opval.math_oper)
    {
    case '-':
-      if (to_eval->nb_childs == 1)
+      if (to_eval->nb_children == 1)
       {
          from_eval1 = eval(to_eval->childset[0]);
          if (from_eval1.ti.dtype < DT_CHAR || from_eval1.ti.dtype > DT_LONG_DOUBLE ||
@@ -846,7 +846,7 @@ data eval_math_oper(node* to_eval)
          }
          return retval;
       }
-      else if (to_eval->nb_childs == 2)
+      else if (to_eval->nb_children == 2)
       {
          from_eval1 = eval(to_eval->childset[0]);
          from_eval2 = eval(to_eval->childset[1]);
@@ -871,7 +871,7 @@ data eval_math_oper(node* to_eval)
       }
 
    case '+':
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
       {
          fprintf(stderr, "Error: Wrong child number ");
          fprintf(stderr, "for a \'+\' in eval_math_oper.\n");
@@ -893,11 +893,11 @@ data eval_math_oper(node* to_eval)
       return retval;
 
    case '*':
-      if (to_eval->nb_childs == 1)
+      if (to_eval->nb_children == 1)
       {
          return eval_indir(to_eval);
       }
-      else if (to_eval->nb_childs == 2)
+      else if (to_eval->nb_children == 2)
       {
          from_eval1 = eval(to_eval->childset[0]);
          from_eval2 = eval(to_eval->childset[1]);
@@ -922,7 +922,7 @@ data eval_math_oper(node* to_eval)
       }
 
    case '/':
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
       {
          fprintf(stderr, "Error: Wrong child number ");
          fprintf(stderr, "for a \'/\' in eval_math_oper.\n");
@@ -1001,7 +1001,7 @@ data eval_math_oper(node* to_eval)
       return retval;
 
    case '%':
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
       {
          fprintf(stderr, "Error: Wrong child number ");
          fprintf(stderr, "for a \'%%\' in eval_math_oper.\n");
@@ -1608,7 +1608,7 @@ data eval_math_oper(node* to_eval)
       return retval;
 
    case '^':
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
       {
          fprintf(stderr, "Error: Wrong child number ");
          fprintf(stderr, "for a \'^\' in eval_math_oper.\n");
@@ -1646,7 +1646,7 @@ data eval_math_oper(node* to_eval)
       return retval;
       
    case '=':
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
       {
          fprintf(stderr, "Error: Wrong child number ");
          fprintf(stderr, "for a \'=\' in eval_math_oper.\n");
@@ -1655,7 +1655,7 @@ data eval_math_oper(node* to_eval)
       return eval_math_oper_assign(to_eval);
 
    case '&':
-      if (to_eval->nb_childs != 1)
+      if (to_eval->nb_children != 1)
       {
          fprintf(stderr, "Error: Wrong child number ");
          fprintf(stderr, "for a \'&\' in eval_math_oper.\n");
@@ -1739,7 +1739,7 @@ data eval_rel_oper(node* to_eval)
    switch (to_eval->opval.rel_oper)
    {
    case OR:
-      if (to_eval->nb_childs != 2) 
+      if (to_eval->nb_children != 2) 
          fatal_error("Error: OR operator node does not have two childs.");
       from_eval1 = eval(to_eval->childset[0]);
       from_eval2 = eval(to_eval->childset[1]);
@@ -1752,7 +1752,7 @@ data eval_rel_oper(node* to_eval)
       break;
 
    case AND:
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
          fatal_error("Error: AND operator node does not have two childs.");
       from_eval1 = eval(to_eval->childset[0]);
       from_eval2 = eval(to_eval->childset[1]);
@@ -1765,7 +1765,7 @@ data eval_rel_oper(node* to_eval)
       break;
 
    case NOT:
-      if (to_eval->nb_childs != 1)
+      if (to_eval->nb_children != 1)
          fatal_error("Error: NOT operator node does not have one child.");
       from_eval1 = eval(to_eval->childset[0]);
       boolres1 = to_bool(from_eval1);
@@ -1775,31 +1775,31 @@ data eval_rel_oper(node* to_eval)
       break;
 
    case GT:
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
          fatal_error("Error: \">\" operator node does not have two childs.");
       mac_compare(>, <)
       break;
 
    case GE:
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
          fatal_error("Error: \">=\" operator node does not have two childs.");
       mac_compare(>=, <=)
       break;
 
    case LT:
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
          fatal_error("Error: \"<\" operator node does not have two childs.");
       mac_compare(<, >)
       break;
 
    case LE:
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
          fatal_error("Error: \"<=\" operator node does not have two childs.");
       mac_compare(<=, >=)
       break;
 
    case EQ:
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
          fatal_error("Error: \"==\" operator node does not have two childs.");
       from_eval1 = eval(to_eval->childset[0]);
       from_eval2 = eval(to_eval->childset[1]);
@@ -1809,7 +1809,7 @@ data eval_rel_oper(node* to_eval)
       break;
 
    case NE:
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
          fatal_error("Error: \"!=\" operator node does not have two childs.");
       from_eval1 = eval(to_eval->childset[0]);
       from_eval2 = eval(to_eval->childset[1]);
@@ -1841,7 +1841,7 @@ data eval_print(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -1930,7 +1930,7 @@ data eval_info(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -1966,9 +1966,9 @@ data eval_info(node* to_eval)
       retval = object_base(3);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "numerical constant");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       object_member(&retval, 2, "value");
       retval.value.pObject->clos_array[2]->content.ti.dtype = DT_DOUBLE;
       retval.value.pObject->clos_array[2]->content.value.num = to_eval->opval.value;
@@ -1978,9 +1978,9 @@ data eval_info(node* to_eval)
       retval = object_base(3);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "mathematical operator");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       object_member(&retval, 2, "operator");
       retval.value.pObject->clos_array[2]->content.ti.dtype = DT_CHAR;
       retval.value.pObject->clos_array[2]->content.value.cnum = to_eval->opval.math_oper;
@@ -1990,9 +1990,9 @@ data eval_info(node* to_eval)
       retval = object_base(3);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "relational or logical operator");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
 
       switch(to_eval->opval.rel_oper)
       {
@@ -2034,9 +2034,9 @@ data eval_info(node* to_eval)
       retval = object_base(3);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "variable");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       object_member(&retval, 2, "name");
       object_str_val(&retval, 2, to_eval->opval.name);
       break;
@@ -2045,25 +2045,25 @@ data eval_info(node* to_eval)
       retval = object_base(3);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "string");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       object_member(&retval, 2, "value");
       object_str_val(&retval, 2, to_eval->opval.str.tab);
       break;
 
    case NT_FUNC_DEF:
-      if (to_eval->nb_childs >= 1)
+      if (to_eval->nb_children >= 1)
       {
-         if (to_eval->childset[0]) hasparams = to_eval->childset[0]->nb_childs > 0;
+         if (to_eval->childset[0]) hasparams = to_eval->childset[0]->nb_children > 0;
       }
       if (hasparams) retval = object_base(3);
       else retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "function definition");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
 
       if (hasparams)
       {
@@ -2080,7 +2080,7 @@ data eval_info(node* to_eval)
          retval.value.pObject->clos_array[2]->content.ti.dtype = DT_ARRAY;
          retval.value.pObject->clos_array[2]->content.value.pArray = parr;
 
-         parr->length = to_eval->childset[0]->nb_childs;
+         parr->length = to_eval->childset[0]->nb_children;
          parr->dtable = malloc(parr->length * sizeof(data));
          if (!parr->dtable) fatal_error("Error: Lack of memory in info for array data.");
          memset(parr->dtable, 0, parr->length * sizeof(data));
@@ -2106,13 +2106,13 @@ data eval_info(node* to_eval)
       retval = object_base(3);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "function call");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       object_member(&retval, 2, "nb_args");
       retval.value.pObject->clos_array[2]->content.ti.dtype = DT_SIZE_T;
-      if (to_eval->nb_childs >= 2) retval.value.pObject->clos_array[2]->content.value.stnum = 
-         to_eval->childset[1]->nb_childs;
+      if (to_eval->nb_children >= 2) retval.value.pObject->clos_array[2]->content.value.stnum = 
+         to_eval->childset[1]->nb_children;
       else retval.value.pObject->clos_array[2]->content.value.stnum = 0;
       break;
 
@@ -2120,90 +2120,90 @@ data eval_info(node* to_eval)
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "if statement");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_IFELSE_STMT:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "if else statement");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_FOR_STMT:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "for statement");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_WHILE_STMT:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "while statement");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_LIST:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "list");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_CODESEGMENT:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "code segment");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_PARENT:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "parent reserved word");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_CHILDSET:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "childset reserved word");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_VARGENLIST:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "vargenlist");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_INCR_DECR:
       retval = object_base(3);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "incrementation or decrementation");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
 
       switch(to_eval->opval.ppmm)
       {
@@ -2231,54 +2231,54 @@ data eval_info(node* to_eval)
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "object member access list");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_SUBSCRIPT:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "subscript");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_STDIN:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "stdin FILE* identifier");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_STDOUT:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "stdout FILE* identifier");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_STDERR:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "stderr FILE* identifier");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_CAST:
       retval = object_base(3);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "cast");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
 
       switch (to_eval->opval.ti.dtype)
       {
@@ -2357,18 +2357,18 @@ data eval_info(node* to_eval)
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "structure reference operator (.)");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    case NT_DEREF:
       retval = object_base(2);
       object_member(&retval, 0, "node_type");
       object_str_val(&retval, 0, "structure dereference operator (->)");
-      object_member(&retval, 1, "nb_childs");
+      object_member(&retval, 1, "nb_children");
       retval.value.pObject->clos_array[1]->content.ti.dtype = DT_SIZE_T;
-      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_childs;
+      retval.value.pObject->clos_array[1]->content.value.stnum = to_eval->nb_children;
       break;
 
    default:
@@ -2394,7 +2394,7 @@ data eval_mknode(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 3) err = 1;
+      if (to_eval->nb_children != 3) err = 1;
    }
    else err = 1;
 
@@ -2454,7 +2454,7 @@ data eval_mknode(node* to_eval)
       return retval;
    }
    mac_cast(lindx, size_t, index)
-   if (lindx > dest.value.ptr->nb_childs)
+   if (lindx > dest.value.ptr->nb_children)
    {
       yyerror("Array index out of range in mknode.");
       return retval;
@@ -2463,7 +2463,7 @@ data eval_mknode(node* to_eval)
 
    /* List array enlargement. */
    dest.value.ptr->childset = realloc(dest.value.ptr->childset,
-      (dest.value.ptr->nb_childs + 1) * sizeof(node*));
+      (dest.value.ptr->nb_children + 1) * sizeof(node*));
    if (!dest.value.ptr->childset)
    {
       yyerror("Lack of memory in mknode.");
@@ -2471,14 +2471,14 @@ data eval_mknode(node* to_eval)
    }
 
    /* Childs relocation */
-   for (i = dest.value.ptr->nb_childs; i > lindx; i--)
+   for (i = dest.value.ptr->nb_children; i > lindx; i--)
    {
       dest.value.ptr->childset[i] = dest.value.ptr->childset[i-1];
    }
 
    dest.value.ptr->childset[lindx] = copy_tree(source.value.ptr, 
       dest.value.ptr);
-   dest.value.ptr->nb_childs++;
+   dest.value.ptr->nb_children++;
 
    return retval;
 }
@@ -2498,7 +2498,7 @@ data eval_rmnode(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -2534,7 +2534,7 @@ data eval_rmnode(node* to_eval)
       return retval;
    }
    mac_cast(lindx, size_t, index)
-   if (lindx >= list.value.ptr->nb_childs)
+   if (lindx >= list.value.ptr->nb_children)
    {
       yyerror("Array index out of bound in rmnode.");
       return retval;
@@ -2542,14 +2542,14 @@ data eval_rmnode(node* to_eval)
 
 
    /* Childs relocation */
-   for (i = lindx; i < list.value.ptr->nb_childs - 1; i++)
+   for (i = lindx; i < list.value.ptr->nb_children - 1; i++)
    {
       list.value.ptr->childset[i] = list.value.ptr->childset[i+1];
    }
 
    /* List array reduction. */
    list.value.ptr->childset = realloc(list.value.ptr->childset,
-      --list.value.ptr->nb_childs * sizeof(node*));
+      --list.value.ptr->nb_children * sizeof(node*));
    if (!list.value.ptr->childset)
    {
       yyerror("Lack of memory in rmnode.");
@@ -2574,7 +2574,7 @@ data eval_value(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -2642,7 +2642,7 @@ data eval_length(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -2671,7 +2671,7 @@ data eval_length(node* to_eval)
          return retval;
       }
 
-      retval.value.stnum = from_eval.value.ptr->nb_childs;
+      retval.value.stnum = from_eval.value.ptr->nb_children;
    }
    else if (from_eval.ti.dtype == DT_ARRAY)
    {
@@ -2771,7 +2771,7 @@ data eval_read(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -2866,7 +2866,7 @@ data eval_write(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 3) err = 1;
+      if (to_eval->nb_children != 3) err = 1;
    }
    else err = 1;
 
@@ -2936,7 +2936,7 @@ data eval_write(node* to_eval)
 
    fprintf(os, "%s", list.value.ptr->childset[0]->opval.str.tab);
 
-   for(i = 1; i < list.value.ptr->nb_childs; i++)
+   for(i = 1; i < list.value.ptr->nb_children; i++)
    {
       if (list.value.ptr->childset[i]->ntype != NT_STRING)
       {
@@ -3008,7 +3008,7 @@ data eval_setwd(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -3055,7 +3055,7 @@ data eval_tonode(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -3107,7 +3107,7 @@ data eval_tonode(node* to_eval)
    }
 
    npt->parent = NULL;
-   npt->nb_childs = 0;
+   npt->nb_children = 0;
    npt->childset = NULL;
 
    retval.value.ptr = npt;
@@ -3132,7 +3132,7 @@ data eval_subseq(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 3) err = 1;
+      if (to_eval->nb_children != 3) err = 1;
    }
    else err = 1;
 
@@ -3177,7 +3177,7 @@ data eval_subseq(node* to_eval)
    switch(seq.ti.dtype)
    {
    case DT_POINTER:
-      seqlen = seq.value.ptr->nb_childs;
+      seqlen = seq.value.ptr->nb_children;
       break;
    case DT_STRING:
       seqlen = seq.value.str.length;
@@ -3249,7 +3249,7 @@ data eval_subseq(node* to_eval)
       npt->opval.str.length = 0;
       npt->opval.str.tab = NULL;
       npt->parent = NULL;
-      npt->nb_childs = len;
+      npt->nb_children = len;
 
       npt->childset = malloc(len * sizeof(node*));
       if (!npt->childset)
@@ -3379,7 +3379,7 @@ data eval_concat(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs < 2) err = 1;
+      if (to_eval->nb_children < 2) err = 1;
    }
    else err = 1;
 
@@ -3391,16 +3391,16 @@ data eval_concat(node* to_eval)
    }
 
 
-   data_tab = malloc(to_eval->nb_childs * sizeof(data));
+   data_tab = malloc(to_eval->nb_children * sizeof(data));
    if (!data_tab)
    {
       yyerror("Error: Lack of memory in eval_concat for data_tab.");
       exit(1);
    }
-   memset(data_tab, 0, to_eval->nb_childs * sizeof(data));
+   memset(data_tab, 0, to_eval->nb_children * sizeof(data));
 
    /* Arguments evaluation */
-   for (i = 0; i < to_eval->nb_childs; i++)
+   for (i = 0; i < to_eval->nb_children; i++)
    {
       data_tab[i] = eval(to_eval->childset[i]);
       if (data_tab[i].ti.nderef > 0)
@@ -3413,12 +3413,12 @@ data eval_concat(node* to_eval)
    }
 
    /* Same type verification */
-   for (i = 1; i < to_eval->nb_childs; i++)
+   for (i = 1; i < to_eval->nb_children; i++)
    {
       if (data_tab[0].ti.dtype != data_tab[i].ti.dtype)
       {
          yyerror("Error: Arguments of concat have not all the same type.");
-         for (i = 0; i < to_eval->nb_childs; i++) free_data(data_tab[i]);
+         for (i = 0; i < to_eval->nb_children; i++) free_data(data_tab[i]);
          free(data_tab);
          return retval;
       }
@@ -3429,7 +3429,7 @@ data eval_concat(node* to_eval)
       node* npt = NULL;
 
       /* Lists verification */
-      for (i = 0; i < to_eval->nb_childs; i++)
+      for (i = 0; i < to_eval->nb_children; i++)
       {
          if (!data_tab[i].value.ptr) err = 1;
          else
@@ -3442,16 +3442,16 @@ data eval_concat(node* to_eval)
          if (err)
          {
             yyerror("Error: Non list found in references passed to concat.");
-            for (i = 0; i < to_eval->nb_childs; i++) free_data(data_tab[i]);
+            for (i = 0; i < to_eval->nb_children; i++) free_data(data_tab[i]);
             free(data_tab);
             return retval;
          }
       }
 
       /* Output list length. */
-      for (i = 0; i < to_eval->nb_childs; i++)
+      for (i = 0; i < to_eval->nb_children; i++)
       {
-         len += data_tab[i].value.ptr->nb_childs;
+         len += data_tab[i].value.ptr->nb_children;
       }
 
       npt = malloc(sizeof(node));
@@ -3466,7 +3466,7 @@ data eval_concat(node* to_eval)
       npt->opval.str.length = 0;
       npt->opval.str.tab = NULL;
       npt->parent = NULL;
-      npt->nb_childs = len;
+      npt->nb_children = len;
 
       npt->childset = malloc(len * sizeof(node*));
       if (!npt->childset)
@@ -3478,9 +3478,9 @@ data eval_concat(node* to_eval)
 
       /* Subtrees copying. */
       k = 0;
-      for (i = 0; i < to_eval->nb_childs; i++)
+      for (i = 0; i < to_eval->nb_children; i++)
       {
-         for (j = 0; j < data_tab[i].value.ptr->nb_childs; j++)
+         for (j = 0; j < data_tab[i].value.ptr->nb_children; j++)
          {
             npt->childset[k] = copy_tree(data_tab[i].value.ptr->childset[j], 
                npt);
@@ -3496,7 +3496,7 @@ data eval_concat(node* to_eval)
       array* parr = NULL;
 
       /* Output array length. */
-      for (i = 0; i < to_eval->nb_childs; i++)
+      for (i = 0; i < to_eval->nb_children; i++)
       {
          len += data_tab[i].value.pArray->length;
       }
@@ -3519,7 +3519,7 @@ data eval_concat(node* to_eval)
       memset(parr->dtable, 0, len * sizeof(data));
 
       k = 0;
-      for (i = 0; i < to_eval->nb_childs; i++)
+      for (i = 0; i < to_eval->nb_children; i++)
       {
          for (j = 0; j < data_tab[i].value.pArray->length; j++)
          {
@@ -3537,7 +3537,7 @@ data eval_concat(node* to_eval)
       listlink** destination = NULL, * plink_dest = NULL, * plink_src = NULL;
 
       /* Output list length. */
-      for (i = 0; i < to_eval->nb_childs; i++)
+      for (i = 0; i < to_eval->nb_children; i++)
       {
          len += data_tab[i].value.pList->length;
       }
@@ -3569,7 +3569,7 @@ data eval_concat(node* to_eval)
 
       /* List filling */
       plink_dest = plst->start;
-      for (i = 0; i < to_eval->nb_childs; i++)
+      for (i = 0; i < to_eval->nb_children; i++)
       {
          plink_src = data_tab[i].value.pList->start;
          for (j = 0; j < data_tab[i].value.pList->length; j++)
@@ -3588,7 +3588,7 @@ data eval_concat(node* to_eval)
       char* str = NULL;
 
       /* Output string length. */
-      for (i = 0; i < to_eval->nb_childs; i++)
+      for (i = 0; i < to_eval->nb_children; i++)
       {
          len += strlen(data_tab[i].value.str.tab);
       }
@@ -3603,7 +3603,7 @@ data eval_concat(node* to_eval)
       g_lst_add(str, PT_CHAR_TAB);
 
       j = 0;
-      for (i = 0; i < to_eval->nb_childs; i++)
+      for (i = 0; i < to_eval->nb_children; i++)
       {
          strcpy(&str[j], data_tab[i].value.str.tab);
          j += strlen(data_tab[i].value.str.tab);
@@ -3640,7 +3640,7 @@ data eval_ntoa(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -3741,7 +3741,7 @@ data eval_aton(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -3781,12 +3781,12 @@ data eval_return(node* to_eval)
       return_called = 1;
       return retval;
    }
-   if (to_eval->nb_childs == 0)
+   if (to_eval->nb_children == 0)
    {
       return_called = 1;
       return retval;
    }
-   if (to_eval->nb_childs > 1)
+   if (to_eval->nb_children > 1)
    {
       yyerror("Error: The return function takes no or one argument.");
       abort_called = 1;
@@ -3814,7 +3814,7 @@ data eval_copytree(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -3850,7 +3850,7 @@ data eval_clear(node* to_eval)
    memset(&retval, 0, sizeof(data));
 
    /* to_eval is not NULL, see rules with "subseq". */
-   if (to_eval->nb_childs == 0)
+   if (to_eval->nb_children == 0)
    {
        /* Erasing all variables. */
       for (i = 0; i < set_stack_size; i++)
@@ -3879,7 +3879,7 @@ data eval_clear(node* to_eval)
    else
    {
       /* Erasing selected symbols. */
-      for (arg = 0; arg < to_eval->nb_childs; arg++)
+      for (arg = 0; arg < to_eval->nb_children; arg++)
       {
          if (to_eval->childset[arg]->ntype == NT_VARIABLE)
          {
@@ -3905,7 +3905,7 @@ data eval_execute(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -3943,7 +3943,7 @@ data eval_prompt(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -3986,7 +3986,7 @@ data eval_names(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs < 1) err = 1;
+      if (to_eval->nb_children < 1) err = 1;
    }
    else err = 1;
 
@@ -3997,16 +3997,16 @@ data eval_names(node* to_eval)
       return retval;
    }
 
-   from_eval = malloc(to_eval->nb_childs * sizeof(data));
+   from_eval = malloc(to_eval->nb_children * sizeof(data));
    if (!from_eval)
    {
       yyerror("Error : Lack of memory in names for results table.");
       exit(1);
    }
-   memset(from_eval, 0, to_eval->nb_childs * sizeof(data));
+   memset(from_eval, 0, to_eval->nb_children * sizeof(data));
 
    arg = 0;
-   while (arg < to_eval->nb_childs && !err)
+   while (arg < to_eval->nb_children && !err)
    {
       from_eval[arg] = eval(to_eval->childset[arg]);
       if (from_eval[arg].ti.dtype != DT_STRING || from_eval[arg].ti.nderef > 0) err = 1;
@@ -4045,9 +4045,9 @@ data eval_names(node* to_eval)
    }
    memset(retval.value.pObject->clos_array, 0, arg * sizeof(closure*));
 
-   retval.value.pObject->nb_clos = to_eval->nb_childs;
+   retval.value.pObject->nb_clos = to_eval->nb_children;
 
-   for (arg = 0; arg < to_eval->nb_childs; arg++)
+   for (arg = 0; arg < to_eval->nb_children; arg++)
    {
       retval.value.pObject->clos_array[arg] = malloc(sizeof(closure));
       if (!retval.value.pObject->clos_array[arg])
@@ -4088,7 +4088,7 @@ data eval_array(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs == 0) zerolen = 1;
+      if (to_eval->nb_children == 0) zerolen = 1;
    }
    else zerolen = 1;
 
@@ -4100,7 +4100,7 @@ data eval_array(node* to_eval)
    }
    memset(pArr, 0, sizeof(array));
    g_lst_add(pArr, PT_ARRAY);
-   pArr->length = to_eval->nb_childs;
+   pArr->length = to_eval->nb_children;
 
    if (zerolen)
    {
@@ -4110,15 +4110,15 @@ data eval_array(node* to_eval)
       return retval;
    }
 
-   pArr->dtable = malloc(to_eval->nb_childs * sizeof(data));
+   pArr->dtable = malloc(to_eval->nb_children * sizeof(data));
    if (!pArr->dtable)
    {
       yyerror("Error: Lack of memory in eval_array for data table.");
       exit(1);
    }
-   memset(pArr->dtable, 0, to_eval->nb_childs * sizeof(data));
+   memset(pArr->dtable, 0, to_eval->nb_children * sizeof(data));
 
-   for (arg = 0; arg < to_eval->nb_childs; arg++)
+   for (arg = 0; arg < to_eval->nb_children; arg++)
    {
       pArr->dtable[arg] = eval(to_eval->childset[arg]);
    }
@@ -4143,7 +4143,7 @@ data eval_list(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs == 0) zerolen = 1;
+      if (to_eval->nb_children == 0) zerolen = 1;
    }
    else zerolen = 1;
 
@@ -4155,7 +4155,7 @@ data eval_list(node* to_eval)
    }
    memset(plst, 0, sizeof(list));
    g_lst_add(plst, PT_LIST);
-   plst->length = to_eval->nb_childs;
+   plst->length = to_eval->nb_children;
 
    if (zerolen)
    {
@@ -4166,7 +4166,7 @@ data eval_list(node* to_eval)
    }
 
    destination = &plst->start;
-   for (arg = 0; arg < to_eval->nb_childs; arg++)
+   for (arg = 0; arg < to_eval->nb_children; arg++)
    {
       *destination = malloc(sizeof(listlink));
       if (!*destination)
@@ -4202,7 +4202,7 @@ data eval_fillobject(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -4302,7 +4302,7 @@ data eval_setlength(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -4472,8 +4472,8 @@ data eval_setlength(node* to_eval)
          return retval;
       }
 
-      oldlen = pdest->value.ptr->nb_childs;
-      pdest->value.ptr->nb_childs = llength;
+      oldlen = pdest->value.ptr->nb_children;
+      pdest->value.ptr->nb_children = llength;
       if (oldlen < llength)
       {
          pdest->value.ptr->childset = realloc(pdest->value.ptr->childset, 
@@ -4496,7 +4496,7 @@ data eval_setlength(node* to_eval)
             npt->ntype = NT_NUM_CONST;
             npt->opval.value = 0.0;
             npt->parent = pdest->value.ptr;
-            npt->nb_childs = 0;
+            npt->nb_children = 0;
             npt->childset = NULL;
 
             pdest->value.ptr->childset[i] = npt;
@@ -4551,7 +4551,7 @@ data eval_insert(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 3) err = 1;
+      if (to_eval->nb_children != 3) err = 1;
    }
    else err = 1;
 
@@ -4604,7 +4604,7 @@ data eval_insert(node* to_eval)
          abort_called = 1;
          return retval;
       }
-      oldlen = pdest->value.ptr->nb_childs;
+      oldlen = pdest->value.ptr->nb_children;
       break;
    default:
       yyerror("Error: Unexpected data type in insert first argument.");
@@ -4720,13 +4720,13 @@ data eval_insert(node* to_eval)
    else /* pdest->ti.dtype == DT_POINTER */
    {
       node** nptab = NULL;
-      addlen = from_eval.value.ptr->nb_childs;
+      addlen = from_eval.value.ptr->nb_children;
       if (addlen == 0)
       {
          free_data(from_eval);
          return retval;
       }
-      pdest->value.ptr->nb_childs = oldlen + addlen;
+      pdest->value.ptr->nb_children = oldlen + addlen;
       pdest->value.ptr->childset = realloc(pdest->value.ptr->childset, (oldlen 
          + addlen) * sizeof(node*));
       if (!pdest->value.ptr->childset)
@@ -4766,7 +4766,7 @@ data eval_replace(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 3) err = 1;
+      if (to_eval->nb_children != 3) err = 1;
    }
    else err = 1;
 
@@ -4818,7 +4818,7 @@ data eval_replace(node* to_eval)
          abort_called = 1;
          return retval;
       }
-      oldlen = pdest->value.ptr->nb_childs;
+      oldlen = pdest->value.ptr->nb_children;
       break;
    default:
       yyerror("Error: Unexpected data type in replace first argument.");
@@ -4910,7 +4910,7 @@ data eval_replace(node* to_eval)
    }
    else /* pdest->ti.dtype == DT_POINTER */
    {
-      addlen = from_eval.value.ptr->nb_childs;
+      addlen = from_eval.value.ptr->nb_children;
       if (addlen == 0)
       {
          free_data(from_eval);
@@ -4945,7 +4945,7 @@ data eval_source(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -5008,7 +5008,7 @@ data eval_strlen(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -5054,7 +5054,7 @@ data eval_as_array(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -5100,7 +5100,7 @@ data eval_as_array(node* to_eval)
       memset(parr, 0, sizeof(array));
       g_lst_add(parr, PT_ARRAY);
       retval.ti.dtype = DT_ARRAY;
-      parr->length = from_eval.value.ptr->nb_childs;
+      parr->length = from_eval.value.ptr->nb_children;
       if (parr->length == 0)
       {
          parr->dtable = NULL;
@@ -5221,7 +5221,7 @@ data eval_as_list(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -5266,7 +5266,7 @@ data eval_as_list(node* to_eval)
       }
       memset(plst, 0, sizeof(list));
       g_lst_add(plst, PT_LIST);
-      plst->length = from_eval.value.ptr->nb_childs;
+      plst->length = from_eval.value.ptr->nb_children;
 
       destination = &plst->start;
       for (i = 0; i < plst->length; i++)
@@ -5379,7 +5379,7 @@ data eval_as_statements(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -5413,27 +5413,27 @@ data eval_as_statements(node* to_eval)
       npt->opval.str.length = 0;
       npt->opval.str.tab = NULL;
       npt->parent = NULL;
-      npt->nb_childs = from_eval.value.pArray->length;
+      npt->nb_children = from_eval.value.pArray->length;
       npt->childset = NULL;
 
       retval.ti.dtype = DT_POINTER;
       retval.value.ptr = npt;
 
-      if (npt->nb_childs == 0)
+      if (npt->nb_children == 0)
       {
          free_data(from_eval);
          return retval;
       }
 
-      npt->childset = malloc(npt->nb_childs * sizeof(node*));
+      npt->childset = malloc(npt->nb_children * sizeof(node*));
       if (!npt->childset)
       {
          yyerror("Error: Lack of memory in as_statements for node array.");
          exit(1);
       }
-      memset(npt->childset, 0, npt->nb_childs * sizeof(node*));
+      memset(npt->childset, 0, npt->nb_children * sizeof(node*));
 
-      for (i = 0; i < npt->nb_childs; i++)
+      for (i = 0; i < npt->nb_children; i++)
       {
          if (from_eval.value.pArray->dtable[i].ti.dtype >= DT_CHAR && 
             from_eval.value.pArray->dtable[i].ti.dtype <= DT_LONG_DOUBLE)
@@ -5448,7 +5448,7 @@ data eval_as_statements(node* to_eval)
             npt->childset[i]->ntype = NT_NUM_CONST;
             mac_cast(npt->childset[i]->opval.value, double, from_eval.value.pArray->dtable[i])
             npt->childset[i]->parent = npt;
-            npt->childset[i]->nb_childs = 0;
+            npt->childset[i]->nb_children = 0;
             npt->childset[i]->childset = NULL;
          }
          else if (from_eval.value.pArray->dtable[i].ti.dtype == DT_STRING)
@@ -5466,7 +5466,7 @@ data eval_as_statements(node* to_eval)
             npt->childset[i]->ntype = NT_STRING;
             npt->childset[i]->opval.str.length = len;
             npt->childset[i]->parent = npt;
-            npt->childset[i]->nb_childs = 0;
+            npt->childset[i]->nb_children = 0;
             npt->childset[i]->childset = NULL;
 
             str = malloc(len);
@@ -5493,7 +5493,7 @@ data eval_as_statements(node* to_eval)
             npt->childset[i]->ntype = NT_NUM_CONST;
             npt->childset[i]->opval.value = 0.0;
             npt->childset[i]->parent = npt;
-            npt->childset[i]->nb_childs = 0;
+            npt->childset[i]->nb_children = 0;
             npt->childset[i]->childset = NULL;
          }
       }
@@ -5517,29 +5517,29 @@ data eval_as_statements(node* to_eval)
       npt->opval.str.length = 0;
       npt->opval.str.tab = NULL;
       npt->parent = NULL;
-      npt->nb_childs = from_eval.value.pList->length;
+      npt->nb_children = from_eval.value.pList->length;
       npt->childset = NULL;
 
       retval.ti.dtype = DT_POINTER;
       retval.value.ptr = npt;
 
-      if (npt->nb_childs == 0)
+      if (npt->nb_children == 0)
       {
          free_data(from_eval);
          return retval;
       }
 
-      npt->childset = malloc(npt->nb_childs * sizeof(node*));
+      npt->childset = malloc(npt->nb_children * sizeof(node*));
       if (!npt->childset)
       {
          yyerror("Error: Lack of memory in as_statements for node array.");
          exit(1);
       }
-      memset(npt->childset, 0, npt->nb_childs * sizeof(node*));
+      memset(npt->childset, 0, npt->nb_children * sizeof(node*));
 
       plink = from_eval.value.pList->start;
 
-      for (i = 0; i < npt->nb_childs; i++)
+      for (i = 0; i < npt->nb_children; i++)
       {
          if (plink->content.ti.dtype >= DT_CHAR && plink->content.ti.dtype <= 
             DT_LONG_DOUBLE)
@@ -5554,7 +5554,7 @@ data eval_as_statements(node* to_eval)
             npt->childset[i]->ntype = NT_NUM_CONST;
             mac_cast(npt->childset[i]->opval.value, double, plink->content)
             npt->childset[i]->parent = npt;
-            npt->childset[i]->nb_childs = 0;
+            npt->childset[i]->nb_children = 0;
             npt->childset[i]->childset = NULL;
          }
          else if (plink->content.ti.dtype == DT_STRING)
@@ -5572,7 +5572,7 @@ data eval_as_statements(node* to_eval)
             npt->childset[i]->ntype = NT_STRING;
             npt->childset[i]->opval.str.length = len;
             npt->childset[i]->parent = npt;
-            npt->childset[i]->nb_childs = 0;
+            npt->childset[i]->nb_children = 0;
             npt->childset[i]->childset = NULL;
 
             str = malloc(len);
@@ -5633,7 +5633,7 @@ data eval_gettype(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -5777,7 +5777,7 @@ data eval_undefine(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -5820,7 +5820,7 @@ data eval_printf(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs < 1) err = 1;
+      if (to_eval->nb_children < 1) err = 1;
    }
    else err = 1;
 
@@ -5885,7 +5885,7 @@ data eval_printf(node* to_eval)
    #endif
 
    free_data(arg1);
-   for (i = 0; i < to_eval->nb_childs - 1; i++)
+   for (i = 0; i < to_eval->nb_children - 1; i++)
    {
       free_data(argtab[i]);
    }
@@ -5917,7 +5917,7 @@ data eval_scanf(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs < 1) err = 1;
+      if (to_eval->nb_children < 1) err = 1;
    }
    else err = 1;
 
@@ -5994,7 +5994,7 @@ data eval_scanf(node* to_eval)
       getc(stdin);
    }*/
 
-   for (i = 0; i < to_eval->nb_childs - 1; i++)
+   for (i = 0; i < to_eval->nb_children - 1; i++)
    {
       free_data(argtab[i]);
    }
@@ -6018,7 +6018,7 @@ data eval_fopen(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -6073,7 +6073,7 @@ data eval_fclose(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -6122,7 +6122,7 @@ data eval_fprintf(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs < 2) err = 1;
+      if (to_eval->nb_children < 2) err = 1;
    }
    else err = 1;
 
@@ -6197,7 +6197,7 @@ data eval_fprintf(node* to_eval)
 
    #endif
 
-   for (i = 0; i < to_eval->nb_childs - 2; i++)
+   for (i = 0; i < to_eval->nb_children - 2; i++)
    {
       free_data(argtab[i]);
    }
@@ -6229,7 +6229,7 @@ data eval_fscanf(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs < 2) err = 1;
+      if (to_eval->nb_children < 2) err = 1;
    }
    else err = 1;
 
@@ -6305,7 +6305,7 @@ data eval_fscanf(node* to_eval)
 
    #endif
 
-   for (i = 0; i < to_eval->nb_childs - 2; i++)
+   for (i = 0; i < to_eval->nb_children - 2; i++)
    {
       free_data(argtab[i]);
    }
@@ -6329,7 +6329,7 @@ data eval_feof(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -6371,7 +6371,7 @@ data eval_fread(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 4) err = 1;
+      if (to_eval->nb_children != 4) err = 1;
    }
    else err = 1;
 
@@ -6449,7 +6449,7 @@ data eval_fwrite(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 4) err = 1;
+      if (to_eval->nb_children != 4) err = 1;
    }
    else err = 1;
 
@@ -6527,7 +6527,7 @@ data eval_clearerr(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -6567,7 +6567,7 @@ data eval_fgetpos(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -6626,7 +6626,7 @@ data eval_fsetpos(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -6676,7 +6676,7 @@ data eval_ferror(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -6717,7 +6717,7 @@ data eval_fgetc(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -6758,7 +6758,7 @@ data eval_ungetc(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -6819,7 +6819,7 @@ data eval_fflush(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -6860,7 +6860,7 @@ data eval_fputc(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -6929,7 +6929,7 @@ data eval_fseek(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 3) err = 1;
+      if (to_eval->nb_children != 3) err = 1;
    }
    else err = 1;
 
@@ -6999,7 +6999,7 @@ data eval_ftell(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -7040,7 +7040,7 @@ data eval_freopen(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 3) err = 1;
+      if (to_eval->nb_children != 3) err = 1;
    }
    else err = 1;
 
@@ -7106,7 +7106,7 @@ data eval_rewind(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -7168,7 +7168,7 @@ data eval_sprintf(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs < 2) err = 1;
+      if (to_eval->nb_children < 2) err = 1;
    }
    else err = 1;
 
@@ -7242,7 +7242,7 @@ data eval_sprintf(node* to_eval)
 
    #endif
 
-   for (i = 0; i < to_eval->nb_childs - 2; i++)
+   for (i = 0; i < to_eval->nb_children - 2; i++)
    {
       free_data(argtab[i]);
    }
@@ -7274,7 +7274,7 @@ data eval_sscanf(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs < 2) err = 1;
+      if (to_eval->nb_children < 2) err = 1;
    }
    else err = 1;
 
@@ -7349,7 +7349,7 @@ data eval_sscanf(node* to_eval)
 
    #endif
 
-   for (i = 0; i < to_eval->nb_childs - 2; i++)
+   for (i = 0; i < to_eval->nb_children - 2; i++)
    {
       free_data(argtab[i]);
    }
@@ -7376,7 +7376,7 @@ data eval_remove(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs < 2 || to_eval->nb_childs > 3) err = 1;
+      if (to_eval->nb_children < 2 || to_eval->nb_children > 3) err = 1;
    }
    else err = 1;
 
@@ -7410,7 +7410,7 @@ data eval_remove(node* to_eval)
          abort_called = 1;
          return retval;
       }
-      oldlen = symbol->value.ptr->nb_childs;
+      oldlen = symbol->value.ptr->nb_children;
       break;
    default:
       yyerror("Error: Unexpected data type in remove first argument.");
@@ -7429,7 +7429,7 @@ data eval_remove(node* to_eval)
    }
    mac_cast(lstart, size_t, dataStart)
 
-   if (to_eval->nb_childs == 3)
+   if (to_eval->nb_children == 3)
    {
       dataEnd = eval(to_eval->childset[2]);
       if (dataEnd.ti.dtype < DT_CHAR || dataEnd.ti.dtype > DT_LONG_DOUBLE ||
@@ -7562,7 +7562,7 @@ data eval_remove(node* to_eval)
       {
          free(symbol->value.ptr->childset);
          symbol->value.ptr->childset = NULL;
-         symbol->value.ptr->nb_childs = 0;
+         symbol->value.ptr->nb_children = 0;
          return retval;
       }
 
@@ -7578,7 +7578,7 @@ data eval_remove(node* to_eval)
          yyerror("Error: Lack of memory in remove for new child set.");
          exit(1);
       }
-      symbol->value.ptr->nb_childs = newlen;
+      symbol->value.ptr->nb_children = newlen;
    }
 
    return retval;
@@ -7616,7 +7616,7 @@ data eval_atovar(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -7663,7 +7663,7 @@ data eval_atovar(node* to_eval)
    strcpy(npt->opval.name, from_eval.value.str.tab);
 
    npt->parent = NULL;
-   npt->nb_childs = 0;
+   npt->nb_children = 0;
    npt->childset = NULL;
 
    retval.value.ptr = npt;
@@ -7689,7 +7689,7 @@ data eval_vartoa(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -7757,7 +7757,7 @@ data eval_freetree(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -7802,7 +7802,7 @@ data eval_strclone(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -7850,7 +7850,7 @@ data eval_strcpy(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -7903,7 +7903,7 @@ data eval_alloc_copy(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -7946,7 +7946,7 @@ data eval_free(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -8002,7 +8002,7 @@ data eval_repeat(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -8364,7 +8364,7 @@ data eval_vartomem(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -8505,7 +8505,7 @@ data eval_memtovar(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -8556,7 +8556,7 @@ data eval_memcpy(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 3) err = 1;
+      if (to_eval->nb_children != 3) err = 1;
    }
    else err = 1;
 
@@ -8628,7 +8628,7 @@ data eval_memset(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 3) err = 1;
+      if (to_eval->nb_children != 3) err = 1;
    }
    else err = 1;
 
@@ -8701,7 +8701,7 @@ data eval_memclone(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -8749,7 +8749,7 @@ data eval_memory(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -8809,7 +8809,7 @@ data eval_codetotree(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -8871,7 +8871,7 @@ data eval_exist(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -9112,7 +9112,7 @@ data eval_createnode(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs < 1) err = 1;
+      if (to_eval->nb_children < 1) err = 1;
    }
    else err = 1;
 
@@ -9159,7 +9159,7 @@ data eval_createnode(node* to_eval)
    switch(typetocreate)
    {
    case NT_NUM_CONST:
-      if (to_eval->nb_childs < 2)
+      if (to_eval->nb_children < 2)
       {
          yyerror("Error: Second argument expected in createnode. ");
          abort_called = 1;
@@ -9186,7 +9186,7 @@ data eval_createnode(node* to_eval)
       break;
 
    case NT_MATH_OPER:
-      if (to_eval->nb_childs < 2)
+      if (to_eval->nb_children < 2)
       {
          yyerror("Error: Second argument expected in createnode.");
          abort_called = 1;
@@ -9221,7 +9221,7 @@ data eval_createnode(node* to_eval)
       break;
 
    case NT_REL_OPER:
-      if (to_eval->nb_childs < 2)
+      if (to_eval->nb_children < 2)
       {
          yyerror("Error: Second argument expected in createnode. ");
          abort_called = 1;
@@ -9263,7 +9263,7 @@ data eval_createnode(node* to_eval)
       break;
 
    case NT_VARIABLE:
-      if (to_eval->nb_childs < 2)
+      if (to_eval->nb_children < 2)
       {
          yyerror("Error: Second argument expected in createnode. ");
          abort_called = 1;
@@ -9299,7 +9299,7 @@ data eval_createnode(node* to_eval)
       break;
 
    case NT_STRING:
-      if (to_eval->nb_childs < 2)
+      if (to_eval->nb_children < 2)
       {
          yyerror("Error: Second argument expected in createnode. ");
          abort_called = 1;
@@ -9358,7 +9358,7 @@ data eval_createnode(node* to_eval)
       break;
 
    case NT_INCR_DECR:
-      if (to_eval->nb_childs < 2)
+      if (to_eval->nb_children < 2)
       {
          yyerror("Error: Second argument expected in createnode. ");
          abort_called = 1;
@@ -9395,7 +9395,7 @@ data eval_createnode(node* to_eval)
       break;
 
    case NT_CAST:
-      if (to_eval->nb_childs < 2)
+      if (to_eval->nb_children < 2)
       {
          yyerror("Error: Second argument expected in createnode. ");
          abort_called = 1;
@@ -9454,7 +9454,7 @@ data eval_appendnode(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -9486,18 +9486,18 @@ data eval_appendnode(node* to_eval)
    toappend = from_eval.value.ptr;
 
 
-   if (parent->nb_childs == 0)
+   if (parent->nb_children == 0)
    {
       parent->childset = malloc(sizeof(node*));
    }
    else
    {
-      parent->childset = realloc(parent->childset, (parent->nb_childs + 1) * sizeof(node*));
-      insertpos = parent->nb_childs;
+      parent->childset = realloc(parent->childset, (parent->nb_children + 1) * sizeof(node*));
+      insertpos = parent->nb_children;
    }
    if (!parent->childset) fatal_error("Error: Lack of memory in appendnode for new child set.");
 
-   parent->nb_childs++;
+   parent->nb_children++;
    parent->childset[insertpos] = toappend;
    toappend->parent = parent;
 
@@ -9520,7 +9520,7 @@ data eval_insertnode(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 3) err = 1;
+      if (to_eval->nb_children != 3) err = 1;
    }
    else err = 1;
 
@@ -9564,7 +9564,7 @@ data eval_insertnode(node* to_eval)
    mac_cast(lpos, size_t, from_eval)
 
 
-   if (lpos > parent->nb_childs)
+   if (lpos > parent->nb_children)
    {
       yyerror("Error: Index out of bound in insertnode.");
       abort_called = 1;
@@ -9572,11 +9572,11 @@ data eval_insertnode(node* to_eval)
    }
 
 
-   parent->nb_childs++;
-   parent->childset = realloc(parent->childset, parent->nb_childs * sizeof(node*));
+   parent->nb_children++;
+   parent->childset = realloc(parent->childset, parent->nb_children * sizeof(node*));
    if (!parent->childset) fatal_error("Error: Lack of memory in insertnode for new list.");
 
-   for (i = parent->nb_childs - 1; i >= lpos + 1; i--)
+   for (i = parent->nb_children - 1; i >= lpos + 1; i--)
    {
       parent->childset[i] = parent->childset[i - 1];
    }
@@ -9602,7 +9602,7 @@ data eval_replacenode(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 3) err = 1;
+      if (to_eval->nb_children != 3) err = 1;
    }
    else err = 1;
 
@@ -9646,7 +9646,7 @@ data eval_replacenode(node* to_eval)
    mac_cast(lpos, size_t, from_eval)
 
 
-   if (lpos > parent->nb_childs - 1)
+   if (lpos > parent->nb_children - 1)
    {
       yyerror("Error: Index out of bound in replacenode.");
       abort_called = 1;
@@ -9674,7 +9674,7 @@ data eval_pushfront(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -9747,7 +9747,7 @@ data eval_pushback(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -9826,7 +9826,7 @@ data eval_popfront(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -9903,7 +9903,7 @@ data eval_popback(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -9989,7 +9989,7 @@ data eval_detachnode(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -10022,7 +10022,7 @@ data eval_detachnode(node* to_eval)
    }
    mac_cast(lpos, size_t, from_eval)
 
-   if (lpos > argparent->nb_childs - 1)
+   if (lpos > argparent->nb_children - 1)
    {
       yyerror("Error: Index out of bound in detachnode.");
       abort_called = 1;
@@ -10035,9 +10035,9 @@ data eval_detachnode(node* to_eval)
    retval.value.ptr->parent = NULL;
 
 
-   argparent->nb_childs--;
+   argparent->nb_children--;
 
-   if (!argparent->nb_childs)
+   if (!argparent->nb_children)
    {
       free(argparent->childset);
       argparent->childset = NULL;
@@ -10045,10 +10045,10 @@ data eval_detachnode(node* to_eval)
    else
    {
       size_t i = lpos;
-      for (; i < argparent->nb_childs; i++)
+      for (; i < argparent->nb_children; i++)
          argparent->childset[i] = argparent->childset[i+1];
 
-      argparent->childset = realloc(argparent->childset, argparent->nb_childs * sizeof(node*));
+      argparent->childset = realloc(argparent->childset, argparent->nb_children * sizeof(node*));
       if (!argparent->childset) 
          fatal_error("Error: Lack of memory for reallocated childs array in detachnode.");
    }
@@ -10072,7 +10072,7 @@ data eval_swapnodes(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 4) err = 1;
+      if (to_eval->nb_children != 4) err = 1;
    }
    else err = 1;
 
@@ -10105,7 +10105,7 @@ data eval_swapnodes(node* to_eval)
    }
    mac_cast(lpos1, size_t, from_eval)
 
-   if (lpos1 > parent1->nb_childs - 1)
+   if (lpos1 > parent1->nb_children - 1)
    {
       yyerror("Error: Index 1 out of bound in swapnodes.");
       abort_called = 1;
@@ -10133,7 +10133,7 @@ data eval_swapnodes(node* to_eval)
    }
    mac_cast(lpos2, size_t, from_eval)
 
-   if (lpos2 > parent2->nb_childs - 1)
+   if (lpos2 > parent2->nb_children - 1)
    {
       yyerror("Error: Index 2 out of bound in swapnodes.");
       abort_called = 1;
@@ -10201,7 +10201,7 @@ data eval_func_call(node* to_eval)
    memset(&retval, 0, sizeof(data));
    memset(&ret_data, 0, sizeof(data));
 
-   if (to_eval->nb_childs != 2)
+   if (to_eval->nb_children != 2)
       fatal_error("Error: function call node does not have two childs.");
    if (to_eval->childset[1]->ntype != NT_LIST)
       fatal_error("Error: function call child node 2 is not a list.");
@@ -10536,13 +10536,13 @@ data eval_func_call(node* to_eval)
    if (func_pt->childset[0])
    {
       /* One or more parameters. */
-      nb_param = func_pt->childset[0]->nb_childs;
+      nb_param = func_pt->childset[0]->nb_children;
    }
 
    if (to_eval->childset[1])
    {
       /* One or more arguments. */
-      nb_args = to_eval->childset[1]->nb_childs;
+      nb_args = to_eval->childset[1]->nb_children;
    }
 
    /* Parameter number verification. */
@@ -10652,7 +10652,7 @@ data eval_func_call(node* to_eval)
       if (func_pt->childset[1]->ntype == NT_LIST)
       {
          i = 0;
-         while (i < func_pt->childset[1]->nb_childs && !return_called 
+         while (i < func_pt->childset[1]->nb_children && !return_called 
             && !abort_called)
          {
             retval = eval(func_pt->childset[1]->childset[i]);
@@ -10697,7 +10697,7 @@ data eval_dotlist(node* start_pt, node* dotlist)
 
    memset(&retval, 0, sizeof(data));
 
-   while (i < dotlist->nb_childs)
+   while (i < dotlist->nb_children)
    {
       if (dotlist->childset[i]->ntype == NT_PARENT)
       {
@@ -10724,7 +10724,7 @@ data eval_dotlist(node* start_pt, node* dotlist)
          }
 
          mac_cast(lindx, size_t, index)
-         if(lindx >= npt->nb_childs)
+         if(lindx >= npt->nb_children)
          {
             yyerror("Error: Array index out of bound for childset.");
             abort_called = 1;
@@ -10754,7 +10754,7 @@ data eval_incr_decr(node* to_eval)
 
    memset(&retval, 0, sizeof(data));
 
-   if (to_eval->nb_childs != 1)
+   if (to_eval->nb_children != 1)
       fatal_error("Error: increment or decrement node does not have one child.");
 
    to_change = resolve(to_eval->childset[0]);
@@ -10830,7 +10830,7 @@ data eval_subscript(node* to_eval)
 
    memset(&retval, 0, sizeof(data));
 
-   if (to_eval->nb_childs != 2)
+   if (to_eval->nb_children != 2)
       fatal_error("Error: subscript node does not have two childs.");
 
    from_eval = eval(to_eval->childset[0]);
@@ -10928,7 +10928,7 @@ data eval_cast(node* to_eval)
 
    memset(&retval, 0, sizeof(data));
 
-   if (to_eval->nb_childs != 1)
+   if (to_eval->nb_children != 1)
       fatal_error("Error: cast node does not have one child.");
 
    from_eval = eval(to_eval->childset[0]);
@@ -11203,7 +11203,7 @@ data eval(node* to_eval)
       return eval_func_call(to_eval);
 
    case NT_IF_STMT:
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
          fatal_error("Error: if statement node does not have two childs.");
 
       if (to_bool(eval(to_eval->childset[0])))
@@ -11216,7 +11216,7 @@ data eval(node* to_eval)
       }
 
    case NT_IFELSE_STMT:
-      if (to_eval->nb_childs != 3)
+      if (to_eval->nb_children != 3)
          fatal_error("Error: if else statement node does not have three childs.");
 
       if (to_bool(eval(to_eval->childset[0])))
@@ -11229,7 +11229,7 @@ data eval(node* to_eval)
       }
 
    case NT_WHILE_STMT:
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
          fatal_error("Error: while statement node does not have two childs.");
 
       from_eval = eval(to_eval->childset[0]);
@@ -11246,7 +11246,7 @@ data eval(node* to_eval)
       return retval;
 
    case NT_FOR_STMT:
-      if (to_eval->nb_childs != 4)
+      if (to_eval->nb_children != 4)
          fatal_error("Error: for statement node does not have four childs.");
 
       create_context(0);
@@ -11284,7 +11284,7 @@ data eval(node* to_eval)
 
          /* Evalutation of each statement. */
          i = 0;
-         while(i < to_eval->nb_childs && !return_called &&
+         while(i < to_eval->nb_children && !return_called &&
             !abort_called)
          {
             retval = eval(to_eval->childset[i]);
@@ -11302,7 +11302,7 @@ data eval(node* to_eval)
       return retval;
 
    case NT_VARGENLIST:
-      if (to_eval->nb_childs != 2)
+      if (to_eval->nb_children != 2)
          fatal_error("Error: vargenlist node does not have two childs.");
 
       from_eval = eval(to_eval->childset[0]);

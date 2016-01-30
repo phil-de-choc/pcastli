@@ -46,7 +46,7 @@ data eval_openlib(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -91,7 +91,7 @@ data eval_getfuncpt(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -145,7 +145,7 @@ data eval_closelib(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1) err = 1;
+      if (to_eval->nb_children != 1) err = 1;
    }
    else err = 1;
 
@@ -391,7 +391,7 @@ data eval_slib_call(data dtpfunc, node* to_eval)
    #endif
  
 
-   for (i = 0; i < to_eval->nb_childs; i++)
+   for (i = 0; i < to_eval->nb_children; i++)
    {
       free_data(argtab[i]);
    }

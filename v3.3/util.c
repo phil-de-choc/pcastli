@@ -43,14 +43,14 @@ extern input_union inputadr;
 void free_tree(node* npt)
 {
    size_t i;
-   for (i = 0; i < npt->nb_childs; i++)
+   for (i = 0; i < npt->nb_children; i++)
    {
       free_tree(npt->childset[i]);
    }
 
    if (npt->ntype == NT_VARIABLE) free(npt->opval.name);
    else if (npt->ntype == NT_STRING) free(npt->opval.str.tab);
-   if (npt->nb_childs > 0) free(npt->childset);
+   if (npt->nb_children > 0) free(npt->childset);
    free(npt);
 }
 
@@ -94,21 +94,21 @@ node* copy_tree(node* to_copy, node* parent)
    else npt->opval = to_copy->opval;
 
    npt->parent = parent;
-   npt->nb_childs = to_copy->nb_childs;
+   npt->nb_children = to_copy->nb_children;
 
-   if (npt->nb_childs > 0)
+   if (npt->nb_children > 0)
    {
-      npt->childset = malloc(npt->nb_childs * sizeof(node*));
+      npt->childset = malloc(npt->nb_children * sizeof(node*));
       if (!npt->childset)
       {
          yyerror("Error: Lack of memory for npt->childset in copy_tree.");
          exit(1);
       }
-      memset(npt->childset, 0, npt->nb_childs * sizeof(node*));
+      memset(npt->childset, 0, npt->nb_children * sizeof(node*));
    }
    else npt->childset = NULL;
 
-   for(i = 0; i < npt->nb_childs; i++)
+   for(i = 0; i < npt->nb_children; i++)
    {
       npt->childset[i] = copy_tree(to_copy->childset[i], npt);
    }
@@ -153,7 +153,7 @@ void add_word(node* listnode, char* word, int wlen)
 {
    node* npt;
 
-   listnode->childset = realloc(listnode->childset, (listnode->nb_childs+1)*
+   listnode->childset = realloc(listnode->childset, (listnode->nb_children+1)*
       sizeof(node*));
    if (!listnode->childset)
    {
@@ -170,7 +170,7 @@ void add_word(node* listnode, char* word, int wlen)
    memset(npt, 0, sizeof(node));
    npt->ntype = NT_STRING;
    npt->parent = listnode;
-   npt->nb_childs = 0;
+   npt->nb_children = 0;
    npt->childset = NULL;
 
    npt->opval.str.tab = malloc(wlen + 1);
@@ -183,8 +183,8 @@ void add_word(node* listnode, char* word, int wlen)
    strncpy(npt->opval.str.tab, word, wlen);
    npt->opval.str.tab[wlen] = '\0';
 
-   listnode->childset[listnode->nb_childs] = npt;
-   listnode->nb_childs++;
+   listnode->childset[listnode->nb_children] = npt;
+   listnode->nb_children++;
 }
 
 
@@ -631,7 +631,7 @@ cont_type resolve_accesslist(node* acclist, closure** ppclos, data* pdata)
       yyerror("Error: Access list expected in resolve_accesslist.");
       exit(1);
    }
-   if (acclist->nb_childs < 3)
+   if (acclist->nb_children < 3)
       fatal_error("Error: access list node does not have at least three childs.");
 
    if (acclist->childset[0]->ntype == NT_VARIABLE)
@@ -713,7 +713,7 @@ cont_type resolve_accesslist(node* acclist, closure** ppclos, data* pdata)
    }
 
    /* At i == 0 there is the object name or the function call. */
-   for (i = 1; i < acclist->nb_childs; i++)
+   for (i = 1; i < acclist->nb_children; i++)
    {
       found = 0;
       j = 0;
@@ -741,7 +741,7 @@ cont_type resolve_accesslist(node* acclist, closure** ppclos, data* pdata)
          return NEITHER;
       }
 
-      if (i >= acclist->nb_childs)
+      if (i >= acclist->nb_children)
       {
          yyerror("Error: Invalid access list format.");
          abort_called = 1;
@@ -767,7 +767,7 @@ cont_type resolve_accesslist(node* acclist, closure** ppclos, data* pdata)
 
       if (found)
       {
-         if (i + 1 < acclist->nb_childs)
+         if (i + 1 < acclist->nb_children)
          {
             if (pclos_member->content.ti.dtype == DT_OBJECT)
             {
@@ -819,7 +819,7 @@ data* resolve_subscript(node* to_eval)
       abort_called = 1;
       return NULL;
    }
-   if (to_eval->nb_childs != 2)
+   if (to_eval->nb_children != 2)
    {
       yyerror("Error: Subscript node does not have two in child count.");
       abort_called = 1;
@@ -1130,25 +1130,25 @@ int args_eval(node* to_eval, int nbFirstArgs, size_t* nchunks, void*** raw_args,
    memset(&from_eval, 0, sizeof(data));
    *nchunks = 0;
 
-   *raw_args = malloc(to_eval->nb_childs * sizeof(long double));
+   *raw_args = malloc(to_eval->nb_children * sizeof(long double));
    if (!*raw_args)
    {
       yyerror("Error: Lack of memory in args_eval for arguments table.");
       exit(1);
    }
-   memset(*raw_args, 0, to_eval->nb_childs * sizeof(long double));
+   memset(*raw_args, 0, to_eval->nb_children * sizeof(long double));
 
-   *from_evals = malloc((to_eval->nb_childs - nbFirstArgs) * sizeof(data));
+   *from_evals = malloc((to_eval->nb_children - nbFirstArgs) * sizeof(data));
    if (!*from_evals)
    {
       yyerror("Error: Lack of memory in args_eval for arguments table.");
       exit(1);
    }
-   memset(*from_evals, 0, (to_eval->nb_childs - nbFirstArgs) * sizeof(data));
+   memset(*from_evals, 0, (to_eval->nb_children - nbFirstArgs) * sizeof(data));
 
    /* Calls to eval are outside because they alter values in the stack
       in the Linux build. */
-   for (i = (int)to_eval->nb_childs - 1; i >= nbFirstArgs; i--)
+   for (i = (int)to_eval->nb_children - 1; i >= nbFirstArgs; i--)
    {
       from_eval = eval(to_eval->childset[i]);
       if (from_eval.ti.dtype <= DT_UNDEF || from_eval.ti.dtype == DT_OBJECT || 
@@ -1286,34 +1286,34 @@ int args_eval(node* to_eval, int nbFirstArgs, size_t* nchunks, void*** raw_args,
    memset(&from_eval, 0, sizeof(data));
    *nchunks = 0;
 
-   *raw_args = malloc(to_eval->nb_childs * sizeof(long double));
+   *raw_args = malloc(to_eval->nb_children * sizeof(long double));
    if (!*raw_args)
    {
       yyerror("Error: Lack of memory in args_eval for arguments table.");
       exit(1);
    }
-   memset(*raw_args, 0, to_eval->nb_childs * sizeof(long double));
+   memset(*raw_args, 0, to_eval->nb_children * sizeof(long double));
 
-   *from_evals = malloc((to_eval->nb_childs - nbFirstArgs) * sizeof(data));
+   *from_evals = malloc((to_eval->nb_children - nbFirstArgs) * sizeof(data));
    if (!*from_evals)
    {
       yyerror("Error: Lack of memory in args_eval for arguments table.");
       exit(1);
    }
-   memset(*from_evals, 0, (to_eval->nb_childs - nbFirstArgs) * sizeof(data));
+   memset(*from_evals, 0, (to_eval->nb_children - nbFirstArgs) * sizeof(data));
 
-   *chunkfloat = malloc(to_eval->nb_childs * sizeof(long double));
+   *chunkfloat = malloc(to_eval->nb_children * sizeof(long double));
    if (!*chunkfloat)
    {
       yyerror("Error: Lack of memory in args_eval for arguments table.");
       exit(1);
    }
-   memset(*chunkfloat, 0, to_eval->nb_childs * sizeof(long double));
+   memset(*chunkfloat, 0, to_eval->nb_children * sizeof(long double));
 
 
    /* Calls to eval are outside because they alter values in the stack
       in the Linux build. */
-   for (i = (int)to_eval->nb_childs - 1; i >= nbFirstArgs; i--)
+   for (i = (int)to_eval->nb_children - 1; i >= nbFirstArgs; i--)
    {
       size_t argfloat = 0;
 

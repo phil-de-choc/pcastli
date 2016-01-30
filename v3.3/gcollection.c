@@ -237,7 +237,7 @@ void gc(void)
             found = search(searched_aptr, PT_NODE);
 
             /* Pushing all the childs of the popped node. */
-            for (i_child = 0; i_child < searched_aptr.ptr->nb_childs; i_child++)
+            for (i_child = 0; i_child < searched_aptr.ptr->nb_children; i_child++)
             {
                new_top = malloc(sizeof(s_item));
                if (!new_top)

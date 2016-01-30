@@ -70,14 +70,14 @@ int get_op_prio(node* nodept)
       else if (nodept->opval.math_oper == '+') return 6;
       else if (nodept->opval.math_oper == '-')
       {
-         if (nodept->nb_childs == 2) return 6;
-         else if (nodept->nb_childs == 1) return 10;
+         if (nodept->nb_children == 2) return 6;
+         else if (nodept->nb_children == 1) return 10;
          else fatal_error("Error: Unforeseen \'-\' operator childs number in get_op_prio function.");
       }
       else if (nodept->opval.math_oper == '*')
       {
-         if (nodept->nb_childs == 2) return 7;
-         else if (nodept->nb_childs == 1) return 10;
+         if (nodept->nb_children == 2) return 7;
+         else if (nodept->nb_children == 1) return 10;
          else fatal_error("Error: Unforeseen \'*\' operator childs number in get_op_prio function.");
       }
       else if (nodept->opval.math_oper == '/') return 7;
@@ -124,14 +124,14 @@ assoc get_op_assoc(node* nodept)
       else if (nodept->opval.math_oper == '+') return ASSOC_LEFT;
       else if (nodept->opval.math_oper == '-')
       {
-         if (nodept->nb_childs == 2) return ASSOC_LEFT;
-         else if (nodept->nb_childs == 1) return ASSOC_RIGHT;
+         if (nodept->nb_children == 2) return ASSOC_LEFT;
+         else if (nodept->nb_children == 1) return ASSOC_RIGHT;
          else fatal_error("Error: Unforeseen \'-\' operator childs number in get_op_assoc function.");
       }
       else if (nodept->opval.math_oper == '*')
       {
-         if (nodept->nb_childs == 2) return ASSOC_LEFT;
-         else if (nodept->nb_childs == 1) return ASSOC_RIGHT;
+         if (nodept->nb_children == 2) return ASSOC_LEFT;
+         else if (nodept->nb_children == 1) return ASSOC_RIGHT;
          else fatal_error("Error: Unforeseen \'*\' operator childs number in get_op_assoc function.");
       }
       else if (nodept->opval.math_oper == '/') return ASSOC_LEFT;
@@ -299,7 +299,7 @@ data eval_treetocode(node* to_eval)
 
    if (to_eval)
    {
-      if (to_eval->nb_childs != 1 && to_eval->nb_childs != 2) err = 1;
+      if (to_eval->nb_children != 1 && to_eval->nb_children != 2) err = 1;
    }
    else err = 1;
 
@@ -320,7 +320,7 @@ data eval_treetocode(node* to_eval)
    }
    argroot = from_eval.value.ptr;
 
-   if (to_eval->nb_childs == 2)
+   if (to_eval->nb_children == 2)
    {
       from_eval = eval(to_eval->childset[1]);
       if (from_eval.ti.dtype != DT_STRING || from_eval.ti.nderef != 0)
@@ -397,7 +397,7 @@ data eval_treetocode(node* to_eval)
          break;
 
       case NT_MATH_OPER:
-         if (currnode->nb_childs == 1)
+         if (currnode->nb_children == 1)
          {
             opcode = malloc(sizeof(code_atom));
             if (!opcode) fatal_error("Error: Lack of memory in treetocode function.");
@@ -406,7 +406,7 @@ data eval_treetocode(node* to_eval)
             opcode->str = malloc(3);
             if (!opcode) fatal_error("Error: Lack of memory in treetocode function.");
 
-            if (currnode->childset[0]->ntype == NT_MATH_OPER && currnode->childset[0]->nb_childs == 1 &&
+            if (currnode->childset[0]->ntype == NT_MATH_OPER && currnode->childset[0]->nb_children == 1 &&
                currnode->childset[0]->opval.math_oper == '-')
             {
                /* For not fusing two NEGs in a -- */
@@ -449,7 +449,7 @@ data eval_treetocode(node* to_eval)
             queueend = qa;
             queuelen++;
          }
-         else if (currnode->nb_childs == 2)
+         else if (currnode->nb_children == 2)
          {
             int bmathrel = 0;
             int priocurr = 0, prioparent = 0;
@@ -571,7 +571,7 @@ data eval_treetocode(node* to_eval)
          break;
 
       case NT_REL_OPER:
-         if (currnode->nb_childs == 1)
+         if (currnode->nb_children == 1)
          {
             opcode = NULL;
 
@@ -617,7 +617,7 @@ data eval_treetocode(node* to_eval)
             queueend = qa;
             queuelen++;
          }
-         else if (currnode->nb_childs == 2)
+         else if (currnode->nb_children == 2)
          {
             opcode = NULL;
             int bmathrel = 0;
@@ -885,7 +885,7 @@ data eval_treetocode(node* to_eval)
          }
 
          left = leftparenth;
-         for (i = 0; i < currnode->childset[0]->nb_childs; i++)
+         for (i = 0; i < currnode->childset[0]->nb_children; i++)
          {
             char * varname = currnode->childset[0]->childset[i]->opval.name;
 
@@ -912,7 +912,7 @@ data eval_treetocode(node* to_eval)
          if (haslist)
          {
             previous = leftbrace;
-            for (i = 0; i < currnode->childset[1]->nb_childs; i++)
+            for (i = 0; i < currnode->childset[1]->nb_children; i++)
             {
                previous = enqueue_stmt(previous, currnode->childset[1]->childset[i],
                   &liststart, &listlen, &queuestart, &queueend, &queuelen);
@@ -944,7 +944,7 @@ data eval_treetocode(node* to_eval)
       case NT_FUNC_CALL:
          if (currnode->childset[0]->ntype == NT_MATH_OPER &&
             currnode->childset[0]->opval.math_oper == '*' &&
-            currnode->childset[0]->nb_childs == 1)
+            currnode->childset[0]->nb_children == 1)
          {
             bpar = 1;
 
@@ -1031,7 +1031,7 @@ data eval_treetocode(node* to_eval)
          listlen += 2;
 
          left = leftparenth;
-         for (i = 0; i < currnode->childset[1]->nb_childs; i++)
+         for (i = 0; i < currnode->childset[1]->nb_children; i++)
          {
             if (i > 0)
             {
@@ -1235,7 +1235,7 @@ data eval_treetocode(node* to_eval)
          if (haslist)
          {
             previous = leftbrace;
-            for (i = 0; i < currnode->childset[1]->nb_childs; i++)
+            for (i = 0; i < currnode->childset[1]->nb_children; i++)
             {
                previous = enqueue_stmt(previous, currnode->childset[1]->childset[i],
                   &liststart, &listlen, &queuestart, &queueend, &queuelen);
@@ -1301,7 +1301,7 @@ data eval_treetocode(node* to_eval)
             listlen += 3;
 
             previous = leftbrace;
-            for (i = 0; i < currnode->childset[2]->nb_childs; i++)
+            for (i = 0; i < currnode->childset[2]->nb_children; i++)
             {
                previous = enqueue_stmt(previous, currnode->childset[2]->childset[i],
                   &liststart, &listlen, &queuestart, &queueend, &queuelen);
@@ -1436,7 +1436,7 @@ data eval_treetocode(node* to_eval)
          break;
 
       case NT_LIST:
-         if (currnode->nb_childs > 0)
+         if (currnode->nb_children > 0)
          {
             if (currnode->childset[0]->ntype == NT_PARENT || 
                currnode->childset[0]->ntype == NT_CHILDSET) bgene = 1;
@@ -1445,7 +1445,7 @@ data eval_treetocode(node* to_eval)
          if (bgene)
          {
             previous = atleft;
-            for (i = 0; i < currnode->nb_childs; i++)
+            for (i = 0; i < currnode->nb_children; i++)
             {
                if (i > 0)
                {
@@ -1526,7 +1526,7 @@ data eval_treetocode(node* to_eval)
             listlen += 2;
 
             previous = leftbrace;
-            for (i = 0; i < currnode->nb_childs; i++)
+            for (i = 0; i < currnode->nb_children; i++)
             {
                previous = enqueue_stmt(previous, currnode->childset[i],
                   &liststart, &listlen, &queuestart, &queueend, &queuelen);
@@ -1664,7 +1664,7 @@ data eval_treetocode(node* to_eval)
 
          if (currnode->childset[0]->ntype == NT_MATH_OPER &&
             currnode->childset[0]->opval.math_oper == '*' &&
-            currnode->childset[0]->nb_childs == 1)
+            currnode->childset[0]->nb_children == 1)
          {
             bpar = 1;
 
@@ -1753,7 +1753,7 @@ data eval_treetocode(node* to_eval)
          /* There are parenthesises only if the increment is after. */
          if (currnode->childset[0]->ntype == NT_MATH_OPER &&
             currnode->childset[0]->opval.math_oper == '*' &&
-            currnode->childset[0]->nb_childs == 1 && !bincpre)
+            currnode->childset[0]->nb_children == 1 && !bincpre)
          {
             bpar = 1;
 
@@ -1821,7 +1821,7 @@ data eval_treetocode(node* to_eval)
       case NT_ACCESSLIST:
          if (currnode->childset[0]->ntype == NT_MATH_OPER &&
             currnode->childset[0]->opval.math_oper == '*' &&
-            currnode->childset[0]->nb_childs == 1)
+            currnode->childset[0]->nb_children == 1)
          {
             bpar = 1;
 
@@ -1842,9 +1842,6 @@ data eval_treetocode(node* to_eval)
             leftparenth->next = rightparenth;
 
             left = leftparenth;
-
-            if (atleft) atleft->next = leftparenth;
-            else liststart = leftparenth;
          }
          else left = atleft;
 
@@ -1866,7 +1863,7 @@ data eval_treetocode(node* to_eval)
          queueend = qa;
          queuelen++;
 
-         for (i = 1; i < currnode->nb_childs; i += 2)
+         for (i = 1; i < currnode->nb_children; i += 2)
          {
             opcode = malloc(sizeof(code_atom));
             if (!opcode) fatal_error("Error: Lack of memory in treetocode function.");
@@ -1881,8 +1878,16 @@ data eval_treetocode(node* to_eval)
             {
                rightparenth->next = opcode;
 
-               if (atleft) opcode->next = atleft->next;
-               else opcode->next = liststart;
+               if (atleft)
+               {
+                  opcode->next = atleft->next;
+                  atleft->next = leftparenth;
+               }
+               else
+               {
+                  opcode->next = liststart;
+                  liststart = leftparenth;
+               }
             }
             else
             {
@@ -1930,7 +1935,7 @@ data eval_treetocode(node* to_eval)
 
          if (currnode->childset[0]->ntype == NT_MATH_OPER &&
             currnode->childset[0]->opval.math_oper == '*' &&
-            currnode->childset[0]->nb_childs == 1)
+            currnode->childset[0]->nb_children == 1)
          {
             bpar = 1;
 

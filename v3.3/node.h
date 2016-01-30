@@ -128,7 +128,7 @@ typedef struct node_s
 {
    node_type ntype;
    struct node_s* parent;
-   size_t nb_childs;
+   size_t nb_children;
    struct node_s** childset;
    node_data opval;
 } node;

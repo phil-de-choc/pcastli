@@ -40,7 +40,7 @@ node* xxbinary(node* top, node* left, node* right)
       yyerror("Error: Lack of memory in xxbinary for top->childset.");
       exit(1);
    }
-   top->nb_childs = 2;
+   top->nb_children = 2;
    top->childset[0] = left;
    if (left) left->parent = top;
    top->childset[1] = right;
@@ -61,7 +61,7 @@ node* xxunary(node* top, node* operand)
       yyerror("Error: Lack of memory in xxunary for top->childset.");
       exit(1);
    }
-   top->nb_childs = 1;
+   top->nb_children = 1;
    top->childset[0] = operand;
    if (operand) operand->parent = top;
 
@@ -90,7 +90,7 @@ node* xx2childs(node* child1, node* child2, node_type nt)
       yyerror("Error: Lack of memory in xx2childs for npt->childset.");
       exit(1);
    }
-   npt->nb_childs = 2;
+   npt->nb_children = 2;
    npt->childset[0] = child1;
    if (child1) child1->parent = npt;
    npt->childset[1] = child2;
@@ -116,7 +116,7 @@ node* xxfirstitem(node* item)
    npt->ntype = NT_LIST;
    npt->opval.name = NULL;
    if (item) item->parent = npt;
-   npt->nb_childs = 1;
+   npt->nb_children = 1;
 
    npt->childset = malloc(sizeof(node*));
    if (!npt->childset)
@@ -136,7 +136,7 @@ node* xxfirstitem(node* item)
 
 node* xxadditem(node* list, node* item)
 {
-   list->childset = realloc(list->childset, (list->nb_childs + 1) * 
+   list->childset = realloc(list->childset, (list->nb_children + 1) * 
       sizeof(node*));
    if (!list->childset)
    {
@@ -144,10 +144,10 @@ node* xxadditem(node* list, node* item)
       exit(1);
    }
 
-   list->childset[list->nb_childs] = item;
+   list->childset[list->nb_children] = item;
    if (item) item->parent = list;
 
-   list->nb_childs += 1;
+   list->nb_children += 1;
 
    return list;
 }
@@ -172,7 +172,7 @@ node* xxifelse(node* cond, node* stmt_true, node* stmt_false)
       yyerror("Error: Lack of memory in xxifelse for npt->childset.");
       exit(1);
    }
-   npt->nb_childs = 3;
+   npt->nb_children = 3;
    npt->childset[0] = cond;
    if (cond) cond->parent = npt;
    npt->childset[1] = stmt_true;
@@ -205,7 +205,7 @@ node* xxfor(node* init, node* cond, node* incr, node* stmt)
       yyerror("Error: Lack of memory in xxfor for npt->childset.");
       exit(1);
    }
-   npt->nb_childs = 4;
+   npt->nb_children = 4;
    npt->childset[0] = init;
    if (init) init->parent = npt;
    npt->childset[1] = cond;
@@ -243,7 +243,7 @@ node* xxcodesegment(node* segment)
       yyerror("Error: Lack of memory in xxcodesegment for npt->childset.");
       exit(1);
    }
-   npt->nb_childs = 1;
+   npt->nb_children = 1;
    npt->childset[0] = segment;
    if (segment) segment->parent = npt;
 
@@ -269,7 +269,7 @@ node* xxfirstchildset(node* childset, node* index)
    npt->ntype = NT_LIST;
    npt->opval.name = NULL;
    if (childset) childset->parent = npt;
-   npt->nb_childs = 1;
+   npt->nb_children = 1;
 
    npt->childset = malloc(sizeof(node*));
    if (!npt->childset)
@@ -291,7 +291,7 @@ node* xxfirstchildset(node* childset, node* index)
       yyerror("Error: Lack of memory for childset in xxfirstchildset.");
       exit(1);
    }
-   childset->nb_childs = 1;
+   childset->nb_children = 1;
    childset->childset[0] = index;
    if (index) index->parent = childset;
 
@@ -308,11 +308,11 @@ node* xxaddchildset(node* list, node* childset, node* index)
       yyerror("Error: Lack of memory for childset in xxaddchildset.");
       exit(1);
    }
-   childset->nb_childs = 1;
+   childset->nb_children = 1;
    childset->childset[0] = index;
    if (index) index->parent = childset;
 
-   list->childset = realloc(list->childset, (list->nb_childs + 1) * 
+   list->childset = realloc(list->childset, (list->nb_children + 1) * 
       sizeof(node*));
    if (!list->childset)
    {
@@ -320,10 +320,10 @@ node* xxaddchildset(node* list, node* childset, node* index)
       exit(1);
    }
 
-   list->childset[list->nb_childs] = childset;
+   list->childset[list->nb_children] = childset;
    if (childset) childset->parent = list;
 
-   list->nb_childs += 1;
+   list->nb_children += 1;
 
    return list;
 }
@@ -342,7 +342,7 @@ node* xxemptylist(void)
 
    npt->ntype = NT_LIST;
    npt->opval.name = NULL;
-   npt->nb_childs = 0;
+   npt->nb_children = 0;
    npt->childset = NULL;
    npt->parent = NULL;
 
@@ -363,7 +363,7 @@ node* xxone(void)
 
    npt->ntype = NT_NUM_CONST;
    npt->opval.value = 1.0;
-   npt->nb_childs = 0;
+   npt->nb_children = 0;
    npt->childset = NULL;
    npt->parent = NULL;
 
@@ -385,7 +385,7 @@ node* xxppmm(node* var, int op)
    npt->ntype = NT_INCR_DECR;
    npt->opval.ppmm = op;
    npt->parent = NULL;
-   npt->nb_childs = 1;
+   npt->nb_children = 1;
 
    npt->childset = malloc(sizeof(node*));
    if (!npt->childset)
@@ -446,7 +446,7 @@ node* xxtype(data_type dt)
 
    npt->ntype = NT_CAST;
    npt->opval.ti.dtype = dt;
-   npt->nb_childs = 0;
+   npt->nb_children = 0;
    npt->childset = NULL;
    npt->parent = NULL;
 
@@ -457,7 +457,7 @@ node* xxtype(data_type dt)
 
 node* xxcast(node* type, node* starlist, node* operand)
 {
-   type->opval.ti.nderef = starlist->nb_childs;
+   type->opval.ti.nderef = starlist->nb_children;
    free_tree(starlist);
 
    return xxunary(type, operand);

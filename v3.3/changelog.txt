@@ -2,8 +2,9 @@
 by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 -----------------------------------------------------------------------------
 
-v3.3
+v3.3   2016-01-31
 
+Remplaced member "nb_childs" by "nb_children" in the object retournd by "info".
 Added internal functions "detachnode", "swapnodes" and "osfamily".
 Now function "treetocode" places a semicolon at the end previous statement in 
    a statement list if next statements begins with * or (.
