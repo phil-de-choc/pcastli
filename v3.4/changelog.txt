@@ -5,8 +5,10 @@ by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 v3.4
 
 Minimized the number of internal calls to exit.
-Strings are now freed with context destruction.
-Fixed memory leak in libraries calls for 64-bit versions.
+Strings in local variables are now freed with context destruction.
+Added internal function "copystring".
+Fixed memory leaks in libraries calls, printf, scanf, fprintf, fscanf, sprintf 
+   and sscanf for 64-bit builds.
 
 v3.3   2016-01-31
 

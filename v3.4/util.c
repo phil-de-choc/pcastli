@@ -43,6 +43,8 @@ extern input_union inputadr;
 void free_tree(node* npt)
 {
    size_t i;
+
+   g_lst_remove(npt, PT_NODE);
    for (i = 0; i < npt->nb_children; i++)
    {
       free_tree(npt->childset[i]);
@@ -127,7 +129,7 @@ void create_context(int is_func_cont)
 void free_context(void)
 {
    set_stack_size--;
-   free_object(clos_set_stack[set_stack_size]);
+   free_object_incl_str(clos_set_stack[set_stack_size]);
    clos_set_stack[set_stack_size] = NULL;
 }
 
@@ -334,11 +336,42 @@ void free_object(clos_set* pcs)
 
 
 
+void free_object_incl_str(clos_set* pcs)
+{
+   size_t i;
+
+   for (i = 0; i < pcs->nb_clos; i++)
+   {
+      free(pcs->clos_array[i]->name);
+      free_data_incl_str(pcs->clos_array[i]->content);
+      free(pcs->clos_array[i]);
+   }
+
+   if (pcs->nb_clos > 0) free(pcs->clos_array);
+
+   g_lst_remove(pcs, PT_OBJECT);
+   free(pcs);
+}
+
+
+
 void free_array(array* pArray)
 {
    size_t i;
 
    for (i = 0; i < pArray->length; i++) free_data(pArray->dtable[i]);
+   free(pArray->dtable);
+   g_lst_remove(pArray, PT_ARRAY);
+   free(pArray);
+}
+
+
+
+void free_array_incl_str(array* pArray)
+{
+   size_t i;
+
+   for (i = 0; i < pArray->length; i++) free_data_incl_str(pArray->dtable[i]);
    free(pArray->dtable);
    g_lst_remove(pArray, PT_ARRAY);
    free(pArray);
@@ -364,6 +397,24 @@ void free_list(list* pList)
 
 
 
+void free_list_incl_str(list* pList)
+{
+   listlink* plink = pList->start, *next;
+   size_t i;
+
+   for (i = 0; i < pList->length; i++)
+   {
+      free_data_incl_str(plink->content);
+      next = plink->next;
+      free(plink);
+      plink = next;
+   }
+   g_lst_remove(pList, PT_LIST);
+   free(pList);
+}
+
+
+
 void free_string(char* tab)
 {
    g_lst_remove(tab, PT_CHAR_TAB);
@@ -373,6 +424,17 @@ void free_string(char* tab)
 
 
 void free_data(data dt)
+{
+   if (dt.ti.nderef > 0) return;
+
+   if (dt.ti.dtype == DT_OBJECT) free_object(dt.value.pObject);
+   else if (dt.ti.dtype == DT_ARRAY) free_array(dt.value.pArray);
+   else if (dt.ti.dtype == DT_LIST) free_list(dt.value.pList);
+}
+
+
+
+void free_data_incl_str(data dt)
 {
    if (dt.ti.nderef > 0) return;
 
@@ -447,6 +509,7 @@ void copy_data(data* pddest, data source)
       case DT_PFUNC:
       case DT_MEMORY:
       case DT_MEMADR:
+      case DT_STRING:
          pddest->value = source.value;
          break;
 
@@ -521,14 +584,14 @@ void copy_data(data* pddest, data source)
          *destination = NULL;
          break;
 
-      case DT_STRING:
+      /*case DT_STRING:
          pddest->value.str.tab = malloc(source.value.str.length);
          if (!pddest->value.str.tab)
             fatal_error("Error: Lack of memory in copy_data for new string.");
          g_lst_add(pddest->value.str.tab, PT_CHAR_TAB);
          memcpy(pddest->value.str.tab, source.value.str.tab, source.value.str.length);
          pddest->value.str.length = source.value.str.length;
-         break;
+         break;*/
 
       default:
          break;

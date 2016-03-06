@@ -69,6 +69,8 @@ int pt_in_list(const list* plst, alloc_ptr aptr, pointer_type pt);
 void g_free_object(clos_set* pcs);
 void g_free_array(array* pArray);
 void g_free_list(list* pList);
+void find_add_root(node* rootpar);
+void keep_roots(void);
 
 typedef struct s_item_s
 {

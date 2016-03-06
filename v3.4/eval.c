@@ -144,6 +144,7 @@ typedef enum
    FID_DETACHNODE,
    FID_SWAPNODES,
    FID_OSFAMILY,
+   FID_COPYSTRING,
    NB_FUNC
 } EFuncID;
 
@@ -170,6 +171,7 @@ func_map[] =
    {"cls", FID_CLS},
    {"codetotree", FID_CODETOTREE},
    {"concat", FID_CONCAT},
+   {"copystring", FID_COPYSTRING},
    {"copytree", FID_COPYTREE},
    {"createnode", FID_CREATENODE},
    {"detachnode", FID_DETACHNODE},
@@ -5624,6 +5626,7 @@ data eval_printf(node* to_eval)
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
 
    asmcall(sznchunks, raw_args, (void (*)(void))printf, chunkfloat, outregs);
+   free(chunkfloat);
 
    #elif defined(__linux__) && defined(__i386__)
 
@@ -5723,6 +5726,7 @@ data eval_scanf(node* to_eval)
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
 
    asmcall(sznchunks, raw_args, (void (*)(void))scanf, chunkfloat, outregs);
+   free(chunkfloat);
 
    #elif defined(__linux__) && defined(__i386__)
 
@@ -5937,6 +5941,7 @@ data eval_fprintf(node* to_eval)
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
 
    asmcall(sznchunks, raw_args, (void (*)(void))fprintf, chunkfloat, outregs);
+   free(chunkfloat);
 
    #elif defined(__linux__) && defined(__i386__)
 
@@ -6045,6 +6050,7 @@ data eval_fscanf(node* to_eval)
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
 
    asmcall(sznchunks, raw_args, (void (*)(void))fscanf, chunkfloat, outregs);
+   free(chunkfloat);
 
    #elif defined(__linux__) && defined(__i386__)
 
@@ -6976,6 +6982,7 @@ data eval_sprintf(node* to_eval)
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
 
    asmcall(sznchunks, raw_args, (void (*)(void))sprintf, chunkfloat, outregs);
+   free(chunkfloat);
 
    #elif defined(__linux__) && defined(__i386__)
 
@@ -7083,6 +7090,7 @@ data eval_sscanf(node* to_eval)
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
 
    asmcall(sznchunks, raw_args, (void (*)(void))sscanf, chunkfloat, outregs);
+   free(chunkfloat);
 
    #elif defined(__linux__) && defined(__i386__)
 
@@ -9209,6 +9217,8 @@ data eval_appendnode(node* to_eval)
    parent->childset[insertpos] = toappend;
    toappend->parent = parent;
 
+   keep_roots();
+
    return retval;
 }
 
@@ -9291,6 +9301,8 @@ data eval_insertnode(node* to_eval)
    parent->childset[lpos] = toinsert;
    toinsert->parent = parent;
 
+   keep_roots();
+
    return retval;
 }
 
@@ -9364,6 +9376,8 @@ data eval_replacenode(node* to_eval)
    free_tree(parent->childset[lpos]);
    parent->childset[lpos] = toinsert;
    toinsert->parent = parent;
+
+   keep_roots();
 
    return retval;
 }
@@ -9761,6 +9775,9 @@ data eval_detachnode(node* to_eval)
          fatal_error("Error: Lack of memory for reallocated childs array in detachnode.");
    }
 
+   /* Adding root of detached subtree if not present in g_lst. */
+   find_add_root(retval.value.ptr);
+
    return retval;
 }
 
@@ -9890,6 +9907,51 @@ data eval_osfamily(void)
    #elif defined(__APPLE__) && defined(__MACH__)
       strncpy(osfamily, "mac64", 5);
    #endif 
+
+   return retval;
+}
+
+
+
+data eval_copystring(node* to_eval)
+{
+   int err = 0;
+   data retval, from_eval;
+   memset(&retval, 0, sizeof(data));
+
+   /* Argument verification. */
+
+   if (to_eval)
+   {
+      if (to_eval->nb_children != 1) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in copystring.");
+      yyerror("       This function has one parameter.");
+      abort_called = 1;
+      return retval;
+   }
+
+   from_eval = eval(to_eval->childset[0]);
+   if (from_eval.ti.dtype != DT_STRING)
+   {
+      yyerror("Error: Argument of copystring has to be a string.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+
+   retval.value.str.tab = malloc(from_eval.value.str.length);
+   if (!retval.value.str.tab)
+      fatal_error("Error: Lack of memory in copystring for new string.");
+   g_lst_add(retval.value.str.tab, PT_CHAR_TAB);
+   memcpy(retval.value.str.tab, from_eval.value.str.tab, from_eval.value.str.length);
+   retval.value.str.length = from_eval.value.str.length;
+
+   retval.ti.dtype = DT_STRING;
 
    return retval;
 }
@@ -10217,6 +10279,8 @@ data eval_func_call(node* to_eval)
          return eval_swapnodes(to_eval->childset[1]);
       case FID_OSFAMILY:
          return eval_osfamily();
+      case FID_COPYSTRING:
+         return eval_copystring(to_eval->childset[1]);
       default:
          break;
       }
