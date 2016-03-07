@@ -129,7 +129,7 @@ void create_context(int is_func_cont)
 void free_context(void)
 {
    set_stack_size--;
-   free_object_incl_str(clos_set_stack[set_stack_size]);
+   free_object(clos_set_stack[set_stack_size]);
    clos_set_stack[set_stack_size] = NULL;
 }
 

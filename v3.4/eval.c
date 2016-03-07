@@ -145,6 +145,8 @@ typedef enum
    FID_SWAPNODES,
    FID_OSFAMILY,
    FID_COPYSTRING,
+   FID_FREESTRING,
+   FID_FGETS,
    NB_FUNC
 } EFuncID;
 
@@ -184,12 +186,14 @@ func_map[] =
    {"fflush", FID_FFLUSH},
    {"fgetc", FID_FGETC},
    {"fgetpos", FID_FGETPOS},
+   {"fgets", FID_FGETS},
    {"fillobject", FID_FILLOBJECT},
    {"fopen", FID_FOPEN},
    {"fprintf", FID_FPRINTF},
    {"fputc", FID_FPUTC},
    {"fread", FID_FREAD},
    {"free", FID_FREE},
+   {"freestring", FID_FREESTRING},
    {"freetree", FID_FREETREE},
    {"freopen", FID_FREOPEN},
    {"fscanf", FID_FSCANF},
@@ -9958,6 +9962,120 @@ data eval_copystring(node* to_eval)
 
 
 
+data eval_freestring(node* to_eval)
+{
+   int err = 0;
+   data retval, from_eval;
+   memset(&retval, 0, sizeof(data));
+
+   /* Argument verification. */
+
+   if (to_eval)
+   {
+      if (to_eval->nb_children != 1) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in freestring.");
+      yyerror("       This function has one parameter.");
+      abort_called = 1;
+      return retval;
+   }
+
+   from_eval = eval(to_eval->childset[0]);
+   if (from_eval.ti.dtype != DT_STRING)
+   {
+      yyerror("Error: Argument of freestring has to be a string.");
+      abort_called = 1;
+      free_data(from_eval);
+      return retval;
+   }
+
+   g_lst_remove(from_eval.value.str.tab, PT_CHAR_TAB);
+   free(from_eval.value.str.tab);
+
+   return retval;
+}
+
+
+
+data eval_fgets(node* to_eval)
+{
+   int err = 0, inum = 0;
+   data retval, buff, num, stream;
+   char* retgets = NULL;
+
+   memset(&retval, 0, sizeof(data));
+
+
+   /* Arguments verification. */
+
+   if (to_eval)
+   {
+      if (to_eval->nb_children != 3) err = 1;
+   }
+   else err = 1;
+
+   if (err)
+   {
+      yyerror("Error: Wrong number of arguments in fgets.");
+      yyerror("       This function has three parameters.");
+      abort_called = 1;
+      return retval;
+   }
+
+   buff = eval(to_eval->childset[0]);
+   if (buff.ti.dtype != DT_STRING)
+   {
+      yyerror("Error: Argument one of fgets is not a string.");
+      abort_called = 1;
+      return retval;
+   }
+
+   num = eval(to_eval->childset[1]);
+   if (num.ti.dtype < DT_CHAR || num.ti.dtype > DT_LONG_DOUBLE ||
+      num.ti.nderef > 0)
+   {
+      yyerror("Error: Argument two of fgets is not a number.");
+      free_data(num);
+      abort_called = 1;
+      return retval;
+   }
+   mac_cast(inum, int, num)
+
+   stream = eval(to_eval->childset[2]);
+   if (stream.ti.dtype != DT_PFILE || stream.ti.nderef > 0)
+   {
+      yyerror("Error: Argument three of fgets is not a file pointer.");
+      free_data(stream);
+      abort_called = 1;
+      return retval;
+   }
+
+   retgets = fgets(buff.value.str.tab, inum, stream.value.pfile);
+
+   if (!retgets)
+   {
+      retval.ti.dtype = DT_STRING;
+      retval.value.str.tab = malloc(1);
+      if (!retval.value.str.tab) 
+         fatal_error("Error:  Lack of memory in fgets for empty string.");
+      retval.value.str.tab[0] = '\0';
+      retval.value.str.length = 1;
+      g_lst_add(retval.value.str.tab, PT_CHAR_TAB);
+   }
+   else
+   {
+      retval = buff;
+   }
+
+   return retval;
+}
+
+
+
 data eval_func_call(node* to_eval)
 {
    size_t nb_param = 0, nb_args = 0, nb_members = 0, i = 0;
@@ -10281,6 +10399,10 @@ data eval_func_call(node* to_eval)
          return eval_osfamily();
       case FID_COPYSTRING:
          return eval_copystring(to_eval->childset[1]);
+      case FID_FREESTRING:
+         return eval_freestring(to_eval->childset[1]);
+      case FID_FGETS:
+         return eval_fgets(to_eval->childset[1]);
       default:
          break;
       }

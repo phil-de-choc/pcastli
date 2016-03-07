@@ -6,9 +6,7 @@ by Parent and Childset Accessible Syntax Tree Language
 v3.4
 
 Minimisé le nombre d'appels internes à exit.
-Les chaînes de caractères dans des variables locales sont maintenant libérées 
-   avec la destruction du contexte.
-Ajouté la fonction interne "copystring".
+Ajouté la fonction interne "copystring", "freestring" et "fgets".
 Réglé les fuites de mémoire dans les appels de librairies, printf, scanf, 
    fprintf, fscanf, sprintf et sscanf pour les executables 64-bit.
 
