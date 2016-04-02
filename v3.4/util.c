@@ -37,6 +37,7 @@ size_t set_stack_limit;
 
 extern input_type inputsrc;
 extern input_union inputadr;
+extern int strict_access;
 
 
 
@@ -44,7 +45,6 @@ void free_tree(node* npt)
 {
    size_t i;
 
-   g_lst_remove(npt, PT_NODE);
    for (i = 0; i < npt->nb_children; i++)
    {
       free_tree(npt->childset[i]);
@@ -181,11 +181,8 @@ void clear_symbol(const char* name)
             /* Name found. */
 
             free(clos_set_stack[i]->clos_array[j]->name);
-            if (clos_set_stack[i]->clos_array[j]->content.ti.dtype == DT_STRING)
-            {
-               free(clos_set_stack[i]->clos_array[j]->content.value.str.tab);
-               free(clos_set_stack[i]->clos_array[j]);
-            }
+            free_data(clos_set_stack[i]->clos_array[j]->content);
+            free(clos_set_stack[i]->clos_array[j]);
 
             for (k = j; k < clos_set_stack[i]->nb_clos - 1; k++)
             {
@@ -636,7 +633,7 @@ closure* find_symbol(char* name)
          }
          j--;
       }
-      if (clos_set_stack[i]->is_func_cont) i = 0;
+      if (clos_set_stack[i]->is_func_cont && strict_access) i = 0;
       else i--;
    }
 

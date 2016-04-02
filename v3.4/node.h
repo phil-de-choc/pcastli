@@ -29,8 +29,16 @@
    #define BITS64
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
+/* #define _CRTDBG_MAP_ALLOC */
+#ifdef _CRTDBG_MAP_ALLOC
+   #include <stdlib.h>
+   #include <crtdbg.h>
+   #include <stdio.h>
+#else
+   #include <stdlib.h>
+   #include <stdio.h>
+#endif
+
 
 int yylex(void);
 void yyerror(char const*);

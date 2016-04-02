@@ -318,11 +318,6 @@ int token(void)
    c = skip_space();
 
    /* Comments */
-   if (c == '#')
-   {
-      do c = readchar();
-      while(c != '\n' && c != EOF && c != '\r');
-   }
    if (c == '/')
    {
       c = readchar();
@@ -351,6 +346,11 @@ int token(void)
          readpos--;
          c = '/';
       }
+   }
+   if (c == '#')
+   {
+      do c = readchar();
+      while (c != '\n' && c != EOF && c != '\r');
    }
 
    /* Hex Numbers */

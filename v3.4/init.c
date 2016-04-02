@@ -28,6 +28,9 @@
 #include "gcollection.h"
 #include "util.h"
 
+int strict_access = 1;
+
+
 
 void parse_init(void)
 {
@@ -61,7 +64,7 @@ void clos_stack_init(void)
 void read_params(void)
 {
    FILE* params;
-   char buf[100];
+   char buf[150];
 
    params = fopen("pcastli.ini", "r");
    if (!params)
@@ -73,18 +76,30 @@ void read_params(void)
       fprintf(params, "[garbage collector]\n");
       fprintf(params, "; number of executed top statements before launching "
          "garbage collection\n");
-      fprintf(params, "nb_executions = 5\n");
+      fprintf(params, "nb_executions = 5\n\n");
+
+      fprintf(params, "[context access]\n");
+      fprintf(params, "; \"yes\" is context access only for local function and "
+         "global context, \"no\" is access to all upward contexts\n");
+      fprintf(params, "strict = yes\n");
 
       fclose(params);
       return;
    }
 
-   fgets(buf, 100, params);
-   fgets(buf, 100, params);
+   fgets(buf, 150, params);
+   fgets(buf, 150, params);
    fscanf(params, "nb_executions = %i\n", &max_executions);
 
    if (max_executions <= 0 || max_executions > MAX_MAX_EXECUTIONS) 
       max_executions = 5;
+
+   fgets(buf, 150, params);
+   fgets(buf, 150, params);
+   fscanf(params, "strict = %s", buf);
+
+   if (!strncmp(buf, "yes", 3)) strict_access = 1;
+   else strict_access = 0;
 
    fclose(params);
 }

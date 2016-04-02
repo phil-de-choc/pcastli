@@ -517,7 +517,7 @@ data eval_math_oper_assign(node* to_eval)
       if (ct_ret == CLOSURE)
       {
          free_data(pclos_ret->content);
-         copy_data(&pclos_ret->content, from_eval2);
+         pclos_ret->content = from_eval2;
          return from_eval2;
       }
       if (ct_ret == DATA)
@@ -637,7 +637,7 @@ data eval_math_oper_assign(node* to_eval)
       }
 
       free_data(*from_resolve);
-      copy_data(from_resolve, from_eval2);
+      *from_resolve = from_eval2;
 
       return from_eval2;
 
@@ -5520,7 +5520,7 @@ data eval_gettype(node* to_eval)
    }
    retval.value.str.tab[i] = '\0';
 
-   /* free_data(from_eval); */
+   free_data(from_eval);
 
    return retval;
 }
@@ -7527,6 +7527,7 @@ data eval_freetree(node* to_eval)
    }
 
    free_tree(from_eval.value.ptr);
+   g_lst_remove(from_eval.value.ptr, PT_NODE);
 
    return retval;
 }
@@ -7794,6 +7795,8 @@ data eval_repeat(node* to_eval)
    {
       copy_data(&retval.value.pArray->dtable[i], arg1);
    }
+
+   free_data(arg1);
 
    return retval;
 }
@@ -10212,6 +10215,9 @@ data eval_func_call(node* to_eval)
       case FID_PRINT:
          return eval_print(to_eval->childset[1]);
       case FID_EXIT:
+         #ifdef _CRTDBG_MAP_ALLOC
+         _CrtDumpMemoryLeaks();
+         #endif
          exit(0);
       case FID_ABORT:
          return eval_abort();
