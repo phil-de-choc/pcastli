@@ -3,7 +3,7 @@ Liste des changements de l'interpréteur du
 by Parent and Childset Accessible Syntax Tree Language
 ------------------------------------------------------
 
-v3.4   2016-04-02
+v3.4   2016-04-09
 
 Minimisé le nombre d'appels internes à exit.
 Ajouté la fonction interne "copystring", "freestring" et "fgets".
@@ -11,6 +11,7 @@ Ajouté paramètre d'accès de contexte dans pcastli.ini.
 Maintenant la fonction interne "clear" libère les tableaux, listes et objets,
    mais plus les chaînes de caractères.
 Les exécutables Windows sont maintenant compilés pour Windows 10 au lieu de 8.
+Vidé la stack FPU avant les appels en assembleur pour les exécutables 32-bit.
 Réglé les fuites de mémoire dans les appels de librairies, printf, scanf, 
    fprintf, fscanf, sprintf et sscanf pour les exécutables 64-bit.
 

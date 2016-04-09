@@ -257,6 +257,14 @@ data eval_slib_call(data dtpfunc, node* to_eval)
       asm("push %0" : : "r"(chunk));
    }
 
+   asm("ffree %st(0)");
+   asm("ffree %st(1)");
+   asm("ffree %st(2)");
+   asm("ffree %st(3)");
+   asm("ffree %st(4)");
+   asm("ffree %st(5)");
+   asm("ffree %st(6)");
+   asm("ffree %st(7)");
    asm("call *%0" : : "m"(pfunc) : "%eax", "%edx");
    asm("mov %%eax, %0" : "=m"(outeax));
    asm("mov %%edx, %0" : "=m"(outedx));

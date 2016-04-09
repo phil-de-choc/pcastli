@@ -19,7 +19,7 @@ I used Bison v3.0.4 under Cygwin v2.3.0.
 Windows Compilation
 -------------------
 
-I did use Visual Studio Community 2015.
+I did use Visual Studio Community 2015 with the Windows 10 SDK.
 Open VS2015\pcastli.sln and select desired configuration (Debug or Release) and 
 (x64 or Win32).
 

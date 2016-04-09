@@ -5653,6 +5653,14 @@ data eval_printf(node* to_eval)
       asm("push %0" : : "r"(chunk));
    }
 
+   asm("ffree %st(0)");
+   asm("ffree %st(1)");
+   asm("ffree %st(2)");
+   asm("ffree %st(3)");
+   asm("ffree %st(4)");
+   asm("ffree %st(5)");
+   asm("ffree %st(6)");
+   asm("ffree %st(7)");
    asm("call printf");
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");
@@ -5768,6 +5776,14 @@ data eval_scanf(node* to_eval)
       asm("push %0" : : "r"(chunk));
    }
 
+   asm("ffree %st(0)");
+   asm("ffree %st(1)");
+   asm("ffree %st(2)");
+   asm("ffree %st(3)");
+   asm("ffree %st(4)");
+   asm("ffree %st(5)");
+   asm("ffree %st(6)");
+   asm("ffree %st(7)");
    asm("call scanf");
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");
@@ -5990,6 +6006,14 @@ data eval_fprintf(node* to_eval)
       asm("push %0" : : "r"(chunk));
    }
 
+   asm("ffree %st(0)");
+   asm("ffree %st(1)");
+   asm("ffree %st(2)");
+   asm("ffree %st(3)");
+   asm("ffree %st(4)");
+   asm("ffree %st(5)");
+   asm("ffree %st(6)");
+   asm("ffree %st(7)");
    asm("call fprintf");
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");
@@ -6110,6 +6134,14 @@ data eval_fscanf(node* to_eval)
       asm("push %0" : : "r"(chunk));
    }
 
+   asm("ffree %st(0)");
+   asm("ffree %st(1)");
+   asm("ffree %st(2)");
+   asm("ffree %st(3)");
+   asm("ffree %st(4)");
+   asm("ffree %st(5)");
+   asm("ffree %st(6)");
+   asm("ffree %st(7)");
    asm("call fscanf");
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");
@@ -7053,6 +7085,14 @@ data eval_sprintf(node* to_eval)
       asm("push %0" : : "r"(chunk));
    }
 
+   asm("ffree %st(0)");
+   asm("ffree %st(1)");
+   asm("ffree %st(2)");
+   asm("ffree %st(3)");
+   asm("ffree %st(4)");
+   asm("ffree %st(5)");
+   asm("ffree %st(6)");
+   asm("ffree %st(7)");
    asm("call sprintf");
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");
@@ -7172,6 +7212,14 @@ data eval_sscanf(node* to_eval)
       asm("push %0" : : "r"(chunk));
    }
 
+   asm("ffree %st(0)");
+   asm("ffree %st(1)");
+   asm("ffree %st(2)");
+   asm("ffree %st(3)");
+   asm("ffree %st(4)");
+   asm("ffree %st(5)");
+   asm("ffree %st(6)");
+   asm("ffree %st(7)");
    asm("call sscanf");
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");

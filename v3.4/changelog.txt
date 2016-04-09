@@ -2,7 +2,7 @@
 by Parent and Childset Accessible Syntax Tree Language Interpreter change log
 -----------------------------------------------------------------------------
 
-v3.4   2016-04-02
+v3.4   2016-04-09
 
 Minimized the number of internal calls to exit.
 Added internal function "copystring", "freestring" and "fgets".
@@ -10,6 +10,7 @@ Added parameter for context access in pcastli.ini.
 Now the internal function "clear" frees arrays, lists and objects, but no more 
    the strings.
 Windows builds are now compiled for Windows 10 instead of 8.
+Cleared FPU stack before assembly calls for 32-bit builds.
 Fixed memory leaks in libraries calls, printf, scanf, fprintf, fscanf, sprintf 
    and sscanf for 64-bit builds.
 
