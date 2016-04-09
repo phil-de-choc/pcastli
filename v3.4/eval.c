@@ -5617,13 +5617,25 @@ data eval_printf(node* to_eval)
    #if defined(_WIN32) && !defined(_WIN64)
 
    __asm mov esp_init, esp
+
    for (i = 0; i < sznchunks; i++)
    {
       void* chunk = raw_args[i];
       __asm push chunk
    }
 
-   __asm call printf
+   __asm 
+   {
+      ffree st(0)
+      ffree st(1)
+      ffree st(2)
+      ffree st(3)
+      ffree st(4)
+      ffree st(5)
+      ffree st(6)
+      ffree st(7)
+      call printf
+   }
 
    __asm mov esp, esp_init
 
@@ -5723,7 +5735,18 @@ data eval_scanf(node* to_eval)
       __asm push chunk
    }
 
-   __asm call scanf
+   __asm
+   {
+      ffree st(0)
+      ffree st(1)
+      ffree st(2)
+      ffree st(3)
+      ffree st(4)
+      ffree st(5)
+      ffree st(6)
+      ffree st(7)
+      call scanf
+   }
 
    __asm mov esp, esp_init
 
@@ -5938,7 +5961,18 @@ data eval_fprintf(node* to_eval)
       __asm push chunk
    }
 
-   __asm call fprintf
+   __asm
+   {
+      ffree st(0)
+      ffree st(1)
+      ffree st(2)
+      ffree st(3)
+      ffree st(4)
+      ffree st(5)
+      ffree st(6)
+      ffree st(7)
+      call fprintf
+   }
 
    __asm mov esp, esp_init
 
@@ -6047,7 +6081,18 @@ data eval_fscanf(node* to_eval)
       __asm push chunk
    }
 
-   __asm call fscanf
+   __asm
+   {
+      ffree st(0)
+      ffree st(1)
+      ffree st(2)
+      ffree st(3)
+      ffree st(4)
+      ffree st(5)
+      ffree st(6)
+      ffree st(7)
+      call fscanf
+   }
 
    __asm mov esp, esp_init
 
@@ -6979,7 +7024,18 @@ data eval_sprintf(node* to_eval)
       __asm push chunk
    }
 
-   __asm call sprintf
+   __asm
+   {
+      ffree st(0)
+      ffree st(1)
+      ffree st(2)
+      ffree st(3)
+      ffree st(4)
+      ffree st(5)
+      ffree st(6)
+      ffree st(7)
+      call sprintf
+   }
 
    __asm mov esp, esp_init
 
@@ -7087,7 +7143,18 @@ data eval_sscanf(node* to_eval)
       __asm push chunk
    }
 
-   __asm call sscanf
+   __asm
+   {
+      ffree st(0)
+      ffree st(1)
+      ffree st(2)
+      ffree st(3)
+      ffree st(4)
+      ffree st(5)
+      ffree st(6)
+      ffree st(7)
+      call sscanf
+   }
 
    __asm mov esp, esp_init
 

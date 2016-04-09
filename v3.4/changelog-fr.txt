@@ -3,7 +3,7 @@ Liste des changements de l'interpréteur du
 by Parent and Childset Accessible Syntax Tree Language
 ------------------------------------------------------
 
-v3.4   2016-03-31
+v3.4   2016-04-02
 
 Minimisé le nombre d'appels internes à exit.
 Ajouté la fonction interne "copystring", "freestring" et "fgets".
@@ -12,7 +12,7 @@ Maintenant la fonction interne "clear" libère les tableaux, listes et objets,
    mais plus les chaînes de caractères.
 Les exécutables Windows sont maintenant compilés pour Windows 10 au lieu de 8.
 Réglé les fuites de mémoire dans les appels de librairies, printf, scanf, 
-   fprintf, fscanf, sprintf et sscanf pour les executables 64-bit.
+   fprintf, fscanf, sprintf et sscanf pour les exécutables 64-bit.
 
 v3.3   2016-01-31
 
