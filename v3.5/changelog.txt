@@ -1,0 +1,265 @@
+-----------------------------------------------------------------------------
+by Parent and Childset Accessible Syntax Tree Language Interpreter change log
+-----------------------------------------------------------------------------
+
+v3.5   2018-03-31
+
+The license is now LGPL instead of GPL.
+32-bit and 64-bit Windows builds are now available separately.
+
+v3.4   2016-04-09
+
+Minimized the number of internal calls to exit.
+Added internal function "copystring", "freestring" and "fgets".
+Added parameter for context access in pcastli.ini.
+Now the internal function "clear" frees arrays, lists and objects, but no more 
+   the strings.
+Windows builds are now compiled for Windows 10 instead of 8.
+Cleared FPU stack before assembly calls for 32-bit builds.
+Fixed memory leaks in libraries calls, printf, scanf, fprintf, fscanf, sprintf 
+   and sscanf for 64-bit builds.
+
+v3.3   2016-01-31
+
+Replaced member "nb_childs" by "nb_children" in the object retournd by "info".
+Added internal functions "detachnode", "swapnodes" and "osfamily".
+Now function "treetocode" places a semicolon at the end previous statement in 
+   a statement list if next statements begins with * or (.
+The output of "codetotree" is now garbage collected.
+Fixed issue of priority indirection not placed in parenthesis in "treetocode"
+   function output.
+
+v3.2.1   2016-01-21
+
+Fixed the assign with indirection issue. 
+Fixed the use of indirection arguments issue with internal functions 
+   "fillobject", "setlength", "insert", "replace", "undefine", "fread", 
+   "fgetpos", "remove" and "memtovar".
+Fixed the use of ++ or -- operators on an indirection issue.
+
+v3.2   2016-01-16
+
+It's now possible to apply to an indirection the subscript operator, function 
+   call and object member selection.
+Added multiline comments: /* */.
+Improved grammar: reduced number of shift/reduce conflicts.
+Improved lexer: now there can't be anymore two consecutive calls to ungetc.
+Fixed multiple indirection assign issue.
+
+v3.1.1   2016-01-08
+
+Fixed the built trees garbage collection issue.
+
+v3.1   2016-01-05
+
+Added modulo (%) operator.
+Added internal functions "pushfront", "pushback", "popfront" and "popback".
+Added an installer for Windows.
+Fixed the element allocation size issue in "concat" function for a list.
+
+v3.0   2015-12-24
+
+In the current context, the variables of preceding contexts are now only visible 
+   to the context of the current function.  The only other visible variable are 
+   those of the global context.
+The number of nested calls is now limited by the size of the stack.
+A semicolon can now be placed at the end of any expression.
+The "fgetc" function now returns an integer instead of a string.
+A string type variable with a subscript for an assign can now receive a 
+   character.
+The fpos_t type content is now freed by the garbage collector only, instead of 
+   being freed at the same time as the context.
+Fixed the problem occurring when applying subseq to an array.
+Fixed the heap corruption issue with "info" applied to a function definition
+   node.
+
+v2.7   2015-12-17
+
+Added internal functions "codetotree", "exist", "createnode", "appendnode", 
+   "insertnode" and "replacenode".
+The second parameter of the internal function "treetocode" is now optional and 
+   has "   " as default value.
+Internal function "info" now returns an object.
+Internal function "rmnode" now accepts a parent node of non-list type.
+The subscript operator can now be applied to a string and the resulting value
+   will be of "char" type.  Idem for a variable containing a string.
+Improved identifier validation in "atovar" internal function.
+The number of children nodes is now verified before the execution of a node.
+Code with syntax error is no more executed after being parsed.
+
+v2.6   2015-12-04
+
+Added internal function "treetocode".
+The internal function "gettype" now returns "node pointer" instead of 
+   "reference" for a pointer to a node.
+Made explicit the priority of the structure reference operator (.).
+Fixed stack corruption issue with printf, scanf, fprintf, fscanf, sprintf 
+   and sscanf.
+
+v2.5   2014-11-23
+
+Calls to dynamic-link library or a shared object library now return possible
+   called function return values by type.
+Cast operands can now be of non fundamental type.
+Right hand side result before assign is no more duplicated.
+Fixed the non display of library handles for 32-bit builds.
+Fixed fillobject internal function node type / data type confusion.
+Fixed 32-bit math operators with float operand data type error.
+Fixed statements inside a source file not added for garbage collection.
+
+v2.4   2012-11-11
+
+Readded float variable type for library access.
+Fixed allocated data double deletion conflicts in garbage collection.
+Fixed floating point and double parameter passing to 64-bit Windows dlls.
+Added even or lower than five parameters functions stack alignment in 64-bit 
+   Windows dlls calls for speed optimized builds.
+
+v2.3   2012-10-21
+
+The interpreter can now be built for 64-bit Windows, 64-bit Linux and Mac OS X 
+   Mountain Lion.  The code still compile for 32-bit Windows and 32-bit Linux.
+The call of a function with only a return statement within another function does 
+   not cause the top function to return anymore.
+The reference operator "&" applied to a subscript inside a function does not
+   cause the script to abort anymore.
+The "vartomem" and "memtovar" internal functions can now receive results of the 
+   reference operator.
+Fixed "source" internal function calls in another function.
+Added size_t variable type.
+Removed float variable type.
+
+v2.2   2012-03-06
+
+Added internal functions "repeat", "vartomem", "memtovar", "memcpy", "memset", 
+  "memclone" and "memory".
+Added variable types "raw memory", "byte" and "memory address".
+Calls to a dynamic-link library or a shared object library can now receive a raw
+  memory argument.
+Reference operator "&" can now be used in combination with subscript operator 
+  for string and raw memory.
+Indirection operator "*" applied on the left side operand of an assignation now 
+  get the right value assigned to the variable referenced.
+Fixed garbage collector pointer following issue.
+
+v2.1.1   2012-02-03
+
+Statements in a "return" call argument get now fully executed.
+
+v2.1   2012-01-27
+
+Added internal functions "alloc_copy" and "free".
+"source" internal function can now read Windows text files (CR LF) on Linux.
+"source" internal function can now be used inside a file read by this function.
+
+v2.0.1   2012-01-08
+
+Statements on the command line are no more deleted immediately after execution.
+  They are deleted by the garbage collector when not referenced.
+Fixed the "!=" operator issue.
+
+v2.0   2011-12-26
+
+Added C fundamental types: char, signed char, unsigned char, short, unsigned short,
+  int, unsigned int, long, unsigned long, long long, unsigned long long, float and
+  long double.
+Added cast operator.
+Added reference "&", indirection "*" and dereference "->" C operators.
+Added pointer type to all PCASTL base types.  Also, pointer to pointer and so on.
+Object, array and list member can now be used with ++ and -- operators.
+Assignments of functions and code segments do now copy the command syntax tree, so
+  statements on the command line are now deleted immediately after execution.
+Added internal function "freetree".
+Garbage collection does now manage strings, objects, arrays and lists.
+String assignation from a variable to another now does not allocate and copy.
+Added internal functions "strclone" and "strcpy".
+Arguments for "scanf", "fscanf" and "sscanf" must now be passed as in C language.
+Added internal functions "openlib", "getfuncpt" and "closelib" to allow calls to
+  a dynamic-link library or a shared object library.
+Removed internal functions "catlist", "listsize" and "sublist".
+
+v1.10   2011-11-18
+
+Internal function name search improved.
+Added internal functions "atovar" and "vartoa".
+"for" and "while" loops can now have blank control fields.
+
+v1.9   2009-09-18
+
+Added file pointer data type.
+Added i/o internal functions "printf", "scanf", "fopen", "fclose", "fprintf", 
+  "fscanf", "feof", "fread", "fwrite", "clearerr", "fgetpos", "fsetpos", 
+  "ferror", "fgetc", "ungetc", "fflush", "fputc", "fseek", "ftell", "freopen",
+  "rewind", "tmpfile", "sprintf" and "sscanf". 
+Fixed multiple lines paste issue with Linux.
+Added internal function "cls".
+Strings now accept ASCII characters in octal and hex notation in escapes 
+  sequences.
+Logical operators AND, OR and NOT can now have node pointer and file pointer 
+  operands.
+Numbers can now be entered in hexadecimal format and those are taken as signed 
+  integers.
+
+v1.8   2009-04-04
+
+Added object, array and chained list data types.  They are respectively 
+  created by internal functions "names", "array" and "list".
+Replaced internal function "catlist" by more flexible function "concat".
+Replaced internal function "sublist" by more polyvalent function "subseq".
+Replaced internal function "listsize" by more polyvalent function "length".
+Added internal functions "setlength", "insert", "replace", "source", "strlen",
+  "as_array", "as_list", "as_statements", "gettype", "undefine" and "abort".
+Enabled string variable subscripting.
+Lowered exponentiation operator precedence.
+Fixed "for" initialization scope error.
+Fixed string node type skipping in tree copy.
+Fixed genealogical dotted list on non reference symbols.
+
+v1.7   2009-02-20
+
+Added internal functions "execute" and "prompt".
+Parameter file is now created if does not exist.
+
+v1.6.1   2008-11-02
+
+Fixed string variable reading issue.
+Improved memory management in relational and logical operations.
+
+v1.6   2008-06-23
+
+Improved memory management.
+Added parameter file pcastli.ini.
+Added internal function "clear".
+
+v1.5   2008-04-12
+
+Extended the "Type error." messages for operators.
+Statements in a statement list can now be separated by a ';'.
+Improved "Symbol not found." messages with symbol name.
+
+v1.4   2008-03-16
+
+Added the unary operator '*'.
+Added internal function "copytree".
+
+v1.3.1   2008-03-15
+
+Identifiers can now include the character '_'.
+
+v1.3   2008-03-15
+
+Added internal function "return".
+
+v1.2   2008-03-05
+
+Added ++ and -- operators.
+Fixed the "for" incrementation issue.
+
+v1.1   2008-02-24
+
+Added i/o internal functions "scan", "read" and "write".
+Added internal functions "getwd", "setwd", "tonode", "sublist", "catlist", 
+  "ntoa" and "aton".
+Fixed the '\\' issue and the "" issue in string reading.
+
+v1.0   2008-02-16
