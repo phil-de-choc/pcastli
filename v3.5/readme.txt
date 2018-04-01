@@ -48,7 +48,7 @@ make x64
 Builds the interpreter.
 
 
-Mac OS X El Capitan compilation
+macOS High Sierra compilation
 -------------------------------
 
 Make sure you have Xcode with the Command Line Tools installed.
