@@ -1,0 +1,30 @@
+gdb pcastli
+run
+break eval_subscript
+info breakpoints
+delete breakpoints 1
+break eval_dotlist
+continue
+next
+print *dotlist
+print *(dotlist->childset[0])
+print *(dotlist->childset[0]->childset[0])
+quit
+print *(func_pt->childset[1]->childset[i]->childset[0])
+print *(func_pt->childset[1]->childset[i]->childset[0]->childset[0])
+print *(func_pt->childset[1]->childset[i]->childset[0]->childset[0]->childset[1]->childset[0])
+backtrace
+frame 1
+step
+nexti
+stepi
+x/2x raw_args
+x/d raw_args
+x/2x &raw_args[1]
+x/s raw_args[1]
+info registers
+break asmcall.c:96
+kill
+quit
+print $xmm0
+disassemble /m main
