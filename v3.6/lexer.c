@@ -131,7 +131,7 @@ char readchar(void)
          free(line);
          readpos = 0;
 
-         #ifdef _WIN32
+         #if defined(_WIN32) || defined(__TURBOC__)
          line = readlinebygetc();
          #else
          if (inputadr.inputfile == stdin) line = readline("");

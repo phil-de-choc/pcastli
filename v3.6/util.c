@@ -1136,7 +1136,7 @@ data* resolve(node* to_resolve)
 }
 
 
-#if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__))
+#if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__TURBOC__)
 
 int args_eval(node* to_eval, int nbFirstArgs, size_t* nchunks, void*** raw_args, 
    data** from_evals)
