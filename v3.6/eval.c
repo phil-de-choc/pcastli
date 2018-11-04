@@ -30,13 +30,19 @@
 #include <ctype.h>
 
 #include "eval.h"
-#include "pcastli.tab.h"
 #include "tree.h"
 #include "util.h"
 #include "macros.h"
-#include "gcollection.h"
+#ifndef __GO32__
+ #include "gcollection.h"
+ #include "treetocode.h"
+ #include "pcastli.tab.h"
+#else
+ #include "gcolle~1.h"
+ #include "treeto~1.h"
+ #include "pcastl~1.h"
+#endif
 #include "slib.h"
-#include "treetocode.h"
 
 int return_called = 0;
 int abort_called = 0;

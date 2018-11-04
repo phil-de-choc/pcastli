@@ -23,7 +23,7 @@
 #pragma warning(disable:4820 4711 4127 4710)
 #endif
 
-#if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__TURBOC__)
+#if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    #define BITS32
 #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    #define BITS64

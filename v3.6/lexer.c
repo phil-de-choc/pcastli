@@ -17,9 +17,9 @@
  */
 
 #ifdef _WIN32
-#pragma warning(disable:4996 4820 4255 4710)
-#else
-#include <readline/readline.h>
+ #pragma warning(disable:4996 4820 4255 4710)
+#elif ! defined(__GO32__)
+ #include <readline/readline.h>
 #endif
 
 #include <stdio.h>
@@ -28,7 +28,11 @@
 #include <math.h>
 
 #include "util.h"
-#include "pcastli.tab.h"
+#ifndef __GO32__
+ #include "pcastli.tab.h"
+#else
+ #include "pcastl~1.h"
+#endif
 
 
 input_type inputsrc;
@@ -131,7 +135,7 @@ char readchar(void)
          free(line);
          readpos = 0;
 
-         #if defined(_WIN32) || defined(__TURBOC__)
+         #if defined(_WIN32) || defined(__GO32__)
          line = readlinebygetc();
          #else
          if (inputadr.inputfile == stdin) line = readline("");

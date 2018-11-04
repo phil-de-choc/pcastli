@@ -24,7 +24,11 @@
 
 #include "eval.h"
 #include "util.h"
-#include "pcastli.tab.h"
+#ifndef __GO32__
+ #include "pcastli.tab.h"
+#else
+ #include "pcastl~1.h"
+#endif
 
 typedef enum
 {

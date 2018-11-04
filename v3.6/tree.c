@@ -28,8 +28,13 @@
 #include "node.h"
 #include "eval.h"
 #include "util.h"
-#include "gcollection.h"
-#include "pcastli.tab.h"
+#ifndef __GO32__
+ #include "gcollection.h"
+ #include "pcastli.tab.h"
+#else
+ #include "gcolle~1.h"
+ #include "pcastl~1.h"
+#endif
 
 
 node* xxbinary(node* top, node* left, node* right)

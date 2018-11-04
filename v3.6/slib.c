@@ -27,7 +27,11 @@
 
 #include "eval.h"
 #include "util.h"
-#include "gcollection.h"
+#ifndef __GO32__
+ #include "gcollection.h"
+#else
+ #include "gcolle~1.h"
+#endif
 
 #if defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
 void asmcall(size_t nchunks, void** raw_args, void (*funcpt)(void), size_t* chunkfloat, void** outregs);
@@ -184,7 +188,7 @@ data eval_slib_call(data dtpfunc, node* to_eval)
    void** raw_args = NULL;
    size_t sznchunks = 0, i = 0;
    void (*pfunc)(void) = NULL;
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    int esp_init = 0;
    int outeax = 0;
    int outedx = 0;
@@ -206,7 +210,7 @@ data eval_slib_call(data dtpfunc, node* to_eval)
 
    memset(&retval, 0, sizeof(data));
 
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__))
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    if (args_eval(to_eval, 0, &sznchunks, &raw_args, &argtab)) return retval;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    if (args_eval(to_eval, 0, &sznchunks, &raw_args, &argtab, &chunkfloat)) return retval;
@@ -220,7 +224,7 @@ data eval_slib_call(data dtpfunc, node* to_eval)
    asmcall(sznchunks, raw_args, pfunc, chunkfloat, outregs);
    free(chunkfloat);
 
-   #elif defined _WIN32
+   #elif defined(_WIN32)
 
    __asm mov esp_init, esp
    for (i = 0; i < sznchunks; i++)
@@ -248,7 +252,7 @@ data eval_slib_call(data dtpfunc, node* to_eval)
       mov esp, esp_init
    }
 
-   #elif defined(__linux__) && defined(__i386__)
+   #elif (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
 
    asm("mov %%esp, %0" : "=m"(esp_init));
    for (i = 0; i < sznchunks; i++)
@@ -345,7 +349,7 @@ data eval_slib_call(data dtpfunc, node* to_eval)
 
    retval.value.pObject->clos_array[3]->pContainer = retval.value.pObject;
 
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__))
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
 
    retval.value.pObject->clos_array[0]->content.ti.dtype = DT_INT;
    retval.value.pObject->clos_array[0]->content.value.inum = outeax;

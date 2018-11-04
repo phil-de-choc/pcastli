@@ -25,7 +25,11 @@
 
 #include "init.h"
 #include "node.h"
-#include "gcollection.h"
+#ifndef __GO32__
+ #include "gcollection.h"
+#else
+ #include "gcolle~1.h"
+#endif
 #include "util.h"
 
 int strict_access = 1;

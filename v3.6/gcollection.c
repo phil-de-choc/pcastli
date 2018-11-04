@@ -22,7 +22,11 @@
 
 #include <string.h>
 
-#include "gcollection.h"
+#ifndef __GO32__
+ #include "gcollection.h"
+#else
+ #include "gcolle~1.h"
+#endif
 #include "util.h"
 #include "macros.h"
 

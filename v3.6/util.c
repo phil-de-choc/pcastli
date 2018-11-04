@@ -27,7 +27,11 @@
 #include "eval.h"
 #include "util.h"
 #include "macros.h"
-#include "gcollection.h"
+#ifndef __GO32__
+ #include "gcollection.h"
+#else
+ #include "gcolle~1.h"
+#endif
 
 char* sPrompt = NULL;
 node* root = NULL;
@@ -1136,7 +1140,7 @@ data* resolve(node* to_resolve)
 }
 
 
-#if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__TURBOC__)
+#if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
 
 int args_eval(node* to_eval, int nbFirstArgs, size_t* nchunks, void*** raw_args, 
    data** from_evals)
