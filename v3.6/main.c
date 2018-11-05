@@ -33,7 +33,7 @@ extern int yynerrs;
 int main(void)
 {
    printf("by Parent and Childset Accessible Syntax Tree Language ");
-   printf("Interpreter v3.5\n");
+   printf("Interpreter v3.6\n");
    printf("Copyright (C) 2008-2018  Philippe Choquette\n\n");
    printf("Type exit() or press Ctrl-c to exit.\n\n> ");
    parse_init();

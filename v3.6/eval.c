@@ -1613,8 +1613,12 @@ data eval_math_oper(node* to_eval)
          mac_cast(ldleft, long double, from_eval1)
          mac_cast(ldright, long double, from_eval2)
          retval.ti.dtype = DT_LONG_DOUBLE;
+         #ifndef __GO32__
          retval.value.ldnum = powl(ldleft, ldright);
-      }
+         #else
+		 retval.value.num = pow((double)ldleft, (double)ldright);
+         #endif
+	  }
       else
       {
          double dleft = 0.0, dright = 0.0;
@@ -5574,7 +5578,7 @@ data eval_printf(node* to_eval)
    data arg1, retval, * argtab = NULL;
    void** raw_args = NULL;
    size_t i = 0, sznchunks = 0;
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    size_t* chunkfloat = NULL;
@@ -5609,7 +5613,7 @@ data eval_printf(node* to_eval)
       return retval;
    }
 
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__))
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    if (args_eval(to_eval, 1, &sznchunks, &raw_args, &argtab)) return retval;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    if (args_eval(to_eval, 1, &sznchunks, &raw_args, &argtab, &chunkfloat)) return retval;
@@ -5650,7 +5654,7 @@ data eval_printf(node* to_eval)
    asmcall(sznchunks, raw_args, (void (*)(void))printf, chunkfloat, outregs);
    free(chunkfloat);
 
-   #elif defined(__linux__) && defined(__i386__)
+   #elif (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
 
    asm("mov %%esp, %0" : "=r"(esp_init));
    for (i = 0; i < sznchunks; i++)
@@ -5667,7 +5671,11 @@ data eval_printf(node* to_eval)
    asm("ffree %st(5)");
    asm("ffree %st(6)");
    asm("ffree %st(7)");
+   #ifndef __GO32__
    asm("call printf");
+   #else
+   asm("call _printf");
+   #endif
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");
 
@@ -5692,7 +5700,7 @@ data eval_scanf(node* to_eval)
    data retval, arg1, * argtab = NULL;
    void** raw_args = NULL;
    size_t i = 0, sznchunks = 0;
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    size_t* chunkfloat = NULL;
@@ -5727,7 +5735,7 @@ data eval_scanf(node* to_eval)
       return retval;
    }
 
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__))
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    if (args_eval(to_eval, 1, &sznchunks, &raw_args, &argtab)) return retval;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    if (args_eval(to_eval, 1, &sznchunks, &raw_args, &argtab, &chunkfloat)) return retval;
@@ -5769,7 +5777,7 @@ data eval_scanf(node* to_eval)
    asmcall(sznchunks, raw_args, (void (*)(void))scanf, chunkfloat, outregs);
    free(chunkfloat);
 
-   #elif defined(__linux__) && defined(__i386__)
+   #elif (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
 
    /* Pause before reading. Without this, the scanf call is skipped.  */
    ungetc(getc(stdin), stdin);
@@ -5790,7 +5798,11 @@ data eval_scanf(node* to_eval)
    asm("ffree %st(5)");
    asm("ffree %st(6)");
    asm("ffree %st(7)");
+   #ifndef __GO32__
    asm("call scanf");
+   #else
+   asm("call _scanf");
+   #endif
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");
 
@@ -5917,7 +5929,7 @@ data eval_fprintf(node* to_eval)
    data retval, arg1, arg2, * argtab = NULL;
    void** raw_args = NULL;
    size_t i = 0, sznchunks = 0;
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    size_t* chunkfloat = NULL;
@@ -5961,7 +5973,7 @@ data eval_fprintf(node* to_eval)
       return retval;
    }
 
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__))
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    if (args_eval(to_eval, 2, &sznchunks, &raw_args, &argtab)) return retval;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    if (args_eval(to_eval, 2, &sznchunks, &raw_args, &argtab, &chunkfloat)) return retval;
@@ -6003,7 +6015,7 @@ data eval_fprintf(node* to_eval)
    asmcall(sznchunks, raw_args, (void (*)(void))fprintf, chunkfloat, outregs);
    free(chunkfloat);
 
-   #elif defined(__linux__) && defined(__i386__)
+   #elif (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
 
    asm("mov %%esp, %0" : "=r"(esp_init));
    for (i = 0; i < sznchunks; i++)
@@ -6020,7 +6032,11 @@ data eval_fprintf(node* to_eval)
    asm("ffree %st(5)");
    asm("ffree %st(6)");
    asm("ffree %st(7)");
+   #ifndef __GO32__
    asm("call fprintf");
+   #else
+   asm("call _fprintf");
+   #endif
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");
 
@@ -6044,7 +6060,7 @@ data eval_fscanf(node* to_eval)
    data retval, arg1, arg2, * argtab = NULL;
    void** raw_args = NULL;
    size_t i = 0, sznchunks = 0;
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    size_t* chunkfloat = NULL;
@@ -6089,7 +6105,7 @@ data eval_fscanf(node* to_eval)
    }
 
 
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__))
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    if (args_eval(to_eval, 2, &sznchunks, &raw_args, &argtab)) return retval;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    if (args_eval(to_eval, 2, &sznchunks, &raw_args, &argtab, &chunkfloat)) return retval;
@@ -6131,7 +6147,7 @@ data eval_fscanf(node* to_eval)
    asmcall(sznchunks, raw_args, (void (*)(void))fscanf, chunkfloat, outregs);
    free(chunkfloat);
 
-   #elif defined(__linux__) && defined(__i386__)
+   #elif (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
 
    asm("mov %%esp, %0" : "=r"(esp_init));
    for (i = 0; i < sznchunks; i++)
@@ -6148,7 +6164,11 @@ data eval_fscanf(node* to_eval)
    asm("ffree %st(5)");
    asm("ffree %st(6)");
    asm("ffree %st(7)");
+   #ifndef __GO32__
    asm("call fscanf");
+   #else
+   asm("call _fscanf");
+   #endif
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");
 
@@ -6997,7 +7017,7 @@ data eval_sprintf(node* to_eval)
    data retval, arg1, arg2, * argtab = NULL;
    void** raw_args = NULL;
    size_t i = 0, sznchunks = 0;
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    size_t* chunkfloat = NULL;
@@ -7040,7 +7060,7 @@ data eval_sprintf(node* to_eval)
       return retval;
    }
 
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__))
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    if (args_eval(to_eval, 2, &sznchunks, &raw_args, &argtab)) return retval;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    if (args_eval(to_eval, 2, &sznchunks, &raw_args, &argtab, &chunkfloat)) return retval;
@@ -7082,7 +7102,7 @@ data eval_sprintf(node* to_eval)
    asmcall(sznchunks, raw_args, (void (*)(void))sprintf, chunkfloat, outregs);
    free(chunkfloat);
 
-   #elif defined(__linux__) && defined(__i386__)
+   #elif (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
 
    asm("mov %%esp, %0" : "=r"(esp_init));
    for (i = 0; i < sznchunks; i++)
@@ -7099,7 +7119,11 @@ data eval_sprintf(node* to_eval)
    asm("ffree %st(5)");
    asm("ffree %st(6)");
    asm("ffree %st(7)");
+   #ifndef __GO32__
    asm("call sprintf");
+   #else
+   asm("call _sprintf");
+   #endif
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");
 
@@ -7123,7 +7147,7 @@ data eval_sscanf(node* to_eval)
    data retval, arg1, arg2, * argtab = NULL;
    void** raw_args = NULL;
    size_t i = 0, sznchunks = 0;
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) 
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    int esp_init = 0;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    size_t* chunkfloat = NULL;
@@ -7167,7 +7191,7 @@ data eval_sscanf(node* to_eval)
       return retval;
    }
 
-   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__))
+   #if (defined(_WIN32) && !defined(_WIN64)) || (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
    if (args_eval(to_eval, 2, &sznchunks, &raw_args, &argtab)) return retval;
    #elif defined(_WIN64) || (defined(__APPLE__) && defined(__MACH__)) || (defined(__linux__) && defined(__amd64__))
    if (args_eval(to_eval, 2, &sznchunks, &raw_args, &argtab, &chunkfloat)) return retval;
@@ -7209,7 +7233,7 @@ data eval_sscanf(node* to_eval)
    asmcall(sznchunks, raw_args, (void (*)(void))sscanf, chunkfloat, outregs);
    free(chunkfloat);
 
-   #elif defined(__linux__) && defined(__i386__)
+   #elif (defined(__linux__) && defined(__i386__)) || defined(__GO32__)
 
    asm("mov %%esp, %0" : "=r"(esp_init));
    for (i = 0; i < sznchunks; i++)
@@ -7226,7 +7250,11 @@ data eval_sscanf(node* to_eval)
    asm("ffree %st(5)");
    asm("ffree %st(6)");
    asm("ffree %st(7)");
+   #ifndef __GO32__
    asm("call sscanf");
+   #else
+   asm("call _sscanf");
+   #endif
 
    asm("mov %0, %%esp"  : : "r"(esp_init) : "%esp");
 
@@ -7466,7 +7494,7 @@ data eval_cls(void)
 
    memset(&retval, 0, sizeof(data));
 
-   #ifdef _WIN32
+   #if defined(_WIN32) || defined(__GO32__)
       system("cls");
    #else
       system("clear");
@@ -10034,6 +10062,8 @@ data eval_osfamily(void)
       strncpy(osfamily, "lin64", 5);
    #elif defined(__APPLE__) && defined(__MACH__)
       strncpy(osfamily, "mac64", 5);
+   #elif defined(__GO32__)
+      strncpy(osfamily, "dos32", 6);
    #endif 
 
    return retval;
